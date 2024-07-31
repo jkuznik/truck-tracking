@@ -3,6 +3,7 @@ package pl.jkuznik.trucktracking.domain.truck;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import pl.jkuznik.trucktracking.domain.shared.AbstractEntity;
 import pl.jkuznik.trucktracking.domain.trailer.Trailer;
 
 import java.time.Instant;
@@ -11,14 +12,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-public class Truck {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true)
-    private String truckPlateNumber;
+public class Truck extends AbstractEntity {
 
     @ManyToMany
     @JoinTable(
@@ -28,14 +22,4 @@ public class Truck {
     )
     private Set<Trailer> trailers;
 
-    private boolean inUse;
-    private Instant startPeriod;
-    private Instant endPeriod;
-
-    @Column(nullable = false)
-    private Double length;
-    @Column(nullable = false)
-    private Double height;
-    @Column(nullable = false)
-    private Double weight;
 }
