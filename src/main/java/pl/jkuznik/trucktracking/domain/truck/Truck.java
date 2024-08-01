@@ -8,6 +8,7 @@ import pl.jkuznik.trucktracking.domain.trailer.Trailer;
 
 import java.time.Instant;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -22,4 +23,9 @@ public class Truck extends AbstractEntity {
     )
     private Set<Trailer> trailers;
 
+    public Truck() {}
+
+    public Truck(String registerPlateNumber, UUID businessId, Double length, Double height, Double weight) {
+        super(registerPlateNumber, businessId, length, height, weight);
+    }
 }

@@ -2,6 +2,7 @@ package pl.jkuznik.trucktracking.domain.shared;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
@@ -33,4 +34,14 @@ public abstract class AbstractEntity {
     protected boolean inUse;
     protected Instant startPeriod;
     protected Instant endPeriod;
+
+    protected AbstractEntity() {}
+
+    protected AbstractEntity(String registerPlateNumber, UUID businessId, Double length, Double height, Double weight) {
+        this.registerPlateNumber = registerPlateNumber;
+        this.businessId = businessId;
+        this.length = length;
+        this.height = height;
+        this.weight = weight;
+    }
 }
