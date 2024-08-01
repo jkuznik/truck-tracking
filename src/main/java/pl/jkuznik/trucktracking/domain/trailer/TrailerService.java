@@ -54,11 +54,16 @@ class TrailerService implements TrailerApi {
         trailer.setCrossHitch(updateTrailerCommand.isCrossHitch());
         trailer.setStartPeriodDate(updateTrailerCommand.startPeriod());
         trailer.setEndPeriodDate(updateTrailerCommand.endPeriod());
-        trailer.setTrucks(updateTrailerCommand.trucks());
+//        trailer.setTrucks(updateTrailerCommand.trucks()); TODO
 
         //TODO tutaj dodac zmiane rekordow w tabeli truck_trailer
 
         return convert(trailer);
+    }
+
+    @Override
+    public List<TrailerDTO> getTrailersByDateRange(Instant startDate, Instant endDate) {
+        return List.of();
     }
 
     @Override

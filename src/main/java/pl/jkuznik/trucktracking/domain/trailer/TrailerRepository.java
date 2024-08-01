@@ -14,7 +14,7 @@ public interface TrailerRepository extends JpaRepository<Trailer, Long> {
 
     Optional<Trailer> findByBusinessId(UUID uuid);
     void deleteByBusinessId(UUID uuid);
-
+//
 //    @Query("""
 //            SELECT t
 //            FROM Truck t
