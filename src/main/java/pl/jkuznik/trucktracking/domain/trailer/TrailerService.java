@@ -66,6 +66,7 @@ class TrailerService implements TrailerApi {
     private TrailerDTO convert(Trailer trailer) {
         return new TrailerDTO(
                 trailer.getRegisterPlateNumber(),
+                trailer.getBusinessId(),
                 trailer.isInUse(),
                 trailer.isCrossHitch(),
                 trailer.getStartPeriod(),

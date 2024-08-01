@@ -21,7 +21,7 @@ public abstract class AbstractEntity {
     @Column(nullable = false, unique = true)
     protected String registerPlateNumber;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     protected UUID businessId;
 
     @Column(nullable = false)
