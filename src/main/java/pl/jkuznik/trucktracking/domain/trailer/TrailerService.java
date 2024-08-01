@@ -7,7 +7,10 @@ import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
+import pl.jkuznik.trucktracking.domain.truck.Truck;
+import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -49,8 +52,8 @@ class TrailerService implements TrailerApi {
 
         trailer.setInUse(updateTrailerCommand.isUsed());
         trailer.setCrossHitch(updateTrailerCommand.isCrossHitch());
-        trailer.setStartPeriod(updateTrailerCommand.startPeriod());
-        trailer.setEndPeriod(updateTrailerCommand.endPeriod());
+        trailer.setStartPeriodDate(updateTrailerCommand.startPeriod());
+        trailer.setEndPeriodDate(updateTrailerCommand.endPeriod());
         trailer.setTrucks(updateTrailerCommand.trucks());
 
         //TODO tutaj dodac zmiane rekordow w tabeli truck_trailer
@@ -69,8 +72,8 @@ class TrailerService implements TrailerApi {
                 trailer.getBusinessId(),
                 trailer.isInUse(),
                 trailer.isCrossHitch(),
-                trailer.getStartPeriod(),
-                trailer.getEndPeriod(),
+                trailer.getStartPeriodDate(),
+                trailer.getEndPeriodDate(),
                 trailer.getLength(),
                 trailer.getHeight(),
                 trailer.getWeight());
