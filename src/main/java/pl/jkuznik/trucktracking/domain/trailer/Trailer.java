@@ -2,7 +2,6 @@ package pl.jkuznik.trucktracking.domain.trailer;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 import pl.jkuznik.trucktracking.domain.shared.AbstractEntity;

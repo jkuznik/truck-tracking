@@ -2,10 +2,9 @@ package pl.jkuznik.trucktracking.domain.trailer.api;
 
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
-import pl.jkuznik.trucktracking.domain.trailer.TrailerRepository;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateTrailerCommand;
-import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
+import pl.jkuznik.trucktracking.api.dto.TrailerDTO;
 
 import java.util.List;
 import java.util.Optional;

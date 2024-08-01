@@ -2,10 +2,10 @@ package pl.jkuznik.trucktracking.domain.trailer;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.jkuznik.trucktracking.api.dto.TrailerDTO;
 import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateTrailerCommand;
-import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +16,6 @@ import java.util.UUID;
 public class TrailerService implements TrailerApi {
 
     private final TrailerRepository trailerRepository;
-
 
     @Override
     public TrailerDTO addTrailer(AddTrailerCommand newTrailer) {

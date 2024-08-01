@@ -1,4 +1,4 @@
-package pl.jkuznik.trucktracking.domain.trailer.api.dto;
+package pl.jkuznik.trucktracking.api.dto;
 
 import java.time.Instant;
 
