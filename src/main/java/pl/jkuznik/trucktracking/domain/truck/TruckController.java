@@ -6,9 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
+import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/truck")
@@ -43,5 +45,15 @@ public class TruckController {
 
         //TODO dopisać generowanie adresu pod ktorym bedzie dostepny nowy zasob oraz obsłużyć wyjątki
         return ResponseEntity.status(201).body(responseTruck);
+    }
+
+    @Operation(summary = "Endpoint służący do zarządzania naczepami dla danego ciągnika oraz planowanym" +
+            " okresem przypisania naczepy, pozostałe parametry ciągnika z natury powinny być finalnymi")
+    @ApiResponse(responseCode = "200", description = "Zarządzanie naczepami")
+    @PatchMapping("/{uuid}")
+    public ResponseEntity<TruckDTO> updateTruck(@PathVariable String uuid, @RequestBody UpdateTruckCommand updateTruckCommand) {
+        TruckDTO updatedTruck = truckService.updateTruckByBusinessId(UUID.fromString(uuid), updateTruckCommand);
+
+        return ResponseEntity.status(200).body(updatedTruck);
     }
 }

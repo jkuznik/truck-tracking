@@ -2,11 +2,14 @@ package pl.jkuznik.trucktracking.domain.truck;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
+import org.springframework.transaction.annotation.Transactional;
+import pl.jkuznik.trucktracking.domain.trailer.TrailerRepository;
 import pl.jkuznik.trucktracking.domain.truck.api.TruckApi;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
 import java.time.Instant;
 import java.util.List;
@@ -18,6 +21,8 @@ import java.util.UUID;
 public class TruckService implements TruckApi {
 
     private final TruckRepository truckRepository;
+    private final TrailerRepository trailerRepository;
+    private final TTHRepository tthRepository;
 
     @Override
     public TruckDTO addTruck(AddTruckCommand newTruck) {
@@ -49,9 +54,32 @@ public class TruckService implements TruckApi {
                 .toList();
     }
 
+    @Transactional
     @Override
-    public TrailerDTO updateTruckByBusinessId(UUID uuid, UpdateTruckCommand newTruck) {
-        return null;
+    public TruckDTO updateTruckByBusinessId(UUID uuid, UpdateTruckCommand updateTruckCommand) {
+        Truck truck = truckRepository.findByBusinessId(uuid)
+                .orElseThrow(() -> new NoSuchElementException("Truck with business id " + uuid + " not found"));
+
+        //TODO dodać logikę nie pozwalającą na ustawienie endPeriod mniejszy od startPeriod
+        truck.setInUse(updateTruckCommand.isUsed());
+        if (truck.isInUse()) {
+            truck.setStartPeriodDate(updateTruckCommand.startPeriod());
+            truck.setEndPeriodDate(updateTruckCommand.endPeriod());
+        } else {
+            truck.setStartPeriodDate(null);
+            truck.setEndPeriodDate(null);
+        }
+
+        var tth = new TruckTrailerHistory();
+
+        tth.setTruck(truck);
+        tth.setStartPeriodDate(updateTruckCommand.startPeriod());
+        tth.setEndPeriodDate(updateTruckCommand.endPeriod());
+        tth.setTrailer(trailerRepository.findByBusinessId(updateTruckCommand.trailerId()).orElseThrow(NoSuchElementException::new));
+
+        tthRepository.save(tth);
+
+        return convert(truckRepository.save(truck));
     }
 
     @Override
