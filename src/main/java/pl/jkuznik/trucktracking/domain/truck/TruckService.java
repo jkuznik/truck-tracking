@@ -3,6 +3,7 @@ package pl.jkuznik.trucktracking.domain.truck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.jkuznik.trucktracking.domain.trailer.Trailer;
 import pl.jkuznik.trucktracking.domain.trailer.TrailerRepository;
 import pl.jkuznik.trucktracking.domain.truck.api.TruckApi;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
@@ -56,9 +57,17 @@ public class TruckService implements TruckApi {
 
     @Transactional
     @Override
-    public TruckDTO updateTruckByBusinessId(UUID uuid, UpdateTruckCommand updateTruckCommand) {
+    public TruckDTO updateTruckByBusinessId(UUID uuid, UpdateTruckCommand updateTruckCommand) throws Exception {
         Truck truck = truckRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("Truck with business id " + uuid + " not found"));
+
+        Trailer trailer = trailerRepository.findByBusinessId(updateTruckCommand.trailerId())
+                .orElseThrow(() -> new NoSuchElementException("Trailer with business id "
+                        + updateTruckCommand.trailerId() + " not found"));
+
+        if (trailer.isInUse()) {
+            throw new Exception("Trailer is currently in use");
+        }
 
         //TODO dodać logikę nie pozwalającą na ustawienie endPeriod mniejszy od startPeriod
         truck.setInUse(updateTruckCommand.isUsed());
@@ -75,7 +84,7 @@ public class TruckService implements TruckApi {
         tth.setTruck(truck);
         tth.setStartPeriodDate(updateTruckCommand.startPeriod());
         tth.setEndPeriodDate(updateTruckCommand.endPeriod());
-        tth.setTrailer(trailerRepository.findByBusinessId(updateTruckCommand.trailerId()).orElseThrow(NoSuchElementException::new));
+        tth.setTrailer(trailer);
 
         tthRepository.save(tth);
 

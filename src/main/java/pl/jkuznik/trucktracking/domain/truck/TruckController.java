@@ -1,6 +1,7 @@
 package pl.jkuznik.trucktracking.domain.truck;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class TruckController {
     private final TruckService truckService;
 
     @Operation(summary = "opis summary")
-//    @ApiResponses(value = {})
+//    @ApiResponses(value = {}) TODO sprawdzić opcje
     @ApiResponse(responseCode = "200", description = "opis ApiResponse")
     @GetMapping
     public ResponseEntity<List<TruckDTO>> getTrucks() {
@@ -50,8 +51,13 @@ public class TruckController {
     @Operation(summary = "Endpoint służący do zarządzania naczepami dla danego ciągnika oraz planowanym" +
             " okresem przypisania naczepy, pozostałe parametry ciągnika z natury powinny być finalnymi")
     @ApiResponse(responseCode = "200", description = "Zarządzanie naczepami")
+    @Parameter(
+            name = "uuid",
+            description = "UUID identyfikujący ciągnik od id 1 w bazie danych",
+            required = true,
+            example = "52333a07-520e-465f-a6c2-5891080637e5")
     @PatchMapping("/{uuid}")
-    public ResponseEntity<TruckDTO> updateTruck(@PathVariable String uuid, @RequestBody UpdateTruckCommand updateTruckCommand) {
+    public ResponseEntity<TruckDTO> updateTruck(@PathVariable String uuid, @RequestBody UpdateTruckCommand updateTruckCommand) throws Exception {
         TruckDTO updatedTruck = truckService.updateTruckByBusinessId(UUID.fromString(uuid), updateTruckCommand);
 
         return ResponseEntity.status(200).body(updatedTruck);

@@ -22,7 +22,7 @@ public interface TruckApi {
     List<TruckDTO> getAllTrucks();
     List<TruckDTO> getTrucksByDateRange(Instant startDate, Instant endDate);
 
-    TruckDTO updateTruckByBusinessId(UUID uuid, @Valid UpdateTruckCommand newTruck);
+    TruckDTO updateTruckByBusinessId(UUID uuid, @Valid UpdateTruckCommand newTruck) throws Exception;
 
     void deleteTruckByBusinessId(UUID uuid);
 }
