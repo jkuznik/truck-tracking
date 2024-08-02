@@ -65,11 +65,15 @@ public class TruckService implements TruckApi {
                 .orElseThrow(() -> new NoSuchElementException("Trailer with business id "
                         + updateTruckCommand.trailerId() + " not found"));
 
-        if (trailer.isInUse()) {
+        // TODO dodać obsługę wyjątków
+        if (trailer.isInUse() && !trailer.isCrossHitch()) {
             throw new Exception("Trailer is currently in use");
         }
 
-        //TODO dodać logikę nie pozwalającą na ustawienie endPeriod mniejszy od startPeriod
+        if (updateTruckCommand.endPeriod().isBefore(updateTruckCommand.startPeriod())) {
+            throw new Exception("End period is before start period");
+        }
+
         truck.setInUse(updateTruckCommand.isUsed());
         if (truck.isInUse()) {
             truck.setStartPeriodDate(updateTruckCommand.startPeriod());
@@ -91,9 +95,10 @@ public class TruckService implements TruckApi {
         return convert(truckRepository.save(truck));
     }
 
+    @Transactional
     @Override
     public void deleteTruckByBusinessId(UUID uuid) {
-
+        truckRepository.deleteByBusinessId(uuid);
     }
 
     private TruckDTO convert(Truck truck) {

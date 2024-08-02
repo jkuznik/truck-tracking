@@ -14,7 +14,6 @@ public interface TruckRepository extends JpaRepository<Truck, Long> {
     Optional<Truck> findByBusinessId(UUID uuid);
     void deleteByBusinessId(UUID uuid);
 
-
     @Query("""
             SELECT t
             FROM Truck t

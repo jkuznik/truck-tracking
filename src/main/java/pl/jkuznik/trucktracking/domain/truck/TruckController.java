@@ -20,18 +20,31 @@ public class TruckController {
 
     private final TruckService truckService;
 
-    @Operation(summary = "opis summary")
-//    @ApiResponses(value = {}) TODO sprawdzić opcje
-    @ApiResponse(responseCode = "200", description = "opis ApiResponse")
+    @Operation(summary = "Zwraca pojazd według UUID")
+    @Parameter(
+            name = "uuid",
+            description = "UUID identyfikujący ciągnik o id 1 w bazie danych",
+            required = true,
+            example = "52333a07-520e-465f-a6c2-5891080637e5")
+    @ApiResponse(responseCode = "200")
+    @GetMapping("/{uuid}")
+    public ResponseEntity<TruckDTO> getTruck(@PathVariable String uuid) {
+        TruckDTO truckDTO = truckService.getTruckByBusinessId(UUID.fromString(uuid));
+
+        return ResponseEntity.ok(truckDTO);
+    }
+
+    @Operation(summary = "Zwraca listę wszystkich pojazdów")
+    @ApiResponse(responseCode = "200")
     @GetMapping
     public ResponseEntity<List<TruckDTO>> getTrucks() {
         List<TruckDTO> allTrucks = truckService.getAllTrucks();
 
-        return ResponseEntity.status(200).body(allTrucks);
+        return ResponseEntity.ok(allTrucks);
     }
 
-    @Operation(summary = "metoda post")
-    @ApiResponse(responseCode = "201", description = "metoda powinna zwrocic status 201 created, dodac ")
+    @Operation(summary = "Dodawanie pojazdu")
+    @ApiResponse(responseCode = "201")
     @PostMapping()
     public ResponseEntity<TruckDTO> createTruck(@RequestBody AddTruckCommand requestTruck) {
         List<String> currentTrucks = truckService.getAllTrucks().stream()
@@ -50,10 +63,10 @@ public class TruckController {
 
     @Operation(summary = "Endpoint służący do zarządzania naczepami dla danego ciągnika oraz planowanym" +
             " okresem przypisania naczepy, pozostałe parametry ciągnika z natury powinny być finalnymi")
-    @ApiResponse(responseCode = "200", description = "Zarządzanie naczepami")
+    @ApiResponse(responseCode = "200")
     @Parameter(
             name = "uuid",
-            description = "UUID identyfikujący ciągnik od id 1 w bazie danych",
+            description = "UUID identyfikujący ciągnik o id 1 w bazie danych",
             required = true,
             example = "52333a07-520e-465f-a6c2-5891080637e5")
     @PatchMapping("/{uuid}")
@@ -61,5 +74,19 @@ public class TruckController {
         TruckDTO updatedTruck = truckService.updateTruckByBusinessId(UUID.fromString(uuid), updateTruckCommand);
 
         return ResponseEntity.status(200).body(updatedTruck);
+    }
+
+    @Operation(summary = "Usuwanie pojazdu")
+    @ApiResponse(responseCode = "204")
+    @Parameter(
+            name = "uuid",
+            description = "UUID identyfikujący ciągnik o id 1 w bazie danych",
+            required = true,
+            example = "52333a07-520e-465f-a6c2-5891080637e5")
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<Void> deleteTruck(@PathVariable String uuid) {
+        truckService.deleteTruckByBusinessId(UUID.fromString(uuid));
+
+        return ResponseEntity.noContent().build();
     }
 }
