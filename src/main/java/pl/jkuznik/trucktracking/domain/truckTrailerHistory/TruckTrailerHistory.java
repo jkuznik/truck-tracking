@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import pl.jkuznik.trucktracking.domain.trailer.Trailer;
 import pl.jkuznik.trucktracking.domain.truck.Truck;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.api.dto.TruckTrailerHistoryDTO;
 
 import java.time.Instant;
 
@@ -34,4 +35,7 @@ public class TruckTrailerHistory {
     @Column(name = "end_period_date")
     private Instant endPeriodDate;
 
+    public TruckTrailerHistoryDTO convert(TruckTrailerHistory this) {
+        return new TruckTrailerHistoryDTO(truck.getId(), trailer.getId(), startPeriodDate, endPeriodDate);
+    }
 }

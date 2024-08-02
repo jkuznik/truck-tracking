@@ -15,6 +15,7 @@ import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -27,7 +28,7 @@ public class TrailerController {
     @Operation(summary = "Zwraca naczepę według UUID")
     @Parameter(
             name = "uuid",
-            description = "UUID identyfikujący naczepę o id 1 w bazie danych",
+            description = "UUID identyfikujący naczepę o identyfikatorze 1 w bazie danych",
             required = true,
             example = "542602cf-97d5-4548-8831-55f21d35fcf4")
     @ApiResponse(responseCode = "200")
@@ -45,6 +46,17 @@ public class TrailerController {
         List<TrailerDTO> trailers = trailerService.getAllTrailers();
 
         return ResponseEntity.ok(trailers);
+    }
+
+    @Operation(summary = "Zwraca listę naczep według podanych filtrów: czy aktualnie jest w użytku, czy naczepa jest oflagowana jako 'corssHitch', okres czasu w którym naczepa była użytkowana")
+    @ApiResponse(responseCode = "200")
+    @GetMapping("/search")
+    public ResponseEntity<List<TrailerDTO>> getTrailers(
+            @RequestParam(required = false) Optional<Instant> startDate,
+            @RequestParam(required = false) Optional<Instant> endDate,
+            @RequestParam(required = false) Optional<Boolean> inUse,
+            @RequestParam(required = false) Optional<Boolean> crossHitch) {
+        return ResponseEntity.ok(trailerService.getTrailersByFilters(startDate, endDate, inUse, crossHitch));
     }
 
     @Operation(summary = "Dodawanie naczepy")
@@ -65,26 +77,26 @@ public class TrailerController {
         return ResponseEntity.status(201).body(responseTrailer);
     }
 
-    @Operation(summary = "Endpoint służący do zarządzania naczepami dla danego ciągnika oraz planowanym" +
-            " okresem przypisania naczepy, pozostałe parametry naczepy z natury powinny być finalnymi")
-    @ApiResponse(responseCode = "200")
-    @Parameter(
-            name = "uuid",
-            description = "UUID identyfikujący naczepę o id 1 w bazie danych",
-            required = true,
-            example = "542602cf-97d5-4548-8831-55f21d35fcf4")
-    @PatchMapping("/{uuid}")
-    public ResponseEntity<TrailerDTO> updateTrailer(@PathVariable String uuid, @RequestBody UpdateTrailerCommand updateTrailerCommand) throws Exception {
-        TrailerDTO updatedTrailer = trailerService.updateTrailerByBusinessId(UUID.fromString(uuid), updateTrailerCommand);
-
-        return ResponseEntity.status(200).body(updatedTrailer);
-    }
+//    @Operation(summary = "Endpoint służący do zarządzania naczepami dla danego ciągnika oraz planowanym" +
+//            " okresem przypisania naczepy, pozostałe parametry naczepy z natury powinny być finalnymi")
+//    @ApiResponse(responseCode = "200")
+//    @Parameter(
+//            name = "uuid",
+//            description = "UUID identyfikujący naczepę o id 1 w bazie danych",
+//            required = true,
+//            example = "542602cf-97d5-4548-8831-55f21d35fcf4")
+//    @PatchMapping("/{uuid}")
+//    public ResponseEntity<TrailerDTO> updateTrailer(@PathVariable String uuid, @RequestBody UpdateTrailerCommand updateTrailerCommand) throws Exception {
+//        TrailerDTO updatedTrailer = trailerService.updateTrailerByBusinessId(UUID.fromString(uuid), updateTrailerCommand);
+//
+//        return ResponseEntity.status(200).body(updatedTrailer);
+//    }
 
     @Operation(summary = "Usuwanie naczepy według UUID")
     @ApiResponse(responseCode = "204")
     @Parameter(
             name = "uuid",
-            description = "UUID identyfikujący naczepę o id 1 w bazie danych",
+            description = "UUID identyfikujący naczepę o identyfikatorze 1 w bazie danych",
             required = true,
             example = "542602cf-97d5-4548-8831-55f21d35fcf4")
     @DeleteMapping("/{uuid}")

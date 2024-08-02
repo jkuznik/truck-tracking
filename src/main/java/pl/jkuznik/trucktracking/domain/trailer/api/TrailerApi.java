@@ -17,7 +17,10 @@ public interface TrailerApi {
 
     TrailerDTO getTrailerByBusinessId(UUID uuid);
     List<TrailerDTO> getAllTrailers();
-    List<TrailerDTO> getTrailersByDateRange(Instant startDate, Instant endDate);
+    List<TrailerDTO> getTrailersByStartPeriodDate(Instant startDate);
+    List<TrailerDTO> getTrailersByEndPeriodDate(Instant endDate);
+    List<TrailerDTO> getTrailersByInUsed(boolean inUsed);
+    List<TrailerDTO> getTrailersByCrossHitch(Boolean crossHitch);
 
     TrailerDTO updateTrailerByBusinessId(UUID uuid, @Valid UpdateTrailerCommand newTrailer);
 
