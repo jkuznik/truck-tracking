@@ -66,18 +66,19 @@ public class TruckService implements TruckApi {
                         + updateTruckCommand.trailerId() + " not found"));
 
         // TODO dodać obsługę wyjątków
-        if (trailer.isInUse() && !trailer.isCrossHitch()) {
+        if (trailer.isInUse()) {
             throw new Exception("Trailer is currently in use");
         }
 
-        if (updateTruckCommand.endPeriod().isBefore(updateTruckCommand.startPeriod())) {
-            throw new Exception("End period is before start period");
+        if (updateTruckCommand.startPeriod().isPresent() && updateTruckCommand.endPeriod().isPresent()) {
+            if (updateTruckCommand.endPeriod().get().isBefore(updateTruckCommand.startPeriod().get())) {
+                throw new Exception("End period is before start period");
+            }
         }
-
         truck.setInUse(updateTruckCommand.isUsed());
         if (truck.isInUse()) {
-            truck.setStartPeriodDate(updateTruckCommand.startPeriod());
-            truck.setEndPeriodDate(updateTruckCommand.endPeriod());
+            truck.setStartPeriodDate(updateTruckCommand.startPeriod().orElse(null));
+            truck.setEndPeriodDate(updateTruckCommand.endPeriod().orElse(null));
         } else {
             truck.setStartPeriodDate(null);
             truck.setEndPeriodDate(null);
@@ -86,8 +87,8 @@ public class TruckService implements TruckApi {
         var tth = new TruckTrailerHistory();
 
         tth.setTruck(truck);
-        tth.setStartPeriodDate(updateTruckCommand.startPeriod());
-        tth.setEndPeriodDate(updateTruckCommand.endPeriod());
+        tth.setStartPeriodDate(updateTruckCommand.startPeriod().orElse(null));
+        tth.setEndPeriodDate(updateTruckCommand.endPeriod().orElse(null));
         tth.setTrailer(trailer);
 
         tthRepository.save(tth);

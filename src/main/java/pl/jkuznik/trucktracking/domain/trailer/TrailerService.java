@@ -49,14 +49,14 @@ class TrailerService implements TrailerApi {
     public TrailerDTO updateTrailerByBusinessId(UUID uuid, UpdateTrailerCommand updateTrailerCommand) {
         var trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid.toString()));
-
-        trailer.setInUse(updateTrailerCommand.isUsed());
-        trailer.setCrossHitch(updateTrailerCommand.isCrossHitch());
-        trailer.setStartPeriodDate(updateTrailerCommand.startPeriod());
-        trailer.setEndPeriodDate(updateTrailerCommand.endPeriod());
-//        trailer.setTrucks(updateTrailerCommand.trucks()); TODO
-
-        //TODO tutaj dodac zmiane rekordow w tabeli truck_trailer
+//
+//        trailer.setInUse(updateTrailerCommand.isUsed());
+//        trailer.setCrossHitch(updateTrailerCommand.isCrossHitch());
+//        trailer.setStartPeriodDate(updateTrailerCommand.startPeriod());
+//        trailer.setEndPeriodDate(updateTrailerCommand.endPeriod());
+////        trailer.setTrucks(updateTrailerCommand.trucks()); TODO
+//
+//        //TODO tutaj dodac zmiane rekordow w tabeli truck_trailer
 
         return convert(trailer);
     }
