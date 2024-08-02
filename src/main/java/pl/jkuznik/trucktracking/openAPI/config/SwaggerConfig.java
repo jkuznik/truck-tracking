@@ -28,14 +28,14 @@ class SwaggerConfig {
         contact.setName("Truck Tracking");
         contact.setUrl("https://www.github.com/jkuznik");
 
-        License mitLicense = new License().name("GPL License").url("https://choosealicense.com/licenses/gpl-3.0/");
+        License license = new License().name("GPL License").url("https://choosealicense.com/licenses/gpl-3.0/");
 
         Info info = new Info()
                 .title("Truck Tracker")
                 .version("1.0")
                 .contact(contact)
                 .description("This API exposes endpoints to manage truck and trailers.")
-                .license(mitLicense);
+                .license(license);
 
         return new OpenAPI().info(info).servers(List.of(devServer, prodServer));
     }

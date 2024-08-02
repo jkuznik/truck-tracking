@@ -66,6 +66,7 @@ class TrailerService implements TrailerApi {
         return List.of();
     }
 
+    @Transactional
     @Override
     public void deleteTrailerByBusinessId(UUID uuid) {
         trailerRepository.deleteByBusinessId(uuid);

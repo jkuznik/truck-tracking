@@ -38,24 +38,24 @@ public class TruckController {
     @ApiResponse(responseCode = "200")
     @GetMapping
     public ResponseEntity<List<TruckDTO>> getTrucks() {
-        List<TruckDTO> allTrucks = truckService.getAllTrucks();
+        List<TruckDTO> trucks = truckService.getAllTrucks();
 
-        return ResponseEntity.ok(allTrucks);
+        return ResponseEntity.ok(trucks);
     }
 
     @Operation(summary = "Dodawanie pojazdu")
     @ApiResponse(responseCode = "201")
     @PostMapping()
-    public ResponseEntity<TruckDTO> createTruck(@RequestBody AddTruckCommand requestTruck) {
+    public ResponseEntity<TruckDTO> createTruck(@RequestBody AddTruckCommand addTruckCommand) {
         List<String> currentTrucks = truckService.getAllTrucks().stream()
                 .map(TruckDTO::trailerPlateNumber)
                 .toList();
 
-        if (currentTrucks.contains(requestTruck.registerPlateNumber())) {
+        if (currentTrucks.contains(addTruckCommand.registerPlateNumber())) {
             throw new RuntimeException("Plate number already exists");  //TODO działa ale poprawic bo leci status 500
         }
 
-        TruckDTO responseTruck = truckService.addTruck(requestTruck);
+        TruckDTO responseTruck = truckService.addTruck(addTruckCommand);
 
         //TODO dopisać generowanie adresu pod ktorym bedzie dostepny nowy zasob oraz obsłużyć wyjątki
         return ResponseEntity.status(201).body(responseTruck);
@@ -76,7 +76,7 @@ public class TruckController {
         return ResponseEntity.status(200).body(updatedTruck);
     }
 
-    @Operation(summary = "Usuwanie pojazdu")
+    @Operation(summary = "Usuwanie pojazdu według UUID")
     @ApiResponse(responseCode = "204")
     @Parameter(
             name = "uuid",
