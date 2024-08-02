@@ -12,6 +12,7 @@ import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.api.dto.TruckTrailerHistoryDTO;
 
 import java.time.Instant;
 import java.util.List;
@@ -48,15 +49,24 @@ public class TrailerController {
         return ResponseEntity.ok(trailers);
     }
 
-    @Operation(summary = "Zwraca listę naczep według podanych filtrów: czy aktualnie jest w użytku, czy naczepa jest oflagowana jako 'corssHitch', okres czasu w którym naczepa była użytkowana")
+    @Operation(summary = "Zwraca listę aktualnego stanu naczep według podanych filtrów: czy aktualnie jest w użytku, czy naczepa jest oflagowana jako 'corssHitch', okres czasu w którym naczepa była użytkowana")
     @ApiResponse(responseCode = "200")
     @GetMapping("/search")
-    public ResponseEntity<List<TrailerDTO>> getTrailers(
+    public ResponseEntity<List<TrailerDTO>> getTrailersActualState(
             @RequestParam(required = false) Optional<Instant> startDate,
             @RequestParam(required = false) Optional<Instant> endDate,
             @RequestParam(required = false) Optional<Boolean> inUse,
             @RequestParam(required = false) Optional<Boolean> crossHitch) {
         return ResponseEntity.ok(trailerService.getTrailersByFilters(startDate, endDate, inUse, crossHitch));
+    }
+
+    @Operation(summary = "Zwraca historię naczep według podanego filtru: okres czasu w którym naczepa była użytkowana")
+    @ApiResponse(responseCode = "200")
+    @GetMapping("/history")
+    public ResponseEntity<List<TruckTrailerHistoryDTO>> getTrailersHistory(
+            @RequestParam(required = false) Optional<Instant> startDate,
+            @RequestParam(required = false) Optional<Instant> endDate) {
+        return ResponseEntity.ok(trailerService.getTrailersHistoryByFilters(startDate, endDate));
     }
 
     @Operation(summary = "Dodawanie naczepy")

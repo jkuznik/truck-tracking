@@ -7,15 +7,16 @@ import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
-import pl.jkuznik.trucktracking.domain.truck.Truck;
-import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.api.dto.TruckTrailerHistoryDTO;
 
 import java.time.Instant;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,57 @@ class TrailerService implements TrailerApi {
 
     private final TrailerRepository trailerRepository;
     private final TTHRepository tthRepository;
+
+    public List<TrailerDTO> getTrailersByFilters(Optional<Instant> startDate, Optional<Instant> endDate,
+                                                 Optional<Boolean> inUse, Optional<Boolean> crossHitch) {
+        List<Trailer> filteredTrailers = trailerRepository.findAll();
+
+        if (inUse.isPresent()) {
+            List<Trailer> allByInUse = trailerRepository.findAllByInUse(inUse.get());
+            filteredTrailers.retainAll(allByInUse);
+        }
+        if (crossHitch.isPresent()) {
+            List<Trailer> allByCrossHitch = trailerRepository.findAllByCrossHitch(crossHitch.get());
+            filteredTrailers.retainAll(allByCrossHitch);
+        }
+        if (startDate.isPresent()) {
+            List<Trailer> allByStartPeriodDate = trailerRepository.findAllByStartPeriodDate(startDate.get());
+            filteredTrailers.retainAll(allByStartPeriodDate);
+        }
+        if (endDate.isPresent()) {
+            List<Trailer> allByEndPeriodDate = trailerRepository.findAllByEndPeriodDate(endDate.get());
+            filteredTrailers.retainAll(allByEndPeriodDate);
+        }
+
+        return filteredTrailers.stream()
+                .map(this::convert)
+                .toList();
+    }
+
+    public List<TruckTrailerHistoryDTO> getTrailersHistoryByFilters(Optional<Instant> startDate,
+                                                        Optional<Instant> endDate) {
+
+        List<TruckTrailerHistoryDTO> filteredTrailers = tthRepository.findAll().stream()
+                .map(TruckTrailerHistory::convert)
+                .collect(Collectors.toList());
+
+        if (startDate.isPresent()) {
+            List<TruckTrailerHistoryDTO> allByStartPeriodDate = tthRepository.findAllByStartPeriodDate(startDate.get()).stream()
+                    .map(TruckTrailerHistory::convert)
+                    .toList();
+            filteredTrailers.retainAll(allByStartPeriodDate);
+        }
+
+        if (endDate.isPresent()) {
+            List<TruckTrailerHistoryDTO> allByEndPeriodDate = tthRepository.findAllByEndPeriodDate(endDate.get()).stream()
+                    .map(TruckTrailerHistory::convert)
+                    .toList();
+            filteredTrailers.retainAll(allByEndPeriodDate);
+        }
+
+        return filteredTrailers;
+    }
+
 
     @Override
     public TrailerDTO addTrailer(AddTrailerCommand newTrailer) {
@@ -47,49 +99,6 @@ class TrailerService implements TrailerApi {
                 .toList();
     }
 
-    public List<TrailerDTO> getTrailersByFilters(Optional<Instant> startDate, Optional<Instant> endDate,
-                                                 Optional<Boolean> inUse, Optional<Boolean> crossHitch) {
-        List<Trailer> filteredTrailers = trailerRepository.findAll();
-        List<Trailer> allByInUse = new ArrayList<>();
-        List<Trailer> allByCrossHitch = new ArrayList<>();
-        List<Trailer> allByStartPeriodDate = new ArrayList<>();
-        List<Trailer> allByEndPeriodDate = new ArrayList<>();
-
-        if (inUse.isPresent()) {
-            allByInUse.addAll(trailerRepository.findAllByInUse(inUse.get()));
-        }
-        if (crossHitch.isPresent()) {
-            allByCrossHitch.addAll(trailerRepository.findAllByCrossHitch(crossHitch.get()));
-        }
-        if (startDate.isPresent()) {
-
-            List<Long> idList = tthRepository.findAllByStartPeriodDate(startDate.get()).stream()
-                    .map(TruckTrailerHistory::convert)
-                    .map(TruckTrailerHistoryDTO::trailerId)
-                    .toList();
-
-            allByStartPeriodDate.addAll(trailerRepository.findAllById(idList));
-        }
-
-        if (endDate.isPresent()) {
-            List<Long> idList = tthRepository.findAllByEndPeriodDate(endDate.get()).stream()
-                    .map(TruckTrailerHistory::convert)
-                    .map(TruckTrailerHistoryDTO::trailerId)
-                    .toList();
-
-            allByEndPeriodDate.addAll(trailerRepository.findAllById(idList));
-        }
-
-        if (!allByInUse.isEmpty()) filteredTrailers.retainAll(allByInUse);
-        if (!allByCrossHitch.isEmpty()) filteredTrailers.retainAll(allByCrossHitch);
-        if (!allByStartPeriodDate.isEmpty()) filteredTrailers.retainAll(allByStartPeriodDate);
-        if (!allByEndPeriodDate.isEmpty()) filteredTrailers.retainAll(allByEndPeriodDate);
-
-        return filteredTrailers.stream()
-                .map(this::convert)
-                .toList();
-    }
-
     @Override
     public List<TrailerDTO> getTrailersByStartPeriodDate(Instant startDate) {
         return trailerRepository.findAllByStartPeriodDate(startDate).stream()
@@ -105,7 +114,7 @@ class TrailerService implements TrailerApi {
     }
 
     @Override
-    public List<TrailerDTO> getTrailersByInUsed(boolean inUsed) {
+    public List<TrailerDTO> getTrailersByInUsed(Boolean inUsed) {
         return trailerRepository.findAllByInUse(inUsed).stream()
                 .map(this::convert)
                 .toList();
