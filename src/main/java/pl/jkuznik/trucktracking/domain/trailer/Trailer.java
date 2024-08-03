@@ -23,7 +23,7 @@ public class Trailer extends AbstractEntity {
 
     private boolean crossHitch;
 
-    public Trailer() {}
+    protected Trailer() {}
 
     public Trailer(String registerPlateNumber, UUID businessId, Double length, Double height, Double weight) {
         super(registerPlateNumber, businessId, length, height, weight);

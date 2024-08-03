@@ -7,6 +7,7 @@ import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
+import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.api.dto.TruckTrailerHistoryDTO;
@@ -29,14 +30,6 @@ class TrailerService implements TrailerApi {
                                                  Optional<Boolean> inUse, Optional<Boolean> crossHitch) {
         List<Trailer> filteredTrailers = trailerRepository.findAll();
 
-        if (inUse.isPresent()) {
-            List<Trailer> allByInUse = trailerRepository.findAllByInUse(inUse.get());
-            filteredTrailers.retainAll(allByInUse);
-        }
-        if (crossHitch.isPresent()) {
-            List<Trailer> allByCrossHitch = trailerRepository.findAllByCrossHitch(crossHitch.get());
-            filteredTrailers.retainAll(allByCrossHitch);
-        }
         if (startDate.isPresent()) {
             List<Trailer> allByStartPeriodDate = trailerRepository.findAllByStartPeriodDate(startDate.get());
             filteredTrailers.retainAll(allByStartPeriodDate);
@@ -45,14 +38,22 @@ class TrailerService implements TrailerApi {
             List<Trailer> allByEndPeriodDate = trailerRepository.findAllByEndPeriodDate(endDate.get());
             filteredTrailers.retainAll(allByEndPeriodDate);
         }
+        if (inUse.isPresent()) {
+            List<Trailer> allByInUse = trailerRepository.findAllByInUse(inUse.get());
+            filteredTrailers.retainAll(allByInUse);
+        }
+        if (crossHitch.isPresent()) {
+            List<Trailer> allByCrossHitch = trailerRepository.findAllByCrossHitch(crossHitch.get());
+            filteredTrailers.retainAll(allByCrossHitch);
+        }
 
         return filteredTrailers.stream()
                 .map(this::convert)
                 .toList();
     }
 
-    public List<TruckTrailerHistoryDTO> getTrailersHistoryByFilters(Optional<Instant> startDate,
-                                                        Optional<Instant> endDate) {
+    public List<TruckTrailerHistoryDTO> getTrailersHistoryByFilters(Optional<Instant> startDate, Optional<Instant> endDate,
+                                                                    Optional<UUID> truckId, Optional<UUID> trailerID) { //todo argumenty przygotowane do pobierania info o pojazdach i naczepach
 
         List<TruckTrailerHistoryDTO> filteredTrailers = tthRepository.findAll().stream()
                 .map(TruckTrailerHistory::convert)
@@ -64,7 +65,6 @@ class TrailerService implements TrailerApi {
                     .toList();
             filteredTrailers.retainAll(allByStartPeriodDate);
         }
-
         if (endDate.isPresent()) {
             List<TruckTrailerHistoryDTO> allByEndPeriodDate = tthRepository.findAllByEndPeriodDate(endDate.get()).stream()
                     .map(TruckTrailerHistory::convert)
@@ -74,7 +74,6 @@ class TrailerService implements TrailerApi {
 
         return filteredTrailers;
     }
-
 
     @Override
     public TrailerDTO addTrailer(AddTrailerCommand newTrailer) {

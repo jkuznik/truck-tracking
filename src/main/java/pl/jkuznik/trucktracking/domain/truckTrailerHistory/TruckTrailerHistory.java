@@ -36,6 +36,6 @@ public class TruckTrailerHistory {
     private Instant endPeriodDate;
 
     public TruckTrailerHistoryDTO convert(TruckTrailerHistory this) {
-        return new TruckTrailerHistoryDTO(truck.getId(), trailer.getId(), startPeriodDate, endPeriodDate);
+        return new TruckTrailerHistoryDTO(truck.getBusinessId(), trailer.getBusinessId(), truck.getRegisterPlateNumber(), trailer.getRegisterPlateNumber(), startPeriodDate, endPeriodDate);
     }
 }

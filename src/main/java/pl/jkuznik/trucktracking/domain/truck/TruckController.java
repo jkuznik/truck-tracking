@@ -69,6 +69,7 @@ public class TruckController {
             description = "UUID identyfikujący ciągnik o identyfikatorze 1 w bazie danych, przykładowy UUID naczepy o identyfikatorze 2 wymagany w request body - a42c8aab-a60f-4a77-991e-d97c6248b33f",
             required = true,
             example = "52333a07-520e-465f-a6c2-5891080637e5")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody()
     @PatchMapping("/{uuid}")
     public ResponseEntity<TruckDTO> updateTruck(@PathVariable String uuid, @RequestBody UpdateTruckCommand updateTruckCommand) throws Exception {
         TruckDTO updatedTruck = truckService.updateTruckByBusinessId(UUID.fromString(uuid), updateTruckCommand);
