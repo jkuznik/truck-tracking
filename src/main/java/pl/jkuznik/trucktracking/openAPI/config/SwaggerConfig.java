@@ -1,43 +1,45 @@
 package pl.jkuznik.trucktracking.openAPI.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.yaml.snakeyaml.Yaml;
 
-import java.util.List;
+import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 
 @Configuration
 class SwaggerConfig {
 
     @Bean
     public OpenAPI myOpenAPI() {
-        Server devServer = new Server();
-        devServer.setUrl("http://localhost:8080");
-        devServer.setDescription("Server URL in Development environment");
 
-        Server prodServer = new Server();
-        prodServer.setUrl("http://localhost:8081");
-        prodServer.setDescription("Server URL in Production environment");
+        try {
+            Path path = Paths.get("src/main/resources/swagger.yaml");
+            InputStream inputStream = Files.newInputStream(path);
+            Yaml yaml = new Yaml();
+            Map<String, Object> yamlMap = yaml.load(inputStream);
 
-        Contact contact = new Contact();
-        contact.setEmail("janusz.kuznik89@gmail.com");
-        contact.setName("Truck Tracking");
-        contact.setUrl("https://www.github.com/jkuznik");
+            OpenAPI openAPI = convertToOpenAPI(yamlMap);
 
-        License mitLicense = new License().name("GPL License").url("https://choosealicense.com/licenses/gpl-3.0/");
+            return openAPI;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new OpenAPI();
+        }
+    }
 
-        Info info = new Info()
-                .title("Truck Tracker")
-                .version("1.0")
-                .contact(contact)
-                .description("This API exposes endpoints to manage truck and trailers.")
-                .license(mitLicense);
-
-        return new OpenAPI().info(info).servers(List.of(devServer, prodServer));
+    private OpenAPI convertToOpenAPI(Map<String, Object> yamlMap) {
+        ObjectMapper mapper = Json.mapper();
+        return mapper.convertValue(yamlMap, OpenAPI.class);
     }
 }
 

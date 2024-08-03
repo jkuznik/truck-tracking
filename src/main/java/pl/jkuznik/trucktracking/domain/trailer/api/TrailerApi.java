@@ -6,6 +6,7 @@ import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +17,10 @@ public interface TrailerApi {
 
     TrailerDTO getTrailerByBusinessId(UUID uuid);
     List<TrailerDTO> getAllTrailers();
+    List<TrailerDTO> getTrailersByStartPeriodDate(Instant startDate);
+    List<TrailerDTO> getTrailersByEndPeriodDate(Instant endDate);
+    List<TrailerDTO> getTrailersByInUsed(Boolean inUsed);
+    List<TrailerDTO> getTrailersByCrossHitch(Boolean crossHitch);
 
     TrailerDTO updateTrailerByBusinessId(UUID uuid, @Valid UpdateTrailerCommand newTrailer);
 

@@ -4,12 +4,14 @@ import jakarta.validation.constraints.NotNull;
 import pl.jkuznik.trucktracking.domain.truck.Truck;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 public record UpdateTrailerCommand(
         @NotNull Boolean isUsed,
-        @NotNull Boolean isCrossHitch,
-        @NotNull Instant startPeriod,
-        @NotNull Instant endPeriod,
-        Set<Truck> trucks) {
+        Boolean isCrossHitch,
+        Optional<Instant> startPeriod,
+        Optional<Instant> endPeriod,
+        @NotNull UUID truckId) {
 }
