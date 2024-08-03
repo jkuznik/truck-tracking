@@ -20,13 +20,6 @@ public class TruckController {
 
     private final TruckService truckService;
 
-    @Operation(summary = "Zwraca pojazd według UUID")
-    @Parameter(
-            name = "uuid",
-            description = "UUID identyfikujący ciągnik o identyfikatorze 1 w bazie danych",
-            required = true,
-            example = "52333a07-520e-465f-a6c2-5891080637e5")
-    @ApiResponse(responseCode = "200")
     @GetMapping("/{uuid}")
     public ResponseEntity<TruckDTO> getTruck(@PathVariable String uuid) {
         TruckDTO truckDTO = truckService.getTruckByBusinessId(UUID.fromString(uuid));
@@ -34,8 +27,6 @@ public class TruckController {
         return ResponseEntity.ok(truckDTO);
     }
 
-    @Operation(summary = "Zwraca listę wszystkich pojazdów")
-    @ApiResponse(responseCode = "200")
     @GetMapping
     public ResponseEntity<List<TruckDTO>> getTrucks() {
         List<TruckDTO> trucks = truckService.getAllTrucks();
@@ -43,8 +34,6 @@ public class TruckController {
         return ResponseEntity.ok(trucks);
     }
 
-    @Operation(summary = "Dodawanie pojazdu")
-    @ApiResponse(responseCode = "201")
     @PostMapping()
     public ResponseEntity<TruckDTO> createTruck(@RequestBody AddTruckCommand addTruckCommand) {
         List<String> currentTrucks = truckService.getAllTrucks().stream()
@@ -61,15 +50,6 @@ public class TruckController {
         return ResponseEntity.status(201).body(responseTruck);
     }
 
-    @Operation(summary = "Endpoint służący do zarządzania naczepami dla danego ciągnika oraz planowanym" +
-            " okresem przypisania naczepy, pozostałe parametry ciągnika z natury powinny być finalnymi")
-    @ApiResponse(responseCode = "200")
-    @Parameter(
-            name = "uuid",
-            description = "UUID identyfikujący ciągnik o identyfikatorze 1 w bazie danych, przykładowy UUID naczepy o identyfikatorze 2 wymagany w request body - a42c8aab-a60f-4a77-991e-d97c6248b33f",
-            required = true,
-            example = "52333a07-520e-465f-a6c2-5891080637e5")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody()
     @PatchMapping("/{uuid}")
     public ResponseEntity<TruckDTO> updateTruck(@PathVariable String uuid, @RequestBody UpdateTruckCommand updateTruckCommand) throws Exception {
         TruckDTO updatedTruck = truckService.updateTruckByBusinessId(UUID.fromString(uuid), updateTruckCommand);
@@ -77,13 +57,6 @@ public class TruckController {
         return ResponseEntity.status(200).body(updatedTruck);
     }
 
-    @Operation(summary = "Usuwanie pojazdu według UUID")
-    @ApiResponse(responseCode = "204")
-    @Parameter(
-            name = "uuid",
-            description = "UUID identyfikujący ciągnik o identyfikatorze 1 w bazie danych",
-            required = true,
-            example = "52333a07-520e-465f-a6c2-5891080637e5")
     @DeleteMapping("/{uuid}")
     public ResponseEntity<Void> deleteTruck(@PathVariable String uuid) {
         truckService.deleteTruckByBusinessId(UUID.fromString(uuid));
