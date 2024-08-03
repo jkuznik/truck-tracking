@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: truck-tracking
+  profiles:
+    active: test
