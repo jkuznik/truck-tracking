@@ -1,0 +1,110 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Truck tracking
+  description: Truck tracking jest to moja implementacja założeń zadania rekrutacyjnego dla firmy fireTMS.
+  contact:
+    name: Janusz Kuźnik
+    email: janusz.kuznik89@gmail.com
+    url: http://www.github.com/jkuznik
+servers:
+  - url: 'http://localhost:8080'
+    description: 'Server URL in Development environment'
+  - url: 'http://localhost:8081'
+    description: 'Server URL in Production environment'
+externalDocs:
+  description: Treść zadania
+  url: zadanie.html
+tags:
+  - name: trailer
+    description: Metody CRUD przewidziane według założeń zadania
+    externalDocs:
+      description: Treść zadania
+      url: http://localhost:8080/zadanie.html
+  - name: truck
+    description: Metody CRUD przewidziane według założeń zadania
+    externalDocs:
+      description: Treść zadania
+      url: http://localhost:8080/zadanie.html
+
+paths:
+
+  /trailer:
+    get:
+      tags:
+        - trailer
+      summary: Zwraca listę wszystkich naczep
+      responses:
+        200:
+          description: Operacja udana
+        401:
+          description: Unathorized
+
+    post:
+      tags:
+        - trailer
+      summary: Dodawanie naczepy
+      responses:
+        201:
+          description: Utworzono nowy zasób
+
+  /trailer/{uuid}:
+
+    get:
+      tags:
+        - trailer
+      summary: Zwraca naczepę według UUID
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          required: true
+          example: 542602cf-97d5-4548-8831-55f21d35fcf4
+      responses:
+        200:
+          description: Operacja udana
+        404:
+          description: Nie ma naczepy o podanym UUID
+
+    delete:
+      tags:
+        - trailer
+      summary: Usuwanie naczepy według UUID
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          required: true
+          example: 542602cf-97d5-4548-8831-55f21d35fcf4
+      responses:
+        204:
+          description: Usunięto naczepę
+        404:
+          description: Nie ma naczepy o podanym UUID
+
+  /trailer/history:
+    get:
+      tags:
+        - trailer
+      summary: Zwraca historię przypisań naczep według podanych filtrów; okres czasu w którym naczepa była użytkowana
+      parameters:
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: timestamp
+            description: tutaj mozna uzupelnic wypelnianie parametrów
+      responses:
+        200:
+          description: Operacja udana
+
+  /trailer/search:
+    get:
+      tags:
+        - trailer
+      summary: Zwraca listę aktualnego stanu naczep według podanych filtrów; czy aktualnie jest w użytku, czy naczepa jest oflagowana jako 'corssHitch', okres czasu w którym naczepa była użytkowana
+      responses:
+        200:
+          description: Operacja udana
+
+

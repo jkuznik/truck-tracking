@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import pl.jkuznik.trucktracking.domain.shared.AbstractEntity;
-import pl.jkuznik.trucktracking.domain.trailer.Trailer;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
-import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,13 +15,8 @@ import java.util.UUID;
 @Setter
 public class Truck extends AbstractEntity {
 
-    @ManyToMany
-    @JoinTable(
-            name = "truck_trailer",
-            joinColumns = @JoinColumn(name = "truck_id"),
-            inverseJoinColumns = @JoinColumn(name = "trailer_id")
-    )
-    private Set<Trailer> trailers;
+    @OneToMany(mappedBy = "truck")
+    private Set<TruckTrailerHistory> history = new HashSet<>();
 
     public Truck() {}
 
