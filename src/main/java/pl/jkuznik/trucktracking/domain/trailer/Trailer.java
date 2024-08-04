@@ -1,6 +1,7 @@
 package pl.jkuznik.trucktracking.domain.trailer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
@@ -17,6 +18,9 @@ import java.util.UUID;
 @Setter
 public class Trailer extends AbstractEntity {
 
+    @Column(nullable = false, unique = true)
+    protected String registerPlateNumber;
+
     @JsonIgnore
     @OneToMany(mappedBy = "trailer")
     private Set<TruckTrailerHistory> history = new HashSet<>();
@@ -26,7 +30,8 @@ public class Trailer extends AbstractEntity {
     protected Trailer() {}
 
     public Trailer(String registerPlateNumber, UUID businessId, Double length, Double height, Double weight) {
-        super(registerPlateNumber, businessId, length, height, weight);
+        super(businessId, length, height, weight);
+        this.registerPlateNumber = registerPlateNumber;
     }
 }
 

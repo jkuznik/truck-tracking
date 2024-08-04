@@ -15,12 +15,16 @@ import java.util.UUID;
 @Setter
 public class Truck extends AbstractEntity {
 
+    @Column(nullable = false, unique = true)
+    protected String registerPlateNumber;
+
     @OneToMany(mappedBy = "truck")
     private Set<TruckTrailerHistory> history = new HashSet<>();
 
     public Truck() {}
 
-    public Truck(String registerPlateNumber, UUID businessId, Double length, Double height, Double weight) {
-        super(registerPlateNumber, businessId, length, height, weight);
+    public Truck(UUID businessId, Double length, Double height, Double weight) {
+        super(businessId, length, height, weight);
+        this.registerPlateNumber = UUID.randomUUID().toString();
     }
 }
