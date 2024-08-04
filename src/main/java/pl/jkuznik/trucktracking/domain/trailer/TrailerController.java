@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
+import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.api.dto.TruckTrailerHistoryDTO;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -67,10 +69,19 @@ public class TrailerController {
         return ResponseEntity.status(201).body(responseTrailer);
     }
 
+    @PatchMapping("/{uuid}/cross-hitch")
+    public ResponseEntity<TrailerDTO> updateTrailer(@PathVariable String uuid, @RequestBody UpdateTrailerCommand updateTrailerCommand) {
+
+    }
+
     @DeleteMapping("/{uuid}")
     public ResponseEntity<Void> deleteTrailer(@PathVariable String uuid) {
+
+        if (trailerService.getTrailerByBusinessId(UUID.fromString(uuid)) == null) {
+            throw new NoSuchElementException("Trailer with id " + uuid + " does not exist");
+        }
+
         trailerService.deleteTrailerByBusinessId(UUID.fromString(uuid));
-//todo dorobic warunek sprawdzajacy czy istnieje naczepa o podanym id
         return ResponseEntity.noContent().build();
     }
 }

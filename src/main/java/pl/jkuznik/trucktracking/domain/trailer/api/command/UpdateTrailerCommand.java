@@ -13,5 +13,5 @@ public record UpdateTrailerCommand(
         Boolean isCrossHitch,
         Optional<Instant> startPeriod,
         Optional<Instant> endPeriod,
-        @NotNull UUID truckId) {
+        UUID truckId) {
 }

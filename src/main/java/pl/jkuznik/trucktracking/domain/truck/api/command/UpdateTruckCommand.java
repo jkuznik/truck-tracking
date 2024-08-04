@@ -10,5 +10,5 @@ public record UpdateTruckCommand(
         @NotNull Boolean isUsed,
         Optional<Instant> startPeriod,
         Optional<Instant> endPeriod,
-        @NotNull UUID trailerId) {
+        UUID trailerId) {
 }
