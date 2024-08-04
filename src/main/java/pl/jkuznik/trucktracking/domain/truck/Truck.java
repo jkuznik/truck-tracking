@@ -6,6 +6,7 @@ import lombok.Setter;
 import pl.jkuznik.trucktracking.domain.shared.AbstractEntity;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -16,15 +17,19 @@ import java.util.UUID;
 public class Truck extends AbstractEntity {
 
     @Column(nullable = false, unique = true)
-    protected String registerPlateNumber;
+    private String registerPlateNumber;
 
     @OneToMany(mappedBy = "truck")
     private Set<TruckTrailerHistory> history = new HashSet<>();
 
-    public Truck() {}
+    private boolean inUse;
+    private Instant startPeriodDate;
+    private Instant endPeriodDate;
 
-    public Truck(UUID businessId, Double length, Double height, Double weight) {
-        super(businessId, length, height, weight);
-        this.registerPlateNumber = UUID.randomUUID().toString();
+    protected Truck() {}
+
+    public Truck(UUID businessId, String registerPlateNumber) {
+        super(businessId);
+        this.registerPlateNumber = registerPlateNumber;
     }
 }

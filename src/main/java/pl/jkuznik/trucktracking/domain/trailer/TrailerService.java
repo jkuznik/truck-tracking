@@ -7,7 +7,6 @@ import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
-import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.api.dto.TruckTrailerHistoryDTO;
@@ -78,11 +77,8 @@ class TrailerService implements TrailerApi {
     @Override
     public TrailerDTO addTrailer(AddTrailerCommand newTrailer) {
         return convert(trailerRepository.save(new Trailer(
-                newTrailer.registerPlateNumber(),
                 UUID.randomUUID(),
-                newTrailer.length(),
-                newTrailer.height(),
-                newTrailer.weight())));
+                newTrailer.registerPlateNumber())));
     }
 
     @Override
@@ -156,10 +152,7 @@ class TrailerService implements TrailerApi {
                 trailer.isInUse(),
                 trailer.isCrossHitch(),
                 trailer.getStartPeriodDate(),
-                trailer.getEndPeriodDate(),
-                trailer.getLength(),
-                trailer.getHeight(),
-                trailer.getWeight());
+                trailer.getEndPeriodDate());
     }
 
 }

@@ -28,11 +28,8 @@ public class TruckService implements TruckApi {
     @Override
     public TruckDTO addTruck(AddTruckCommand newTruck) {
         return convert(truckRepository.save(new Truck(
-                newTruck.registerPlateNumber(),
                 UUID.randomUUID(),
-                newTruck.length(),
-                newTruck.height(),
-                newTruck.weight())));
+                newTruck.registerPlateNumber())));
     }
 
     @Override
@@ -108,9 +105,6 @@ public class TruckService implements TruckApi {
                 truck.getBusinessId(),
                 truck.isInUse(),
                 truck.getStartPeriodDate(),
-                truck.getEndPeriodDate(),
-                truck.getLength(),
-                truck.getHeight(),
-                truck.getWeight());
+                truck.getEndPeriodDate());
     }
 }

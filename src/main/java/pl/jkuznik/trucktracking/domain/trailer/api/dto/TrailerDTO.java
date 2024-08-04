@@ -9,8 +9,5 @@ public record TrailerDTO(
         Boolean isUsed,
         Boolean isCorssHitch,
         Instant startPeriod,
-        Instant endPeriod,
-        Double length,
-        Double width,
-        Double height) {
+        Instant endPeriod) {
 }

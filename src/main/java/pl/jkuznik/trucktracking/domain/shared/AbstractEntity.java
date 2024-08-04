@@ -20,17 +20,9 @@ public abstract class AbstractEntity {
     @Column(nullable = false, unique = true)
     protected UUID businessId;
 
-
-    protected boolean inUse;
-    protected Instant startPeriodDate;
-    protected Instant endPeriodDate;
-
     protected AbstractEntity() {}
 
-    protected AbstractEntity(UUID businessId, Double length, Double height, Double weight) {
+    protected AbstractEntity(UUID businessId) {
         this.businessId = businessId;
-        this.length = length;
-        this.height = height;
-        this.weight = weight;
     }
 }

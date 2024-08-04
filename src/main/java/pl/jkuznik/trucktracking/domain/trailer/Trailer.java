@@ -9,6 +9,7 @@ import lombok.Setter;
 import pl.jkuznik.trucktracking.domain.shared.AbstractEntity;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -19,7 +20,7 @@ import java.util.UUID;
 public class Trailer extends AbstractEntity {
 
     @Column(nullable = false, unique = true)
-    protected String registerPlateNumber;
+    private String registerPlateNumber;
 
     @JsonIgnore
     @OneToMany(mappedBy = "trailer")
@@ -27,10 +28,14 @@ public class Trailer extends AbstractEntity {
 
     private boolean crossHitch;
 
+    private boolean inUse;
+    private Instant startPeriodDate;
+    private Instant endPeriodDate;
+
     protected Trailer() {}
 
-    public Trailer(String registerPlateNumber, UUID businessId, Double length, Double height, Double weight) {
-        super(businessId, length, height, weight);
+    public Trailer(UUID businessId, String registerPlateNumber) {
+        super(businessId);
         this.registerPlateNumber = registerPlateNumber;
     }
 }
