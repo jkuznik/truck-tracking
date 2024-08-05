@@ -28,8 +28,9 @@ class TrailerService implements TrailerApi {
     private final TruckRepository truckRepository;
     private final TTHRepository tthRepository;
 
-    public List<TrailerDTO> getTrailersByFilters(Optional<Instant> startDate, Optional<Instant> endDate,
-                                                 Optional<Boolean> inUse, Optional<Boolean> crossHitch) {
+    public List<TrailerDTO> getTrailersByFilters(Optional<Instant> startDate,
+                                                 Optional<Instant> endDate,
+                                                 Optional<Boolean> crossHitch) {
         List<Trailer> filteredTrailers = trailerRepository.findAll();
 
         if (startDate.isPresent()) {
@@ -39,10 +40,6 @@ class TrailerService implements TrailerApi {
         if (endDate.isPresent()) {
             List<Trailer> allByEndPeriodDate = trailerRepository.findAllByEndPeriodDate(endDate.get());
             filteredTrailers.retainAll(allByEndPeriodDate);
-        }
-        if (inUse.isPresent()) {
-            List<Trailer> allByInUse = trailerRepository.findAllByInUse(inUse.get());
-            filteredTrailers.retainAll(allByInUse);
         }
         if (crossHitch.isPresent()) {
             List<Trailer> allByCrossHitch = trailerRepository.findAllByCrossHitch(crossHitch.get());
@@ -54,8 +51,10 @@ class TrailerService implements TrailerApi {
                 .toList();
     }
 
-    public List<TruckTrailerHistoryDTO> getTrailersHistoryByFilters(Optional<Instant> startDate, Optional<Instant> endDate,
-                                                                    Optional<UUID> truckId, Optional<UUID> trailerID) { //todo argumenty przygotowane do pobierania info o pojazdach i naczepach
+    public List<TruckTrailerHistoryDTO> getTrailersHistoryByFilters(Optional<Instant> startDate,
+                                                                    Optional<Instant> endDate,
+                                                                    Optional<UUID> truckId,
+                                                                    Optional<UUID> trailerID) { //todo argumenty przygotowane do pobierania info o pojazdach i naczepach
 
         List<TruckTrailerHistoryDTO> filteredTrailers = tthRepository.findAll().stream()
                 .map(TruckTrailerHistory::convert)
@@ -112,13 +111,6 @@ class TrailerService implements TrailerApi {
     }
 
     @Override
-    public List<TrailerDTO> getTrailersByInUsed(Boolean inUsed) {
-        return trailerRepository.findAllByInUse(inUsed).stream()
-                .map(this::convert)
-                .toList();
-    }
-
-    @Override
     public List<TrailerDTO> getTrailersByCrossHitch(Boolean crossHitch) {
         return trailerRepository.findAllByCrossHitch(crossHitch).stream()
                 .map(this::convert)
@@ -152,7 +144,6 @@ class TrailerService implements TrailerApi {
 
         // aktualizacja wartosci procesowanej naczepy
         if (processingTrailer.isPresent()) {
-            processingTrailer.get().setInUse(true);
             if (updateTrailerCommand.isCrossHitch().isPresent())
                 processingTrailer.get().setCrossHitch(updateTrailerCommand.isCrossHitch().get());
             if (updateTrailerCommand.startPeriod().isPresent())
@@ -171,7 +162,6 @@ class TrailerService implements TrailerApi {
         // aktualizacja wartosci pojazdu ktory bedzie nowym przypisanem pojazdem do procesowanej naczepy
         if (crossHitchTruck.isPresent()) {
             currentTrailerAssignmentToTruck2 = crossHitchTruck.get().getCurrentTrailerBusinessId();
-            crossHitchTruck.get().setInUse(true);
             if (updateTrailerCommand.startPeriod().isPresent()) crossHitchTruck.get().setStartPeriodDate(updateTrailerCommand.startPeriod().get());
             if (updateTrailerCommand.endPeriod().isPresent()) crossHitchTruck.get().setEndPeriodDate(updateTrailerCommand.endPeriod().get());
             crossHitchTruck.get().setCurrentTrailerBusinessId(processingTrailerBusinessId);
@@ -191,10 +181,8 @@ class TrailerService implements TrailerApi {
         // aktualizacja wartosci drugiego zestawu operacji cross hitch
         if (crossHitchTrailer.isPresent()) {
             if (crossHitchTrailer.get().isCrossHitch()) {
-                crossHitchTrailer.get().setInUse(true);
                 crossHitchTrailer.get().setCurrentTruckBusinessId(processingTrailerCurrentTruck.get().getBusinessId());
 
-                processingTrailerCurrentTruck.get().setInUse(true);
                 processingTrailerCurrentTruck.get().setCurrentTrailerBusinessId(crossHitchTrailer.get().getBusinessId());
 
                 TruckTrailerHistory crossHitchOperation2 = new TruckTrailerHistory();
@@ -206,17 +194,14 @@ class TrailerService implements TrailerApi {
                 tthRepository.save(crossHitchOperation2);
             } else {
                 result.append(" Second trailer is not cross hitch available and will be unassigned from any truck - truck assignment to processing trailer before cross hitch operation now will be unassigned to any trailer");
-                crossHitchTrailer.get().setInUse(false);
                 crossHitchTrailer.get().setStartPeriodDate(null);
                 crossHitchTrailer.get().setEndPeriodDate(null);
                 crossHitchTrailer.get().setCurrentTruckBusinessId(null);
 
-                processingTrailerCurrentTruck.get().setInUse(false);
                 processingTrailerCurrentTruck.get().setCurrentTrailerBusinessId(null);
             }
         } else {
             result.append(" Second truck has no assignment trailer, proccessing trailer current truck now will be unassigned to any trailer.");
-            processingTrailerCurrentTruck.get().setInUse(false);
             processingTrailerCurrentTruck.get().setCurrentTrailerBusinessId(null);
         }
 
@@ -235,7 +220,6 @@ class TrailerService implements TrailerApi {
         return new TrailerDTO(
                 trailer.getRegisterPlateNumber(),
                 trailer.getBusinessId(),
-                trailer.isInUse(),
                 trailer.isCrossHitch(),
                 trailer.getStartPeriodDate(),
                 trailer.getEndPeriodDate(),

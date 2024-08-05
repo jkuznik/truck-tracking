@@ -67,10 +67,10 @@ public class TruckService implements TruckApi {
                             + updateTruckCommand.trailerId() + " not found")));
 
             // TODO dodać obsługę wyjątków
-
-            if (trailer.get().isInUse()) {
-                throw new Exception("Trailer is currently in use");
-            }
+//
+//            if (trailer.get().isInUse(Instant.now())) {
+//                throw new Exception("Trailer is currently in use");
+//            }
         }
 
         if (updateTruckCommand.startPeriod().isPresent() && updateTruckCommand.endPeriod().isPresent()) {
@@ -78,21 +78,17 @@ public class TruckService implements TruckApi {
                 throw new Exception("End period is before start period");
             }
         }
-        truck.setInUse(updateTruckCommand.isUsed());
-        if (truck.isInUse()) {
-            truck.setStartPeriodDate(updateTruckCommand.startPeriod().orElse(null));
-            truck.setEndPeriodDate(updateTruckCommand.endPeriod().orElse(null));
-            truck.setCurrentTrailerBusinessId(updateTruckCommand.trailerId().orElse(null));
-        } else {
-            truck.setStartPeriodDate(null);
-            truck.setEndPeriodDate(null);
-            truck.setCurrentTrailerBusinessId(null);
-        }
+
+        truck.setStartPeriodDate(updateTruckCommand.startPeriod().orElse(null));
+        truck.setEndPeriodDate(updateTruckCommand.endPeriod().orElse(null));
+        truck.setCurrentTrailerBusinessId(updateTruckCommand.trailerId().orElse(null));
+
 
         var tth = new TruckTrailerHistory();
 
         tth.setTruck(truck);
-        if (updateTruckCommand.startPeriod().isPresent()) tth.setStartPeriodDate(updateTruckCommand.startPeriod().get());
+        if (updateTruckCommand.startPeriod().isPresent())
+            tth.setStartPeriodDate(updateTruckCommand.startPeriod().get());
         if (updateTruckCommand.endPeriod().isPresent()) tth.setEndPeriodDate(updateTruckCommand.endPeriod().get());
         if (updateTruckCommand.trailerId().isPresent()) tth.setTrailer(trailer.get());
 
@@ -111,7 +107,6 @@ public class TruckService implements TruckApi {
         return new TruckDTO(
                 truck.getRegisterPlateNumber(),
                 truck.getBusinessId(),
-                truck.isInUse(),
                 truck.getStartPeriodDate(),
                 truck.getEndPeriodDate(),
                 truck.getCurrentTrailerBusinessId());

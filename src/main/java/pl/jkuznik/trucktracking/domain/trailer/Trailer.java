@@ -28,7 +28,6 @@ public class Trailer extends AbstractEntity {
 
     private boolean crossHitch;
 
-    private boolean inUse;
     private UUID currentTruckBusinessId;
     private Instant startPeriodDate;
     private Instant endPeriodDate;
@@ -38,6 +37,10 @@ public class Trailer extends AbstractEntity {
     public Trailer(UUID businessId, String registerPlateNumber) {
         super(businessId);
         this.registerPlateNumber = registerPlateNumber;
+    }
+
+    public boolean isInUse(Instant now) {
+        return false;
     }
 }
 

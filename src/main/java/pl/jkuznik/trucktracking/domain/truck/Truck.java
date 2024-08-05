@@ -22,7 +22,6 @@ public class Truck extends AbstractEntity {
     @OneToMany(mappedBy = "truck")
     private Set<TruckTrailerHistory> history = new HashSet<>();
 
-    private boolean inUse;
     private UUID currentTrailerBusinessId;
     private Instant startPeriodDate;
     private Instant endPeriodDate;
@@ -32,5 +31,9 @@ public class Truck extends AbstractEntity {
     public Truck(UUID businessId, String registerPlateNumber) {
         super(businessId);
         this.registerPlateNumber = registerPlateNumber;
+    }
+
+    public boolean isInUse(Instant now) {
+        return false;
     }
 }

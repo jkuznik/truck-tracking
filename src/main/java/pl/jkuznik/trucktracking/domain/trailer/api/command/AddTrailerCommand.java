@@ -4,8 +4,5 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record AddTrailerCommand(
-        @NotBlank String registerPlateNumber,
-        @NotNull Double length,
-        @NotNull Double height,
-        @NotNull Double weight) {
+        @NotBlank String registerPlateNumber) {
 }

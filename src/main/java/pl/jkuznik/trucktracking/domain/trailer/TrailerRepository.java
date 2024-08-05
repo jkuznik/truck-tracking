@@ -15,7 +15,6 @@ public interface TrailerRepository extends JpaRepository<Trailer, Long> {
     Optional<Trailer> findByBusinessId(UUID uuid);
     List<Trailer> findAllByStartPeriodDate(Instant startPeriodDate);
     List<Trailer> findAllByEndPeriodDate(Instant endPeriodDate);
-    List<Trailer> findAllByInUse(Boolean inUse);
     List<Trailer> findAllByCrossHitch(Boolean crossHitch);
 
     void deleteByBusinessId(UUID uuid);

@@ -39,9 +39,8 @@ public class TrailerController {
     public ResponseEntity<List<TrailerDTO>> getTrailersActualState(
             @RequestParam(required = false) Optional<Instant> startDate,
             @RequestParam(required = false) Optional<Instant> endDate,
-            @RequestParam(required = false) Optional<Boolean> inUse,
             @RequestParam(required = false) Optional<Boolean> crossHitch) {
-        return ResponseEntity.ok(trailerService.getTrailersByFilters(startDate, endDate, inUse, crossHitch));
+        return ResponseEntity.ok(trailerService.getTrailersByFilters(startDate, endDate, crossHitch));
     }
 
     @GetMapping("/history")
