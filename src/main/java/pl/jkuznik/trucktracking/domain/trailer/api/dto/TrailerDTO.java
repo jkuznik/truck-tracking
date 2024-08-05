@@ -9,5 +9,6 @@ public record TrailerDTO(
         Boolean isUsed,
         Boolean isCrossHitch,
         Instant startPeriod,
-        Instant endPeriod) {
+        Instant endPeriod,
+        UUID currentTruckBusinessId) {
 }

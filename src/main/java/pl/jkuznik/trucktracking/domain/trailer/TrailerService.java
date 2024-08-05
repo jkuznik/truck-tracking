@@ -213,7 +213,8 @@ class TrailerService implements TrailerApi {
                 trailer.isInUse(),
                 trailer.isCrossHitch(),
                 trailer.getStartPeriodDate(),
-                trailer.getEndPeriodDate());
+                trailer.getEndPeriodDate(),
+                trailer.getCurrentTruckBusinessId());
     }
 
 }

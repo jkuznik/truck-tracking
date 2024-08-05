@@ -8,5 +8,6 @@ public record TruckDTO(
         UUID businessId,
         Boolean isUsed,
         Instant startPeriod,
-        Instant endPeriod) {
+        Instant endPeriod,
+        UUID currentTrailerBusinessId) {
 }
