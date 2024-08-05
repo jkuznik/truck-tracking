@@ -137,6 +137,12 @@ paths:
       summary: Endpoint odpowiedzialny za operacje 'cross hitch'
       security:
         - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          required: true
+          example: 542602cf-97d5-4548-8831-55f21d35fcf4
       responses:
         200:
           description: Komunikat informacyjny o wyniku operacji

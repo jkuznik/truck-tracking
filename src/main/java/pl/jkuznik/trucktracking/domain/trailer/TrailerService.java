@@ -150,6 +150,7 @@ class TrailerService implements TrailerApi {
         Optional<Trailer> processingTrailer = trailerRepository.findByBusinessId(processingTrailerBusinessId);
         Optional<Truck> processingTrailerCurrentTruck = truckRepository.findByBusinessId(processingTrailer.get().getCurrentTruckBusinessId());
 
+        // aktualizacja wartosci procesowanej naczepy
         if (processingTrailer.isPresent()) {
             processingTrailer.get().setInUse(true);
             if (updateTrailerCommand.isCrossHitch().isPresent())
@@ -167,6 +168,7 @@ class TrailerService implements TrailerApi {
         Optional<Truck> crossHitchTruck = truckRepository.findByBusinessId(updateTrailerCommand.truckId().get());
         UUID currentTrailerAssignmentToTruck2;
 
+        // aktualizacja wartosci pojazdu ktory bedzie nowym przypisanem pojazdem do procesowanej naczepy
         if (crossHitchTruck.isPresent()) {
             currentTrailerAssignmentToTruck2 = crossHitchTruck.get().getCurrentTrailerBusinessId();
             crossHitchTruck.get().setInUse(true);
@@ -177,8 +179,16 @@ class TrailerService implements TrailerApi {
             return "Truck with business id " + processingTrailerBusinessId.toString() + " not found";
         }
 
+        TruckTrailerHistory crossHitchOperation = new TruckTrailerHistory();
+        crossHitchOperation.setTrailer(processingTrailer.get());
+        crossHitchOperation.setTruck(crossHitchTruck.get());
+        crossHitchOperation.setStartPeriodDate(updateTrailerCommand.startPeriod().orElse(null));
+        crossHitchOperation.setEndPeriodDate(updateTrailerCommand.endPeriod().orElse(null));
+        tthRepository.save(crossHitchOperation);
+
         Optional<Trailer> crossHitchTrailer = trailerRepository.findByBusinessId(currentTrailerAssignmentToTruck2);
 
+        // aktualizacja wartosci drugiego zestawu operacji cross hitch
         if (crossHitchTrailer.isPresent()) {
             if (crossHitchTrailer.get().isCrossHitch()) {
                 crossHitchTrailer.get().setInUse(true);
@@ -192,7 +202,14 @@ class TrailerService implements TrailerApi {
                 crossHitchTrailer.get().setStartPeriodDate(null);
                 crossHitchTrailer.get().setEndPeriodDate(null);
                 crossHitchTrailer.get().setCurrentTruckBusinessId(null);
+
+                processingTrailerCurrentTruck.get().setInUse(false);
+                processingTrailerCurrentTruck.get().setCurrentTrailerBusinessId(null);
             }
+        } else {
+            result.append(" Second truck has no assignment trailer, proccessing trailer current truck now will be unassigned to any trailer.");
+            processingTrailerCurrentTruck.get().setInUse(false);
+            processingTrailerCurrentTruck.get().setCurrentTrailerBusinessId(null);
         }
 
         result.insert(0, "Cross hitch operation on processing trailer success. ");
