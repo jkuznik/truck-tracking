@@ -72,6 +72,7 @@ public class TrailerController {
     @PatchMapping("/{uuid}/cross-hitch")
     public ResponseEntity<TrailerDTO> updateTrailer(@PathVariable String uuid, @RequestBody UpdateTrailerCommand updateTrailerCommand) {
 
+        return null;
     }
 
     @DeleteMapping("/{uuid}")

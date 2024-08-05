@@ -23,6 +23,7 @@ public class Truck extends AbstractEntity {
     private Set<TruckTrailerHistory> history = new HashSet<>();
 
     private boolean inUse;
+    private UUID currentTrailerBusinessId;
     private Instant startPeriodDate;
     private Instant endPeriodDate;
 
