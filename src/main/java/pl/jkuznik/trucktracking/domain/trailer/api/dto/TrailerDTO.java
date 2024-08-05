@@ -7,7 +7,7 @@ public record TrailerDTO(
         String trailerPlateNumber,
         UUID businessId,
         Boolean isUsed,
-        Boolean isCorssHitch,
+        Boolean isCrossHitch,
         Instant startPeriod,
         Instant endPeriod) {
 }

@@ -7,6 +7,8 @@ import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
+import pl.jkuznik.trucktracking.domain.truck.Truck;
+import pl.jkuznik.trucktracking.domain.truck.TruckRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.api.dto.TruckTrailerHistoryDTO;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 class TrailerService implements TrailerApi {
 
     private final TrailerRepository trailerRepository;
+    private final TruckRepository truckRepository;
     private final TTHRepository tthRepository;
 
     public List<TrailerDTO> getTrailersByFilters(Optional<Instant> startDate, Optional<Instant> endDate,
@@ -137,6 +140,64 @@ class TrailerService implements TrailerApi {
 //        //TODO tutaj dodac zmiane rekordow w tabeli truck_trailer
 
         return convert(trailer);
+    }
+
+    @Transactional
+    @Override
+    public String crossHitchOperation(UUID processingTrailerBusinessId, UpdateTrailerCommand updateTrailerCommand) {
+        StringBuilder result = new StringBuilder();
+
+        Optional<Trailer> processingTrailer = trailerRepository.findByBusinessId(processingTrailerBusinessId);
+        Optional<Truck> processingTrailerCurrentTruck = truckRepository.findByBusinessId(processingTrailer.get().getCurrentTruckBusinessId());
+
+        if (processingTrailer.isPresent()) {
+            processingTrailer.get().setInUse(true);
+            if (updateTrailerCommand.isCrossHitch().isPresent())
+                processingTrailer.get().setCrossHitch(updateTrailerCommand.isCrossHitch().get());
+            if (updateTrailerCommand.startPeriod().isPresent())
+                processingTrailer.get().setStartPeriodDate(updateTrailerCommand.startPeriod().get());
+            if (updateTrailerCommand.endPeriod().isPresent())
+                processingTrailer.get().setEndPeriodDate(updateTrailerCommand.endPeriod().get());
+            if (updateTrailerCommand.truckId().isPresent())
+                processingTrailer.get().setCurrentTruckBusinessId(updateTrailerCommand.truckId().get());
+        } else {
+            return "Trailer with business id " + processingTrailerBusinessId.toString() + " not found";
+        }
+
+        Optional<Truck> crossHitchTruck = truckRepository.findByBusinessId(updateTrailerCommand.truckId().get());
+        UUID currentTrailerAssignmentToTruck2;
+
+        if (crossHitchTruck.isPresent()) {
+            currentTrailerAssignmentToTruck2 = crossHitchTruck.get().getCurrentTrailerBusinessId();
+            crossHitchTruck.get().setInUse(true);
+            if (updateTrailerCommand.startPeriod().isPresent()) crossHitchTruck.get().setStartPeriodDate(updateTrailerCommand.startPeriod().get());
+            if (updateTrailerCommand.endPeriod().isPresent()) crossHitchTruck.get().setEndPeriodDate(updateTrailerCommand.endPeriod().get());
+            crossHitchTruck.get().setCurrentTrailerBusinessId(processingTrailerBusinessId);
+        } else {
+            return "Truck with business id " + processingTrailerBusinessId.toString() + " not found";
+        }
+
+        Optional<Trailer> crossHitchTrailer = trailerRepository.findByBusinessId(currentTrailerAssignmentToTruck2);
+
+        if (crossHitchTrailer.isPresent()) {
+            if (crossHitchTrailer.get().isCrossHitch()) {
+                crossHitchTrailer.get().setInUse(true);
+                crossHitchTrailer.get().setCurrentTruckBusinessId(processingTrailerCurrentTruck.get().getBusinessId());
+
+                processingTrailerCurrentTruck.get().setInUse(true);
+                processingTrailerCurrentTruck.get().setCurrentTrailerBusinessId(crossHitchTrailer.get().getBusinessId());
+            } else {
+                result.append(" Second trailer is not cross hitch available and will be unassigned from any truck - truck assignment to processing trailer before cross hitch operation now will be unassigned to any trailer");
+                crossHitchTrailer.get().setInUse(false);
+                crossHitchTrailer.get().setStartPeriodDate(null);
+                crossHitchTrailer.get().setEndPeriodDate(null);
+                crossHitchTrailer.get().setCurrentTruckBusinessId(null);
+            }
+        }
+
+        result.insert(0, "Cross hitch operation on processing trailer success. ");
+
+        return result.toString();
     }
 
     @Transactional

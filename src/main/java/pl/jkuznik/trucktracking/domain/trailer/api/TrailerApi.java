@@ -25,4 +25,6 @@ public interface TrailerApi {
     TrailerDTO updateTrailerByBusinessId(UUID uuid, @Valid UpdateTrailerCommand newTrailer);
 
     void deleteTrailerByBusinessId(UUID uuid);
+
+    String crossHitchOperation(UUID uuid, UpdateTrailerCommand updateTrailerCommand);
 }

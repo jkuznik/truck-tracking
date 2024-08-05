@@ -70,9 +70,20 @@ public class TrailerController {
     }
 
     @PatchMapping("/{uuid}/cross-hitch")
-    public ResponseEntity<TrailerDTO> updateTrailer(@PathVariable String uuid, @RequestBody UpdateTrailerCommand updateTrailerCommand) {
+    public ResponseEntity<String> updateTrailer(@PathVariable String uuid, @RequestBody UpdateTrailerCommand updateTrailerCommand) {
+        TrailerDTO processingTrailer = trailerService.getTrailerByBusinessId(UUID.fromString(uuid));
 
-        return null;
+        if (!processingTrailer.isCrossHitch()) {
+            return ResponseEntity.badRequest().body("Trailer is not cross hitch operation available");
+        }
+
+        if (updateTrailerCommand.truckId().isEmpty()) {
+            return ResponseEntity.badRequest().body("Truck id cannot be empty in cross hitch operation");
+        }
+
+        var result = trailerService.crossHitchOperation(UUID.fromString(uuid), updateTrailerCommand);
+
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/{uuid}")
