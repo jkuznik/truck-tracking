@@ -196,6 +196,14 @@ class TrailerService implements TrailerApi {
 
                 processingTrailerCurrentTruck.get().setInUse(true);
                 processingTrailerCurrentTruck.get().setCurrentTrailerBusinessId(crossHitchTrailer.get().getBusinessId());
+
+                TruckTrailerHistory crossHitchOperation2 = new TruckTrailerHistory();
+                crossHitchOperation2.setTrailer(crossHitchTrailer.get());
+                crossHitchOperation2.setTruck(processingTrailerCurrentTruck.get());
+                crossHitchOperation2.setStartPeriodDate(crossHitchTrailer.get().getStartPeriodDate());
+                crossHitchOperation2.setEndPeriodDate(crossHitchTrailer.get().getEndPeriodDate());
+
+                tthRepository.save(crossHitchOperation2);
             } else {
                 result.append(" Second trailer is not cross hitch available and will be unassigned from any truck - truck assignment to processing trailer before cross hitch operation now will be unassigned to any trailer");
                 crossHitchTrailer.get().setInUse(false);
