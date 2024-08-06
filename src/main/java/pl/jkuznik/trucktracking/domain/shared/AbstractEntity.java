@@ -18,29 +18,11 @@ public abstract class AbstractEntity {
     @Version
     protected Long version;
     @Column(nullable = false, unique = true)
-    protected String registerPlateNumber;
-
-    @Column(nullable = false, unique = true)
     protected UUID businessId;
-
-    @Column(nullable = false)
-    protected Double length;
-    @Column(nullable = false)
-    protected Double height;
-    @Column(nullable = false)
-    protected Double weight;
-
-    protected boolean inUse;
-    protected Instant startPeriodDate;
-    protected Instant endPeriodDate;
 
     protected AbstractEntity() {}
 
-    protected AbstractEntity(String registerPlateNumber, UUID businessId, Double length, Double height, Double weight) {
-        this.registerPlateNumber = registerPlateNumber;
+    protected AbstractEntity(UUID businessId) {
         this.businessId = businessId;
-        this.length = length;
-        this.height = height;
-        this.weight = weight;
     }
 }

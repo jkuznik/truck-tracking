@@ -6,11 +6,8 @@ import java.util.UUID;
 public record TrailerDTO(
         String trailerPlateNumber,
         UUID businessId,
-        Boolean isUsed,
-        Boolean isCorssHitch,
+        Boolean isCrossHitch,
         Instant startPeriod,
         Instant endPeriod,
-        Double length,
-        Double width,
-        Double height) {
+        UUID currentTruckBusinessId) {
 }

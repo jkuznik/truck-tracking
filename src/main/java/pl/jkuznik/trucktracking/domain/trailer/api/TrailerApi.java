@@ -1,9 +1,11 @@
 package pl.jkuznik.trucktracking.domain.trailer.api;
 
 import jakarta.validation.Valid;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
-import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateTrailerCommand;
+import pl.jkuznik.trucktracking.domain.trailer.api.command.UpadeteAssignmentTrailerCommand;
+import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateCrossHitchTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
 
 import java.time.Instant;
@@ -19,10 +21,15 @@ public interface TrailerApi {
     List<TrailerDTO> getAllTrailers();
     List<TrailerDTO> getTrailersByStartPeriodDate(Instant startDate);
     List<TrailerDTO> getTrailersByEndPeriodDate(Instant endDate);
-    List<TrailerDTO> getTrailersByInUsed(Boolean inUsed);
     List<TrailerDTO> getTrailersByCrossHitch(Boolean crossHitch);
 
-    TrailerDTO updateTrailerByBusinessId(UUID uuid, @Valid UpdateTrailerCommand newTrailer);
+    @Transactional
+    TrailerDTO assignTrailerManageByBusinessId(UUID uuid, @Valid UpadeteAssignmentTrailerCommand newTrailer);
 
+    @Transactional
     void deleteTrailerByBusinessId(UUID uuid);
+
+    String crossHitchOperation(UUID uuid, UpadeteAssignmentTrailerCommand upadeteAssignmentTrailerCommand);
+
+    TrailerDTO updateTrailerByBusinessId(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) throws Exception;
 }

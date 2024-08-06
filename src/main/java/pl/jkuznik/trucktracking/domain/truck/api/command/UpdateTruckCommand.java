@@ -7,8 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public record UpdateTruckCommand(
-        @NotNull Boolean isUsed,
         Optional<Instant> startPeriod,
         Optional<Instant> endPeriod,
-        @NotNull UUID trailerId) {
+        Optional<UUID> trailerId) {
 }
