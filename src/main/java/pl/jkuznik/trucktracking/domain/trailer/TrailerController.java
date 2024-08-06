@@ -68,6 +68,13 @@ public class TrailerController {
         return ResponseEntity.status(201).body(responseTrailer);
     }
 
+    @PatchMapping("/{uuid}")
+    public ResponseEntity<TrailerDTO> updateTruck(@PathVariable String uuid, @RequestBody UpdateTrailerCommand updateTrailerCommand) throws Exception {
+        TrailerDTO updatedTrailer = trailerService.updateTrailerByBusinessId(UUID.fromString(uuid), updateTrailerCommand);
+
+        return ResponseEntity.status(200).body(updatedTrailer);
+    }
+
     @PatchMapping("/{uuid}/cross-hitch")
     public ResponseEntity<String> updateTrailer(@PathVariable String uuid, @RequestBody UpdateTrailerCommand updateTrailerCommand) {
         TrailerDTO processingTrailer = trailerService.getTrailerByBusinessId(UUID.fromString(uuid));

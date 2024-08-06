@@ -68,7 +68,7 @@ paths:
           in: path
           description: UUID identyfikujący naczepę o id 1 w bazie danych
           required: true
-          example: 542602cf-97d5-4548-8831-55f21d35fcf4
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
       responses:
         200:
           description: Operacja udana
@@ -76,6 +76,29 @@ paths:
           description: Brak uwierzytelnienia
         404:
           description: Naczepa o podanym UUID nie isteniej
+
+    patch:
+      tags:
+        - trailer
+      summary: Endpoint służący do zarządzania naczepami dla danego ciągnika oraz planowanym okresem przypisania naczepy
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
+      responses:
+        200:
+          description: Operacja udana
+        400:
+          description: Błąd żądania - nie prawidłowe dane
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: Pojazd o podanym UUID nie istnieje
+        500:
+          description: Błąd serwera
 
     delete:
       tags:
@@ -88,7 +111,7 @@ paths:
           in: path
           description: UUID identyfikujący naczepę o id 1 w bazie danych
           required: true
-          example: 542602cf-97d5-4548-8831-55f21d35fcf4
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
       responses:
         204:
           description: Usunięto naczepę
@@ -142,7 +165,7 @@ paths:
           in: path
           description: UUID identyfikujący naczepę o id 1 w bazie danych
           required: true
-          example: 542602cf-97d5-4548-8831-55f21d35fcf4
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
       responses:
         200:
           description: Komunikat informacyjny o wyniku operacji
@@ -194,29 +217,6 @@ paths:
           description: Brak uwierzytelnienia
         404:
           description: Pojazd o podanym UUID nie istnieje
-
-    patch:
-      tags:
-        - truck
-      summary: Endpoint służący do zarządzania naczepami dla danego ciągnika oraz planowanym okresem przypisania naczepy, pozostałe parametry ciągnika z natury powinny być finalnymi
-      security:
-        - basicAuth: [ ]
-      parameters:
-        - name: uuid
-          in: path
-          description: UUID identyfikujący ciągnik o id 1 w bazie danych
-          example: 52333a07-520e-465f-a6c2-5891080637e5
-      responses:
-        200:
-          description: Operacja udana
-        400:
-          description: Błąd żądania - nie prawidłowe dane
-        401:
-          description: Brak uwierzytelnienia
-        404:
-          description: Pojazd o podanym UUID nie istnieje
-        500:
-          description: Błąd serwera
 
     delete:
       tags:

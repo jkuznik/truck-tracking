@@ -9,6 +9,8 @@ import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
 import pl.jkuznik.trucktracking.domain.truck.Truck;
 import pl.jkuznik.trucktracking.domain.truck.TruckRepository;
+import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
+import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.api.dto.TruckTrailerHistoryDTO;
@@ -120,16 +122,50 @@ class TrailerService implements TrailerApi {
     @Transactional
     @Override
     public TrailerDTO updateTrailerByBusinessId(UUID uuid, UpdateTrailerCommand updateTrailerCommand) {
-        var trailer = trailerRepository.findByBusinessId(uuid)
+        // TODO dodać obsługę wyjątków
+        Trailer trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid.toString()));
-//
-//        trailer.setInUse(updateTrailerCommand.isUsed());
-//        trailer.setCrossHitch(updateTrailerCommand.isCrossHitch());
-//        trailer.setStartPeriodDate(updateTrailerCommand.startPeriod());
-//        trailer.setEndPeriodDate(updateTrailerCommand.endPeriod());
-////        trailer.setTrucks(updateTrailerCommand.trucks()); TODO
-//
-//        //TODO tutaj dodac zmiane rekordow w tabeli truck_trailer
+        Truck truck;
+
+        if (updateTrailerCommand.truckId().isPresent()) {
+            truck = truckRepository.findByBusinessId(updateTrailerCommand.truckId().get())
+                    .orElseThrow(() -> new NoSuchElementException("No truck with id " + updateTrailerCommand.truckId().get().toString()));
+        } else {
+            throw new NoSuchElementException("Truck business id is needed in this operation");
+        }
+
+        try {
+            trailer.isInUse(updateTrailerCommand.startPeriod().orElse(null), updateTrailerCommand.endPeriod().orElse(null));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        if (updateTrailerCommand.startPeriod().isPresent() && updateTrailerCommand.endPeriod().isPresent()) {
+            if (updateTrailerCommand.endPeriod().get().isBefore(updateTrailerCommand.startPeriod().get())) {
+                try {
+                    throw new Exception("End period is before start period");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        trailer.setStartPeriodDate(updateTrailerCommand.startPeriod().orElse(null));
+        trailer.setEndPeriodDate(updateTrailerCommand.endPeriod().orElse(null));
+        trailer.setCurrentTruckBusinessId(updateTrailerCommand.truckId().orElse(null));
+
+        truck.setStartPeriodDate(updateTrailerCommand.startPeriod().orElse(null));
+        truck.setEndPeriodDate(updateTrailerCommand.endPeriod().orElse(null));
+        truck.setCurrentTrailerBusinessId(trailer.getBusinessId());
+
+        var tth = new TruckTrailerHistory();
+
+        tth.setTrailer(trailer);
+        tth.setTruck(truck);
+        if (updateTrailerCommand.startPeriod().isPresent()) tth.setStartPeriodDate(updateTrailerCommand.startPeriod().get());
+        if (updateTrailerCommand.endPeriod().isPresent()) tth.setEndPeriodDate(updateTrailerCommand.endPeriod().get());
+
+        tthRepository.save(tth);
 
         return convert(trailer);
     }
@@ -162,8 +198,10 @@ class TrailerService implements TrailerApi {
         // aktualizacja wartosci pojazdu ktory bedzie nowym przypisanem pojazdem do procesowanej naczepy
         if (crossHitchTruck.isPresent()) {
             currentTrailerAssignmentToTruck2 = crossHitchTruck.get().getCurrentTrailerBusinessId();
-            if (updateTrailerCommand.startPeriod().isPresent()) crossHitchTruck.get().setStartPeriodDate(updateTrailerCommand.startPeriod().get());
-            if (updateTrailerCommand.endPeriod().isPresent()) crossHitchTruck.get().setEndPeriodDate(updateTrailerCommand.endPeriod().get());
+            if (updateTrailerCommand.startPeriod().isPresent())
+                crossHitchTruck.get().setStartPeriodDate(updateTrailerCommand.startPeriod().get());
+            if (updateTrailerCommand.endPeriod().isPresent())
+                crossHitchTruck.get().setEndPeriodDate(updateTrailerCommand.endPeriod().get());
             crossHitchTruck.get().setCurrentTrailerBusinessId(processingTrailerBusinessId);
         } else {
             return "Truck with business id " + processingTrailerBusinessId.toString() + " not found";

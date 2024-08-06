@@ -32,15 +32,61 @@ public class Trailer extends AbstractEntity {
     private Instant startPeriodDate;
     private Instant endPeriodDate;
 
-    protected Trailer() {}
+    protected Trailer() {
+    }
 
     public Trailer(UUID businessId, String registerPlateNumber) {
         super(businessId);
         this.registerPlateNumber = registerPlateNumber;
     }
 
-    public boolean isInUse(Instant now) {
-        return false;
+    public boolean isInUse(Instant startDate, Instant endDate) throws Exception {
+
+        // Jeżeli naczepa nie ma określonego czasu przypisania wtedy jest dostępna w każdym terminie,
+        // w innym wypadku 'result' metody isInUse() '= true' oraz ewentalna dostępność naczepy wg poniższej logiki warunków
+        boolean result = startPeriodDate != null || endPeriodDate != null;
+
+
+        // Jeżeli nowe przypisanie określa początek i koniec przypisania
+        if (startDate != null && endDate != null) {
+            if (startPeriodDate != null && endPeriodDate != null) {
+                if (startPeriodDate.isAfter(endDate) || endPeriodDate.isBefore(startDate)) result = false;
+            }
+            if (startPeriodDate != null && endPeriodDate == null) {
+                if (startPeriodDate.isAfter(endDate)) result = false;
+            }
+            if (startPeriodDate == null && endPeriodDate != null) {
+                if (endPeriodDate.isBefore(startDate)) result = false;
+            }
+        }
+
+
+        // Jeżeli nowe przypisanie określa tylko początek przypisania
+        if (startDate != null && endDate == null) {
+            if (startPeriodDate != null && endPeriodDate != null) {
+                if (endPeriodDate.isBefore(startDate)) result = false;
+            }
+            if (startPeriodDate != null && endPeriodDate == null) {
+                throw new Exception("Processing trailer is currently assigned to a truck without end period. To add new assign edit first current assignment date or fill end date of new assign");
+            }
+            if (startPeriodDate == null && endPeriodDate != null) {
+                if (endPeriodDate.isBefore(startDate)) result = false;
+            }
+        }
+
+        // Jeżeli nowe przypisanie określa tylko koniec przypisania
+        if (startDate == null && endDate != null) {
+            if (startPeriodDate != null && endPeriodDate != null) {
+                if (startPeriodDate.isAfter(endDate)) result = false;
+            }
+            if (startPeriodDate != null && endPeriodDate == null) {
+                if (startPeriodDate.isAfter(endDate)) result = false;
+            }
+            if (startPeriodDate == null && endPeriodDate != null) {
+                throw new Exception("Processing trailer is currently assigned to a truck without start period. To add new assign edit first current assignment date or fill start date of new assign");
+            }
+        }
+        return result;
     }
 }
 
