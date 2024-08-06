@@ -3,11 +3,14 @@ package pl.jkuznik.trucktracking.domain.truck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.jkuznik.trucktracking.domain.trailer.Trailer;
 import pl.jkuznik.trucktracking.domain.trailer.TrailerRepository;
 import pl.jkuznik.trucktracking.domain.truck.api.TruckApi;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
+import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
 import java.time.Instant;
 import java.util.List;
@@ -47,6 +50,63 @@ public class TruckService implements TruckApi {
         return truckRepository.findTrucksByDateRange(startDate, endDate).stream()
                 .map(this::convert)
                 .toList();
+    }
+
+    @Transactional
+    @Override
+    public TruckDTO updateTruckByBusinessId(UUID uuid, UpdateTruckCommand updateTruckCommand) {
+        Truck truck = truckRepository.findByBusinessId(uuid)
+                .orElseThrow(() -> new NoSuchElementException("Truck with business id " + uuid.toString() + " not found"));
+
+        Trailer trailer;
+
+        if (updateTruckCommand.trailerId().isPresent()) {
+            trailer = trailerRepository.findByBusinessId(updateTruckCommand.trailerId().get())
+                    .orElseThrow(() -> new NoSuchElementException("No trailer with id " + updateTruckCommand.trailerId().get()));
+        } else {
+            throw new NoSuchElementException("Trailer business id is needed in this operation");
+        }
+
+        try {
+            trailer.isInUse(updateTruckCommand.startPeriod().orElse(null), updateTruckCommand.endPeriod().orElse(null));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        if (updateTruckCommand.startPeriod().isPresent() && updateTruckCommand.endPeriod().isPresent()) {
+            if (updateTruckCommand.endPeriod().get().isBefore(updateTruckCommand.startPeriod().get())) {
+                try {
+                    throw new Exception("End period is before start period");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        truck.setStartPeriodDate(updateTruckCommand.startPeriod().orElse(null));
+        truck.setEndPeriodDate(updateTruckCommand.endPeriod().orElse(null));
+        if (updateTruckCommand.startPeriod().isEmpty() && updateTruckCommand.endPeriod().isEmpty()) {
+            truck.setCurrentTrailerBusinessId(null);
+        } else {
+            truck.setCurrentTrailerBusinessId(trailer.getBusinessId());
+        }
+
+        trailer.setStartPeriodDate(updateTruckCommand.startPeriod().orElse(null));
+        trailer.setEndPeriodDate(updateTruckCommand.endPeriod().orElse(null));
+        if (updateTruckCommand.startPeriod().isEmpty() && updateTruckCommand.endPeriod().isEmpty()) {
+            trailer.setCurrentTruckBusinessId(null);
+        } else {
+            trailer.setCurrentTruckBusinessId(truck.getBusinessId());
+        }
+
+        var tth = new TruckTrailerHistory();
+
+        tth.setTrailer(trailer);
+        tth.setTruck(truck);
+        if (updateTruckCommand.startPeriod().isPresent()) tth.setStartPeriodDate(updateTruckCommand.startPeriod().get());
+        if (updateTruckCommand.endPeriod().isPresent()) tth.setEndPeriodDate(updateTruckCommand.endPeriod().get());
+
+        return convert(truck);
     }
 
     @Transactional

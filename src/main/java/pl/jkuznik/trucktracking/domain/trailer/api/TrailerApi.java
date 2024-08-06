@@ -1,6 +1,7 @@
 package pl.jkuznik.trucktracking.domain.trailer.api;
 
 import jakarta.validation.Valid;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateTrailerCommand;
@@ -21,8 +22,10 @@ public interface TrailerApi {
     List<TrailerDTO> getTrailersByEndPeriodDate(Instant endDate);
     List<TrailerDTO> getTrailersByCrossHitch(Boolean crossHitch);
 
+    @Transactional
     TrailerDTO updateTrailerByBusinessId(UUID uuid, @Valid UpdateTrailerCommand newTrailer);
 
+    @Transactional
     void deleteTrailerByBusinessId(UUID uuid);
 
     String crossHitchOperation(UUID uuid, UpdateTrailerCommand updateTrailerCommand);

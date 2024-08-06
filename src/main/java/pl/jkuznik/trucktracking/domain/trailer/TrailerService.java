@@ -152,11 +152,19 @@ class TrailerService implements TrailerApi {
 
         trailer.setStartPeriodDate(updateTrailerCommand.startPeriod().orElse(null));
         trailer.setEndPeriodDate(updateTrailerCommand.endPeriod().orElse(null));
-        trailer.setCurrentTruckBusinessId(updateTrailerCommand.truckId().orElse(null));
+        if (updateTrailerCommand.startPeriod().isEmpty() && updateTrailerCommand.endPeriod().isEmpty()) {
+            trailer.setCurrentTruckBusinessId(null);
+        } else {
+            trailer.setCurrentTruckBusinessId(truck.getBusinessId());
+        }
 
         truck.setStartPeriodDate(updateTrailerCommand.startPeriod().orElse(null));
         truck.setEndPeriodDate(updateTrailerCommand.endPeriod().orElse(null));
-        truck.setCurrentTrailerBusinessId(trailer.getBusinessId());
+        if (updateTrailerCommand.startPeriod().isEmpty() && updateTrailerCommand.endPeriod().isEmpty()) {
+            truck.setCurrentTrailerBusinessId(null);
+        } else {
+            truck.setCurrentTrailerBusinessId(trailer.getBusinessId());
+        }
 
         var tth = new TruckTrailerHistory();
 
@@ -164,8 +172,6 @@ class TrailerService implements TrailerApi {
         tth.setTruck(truck);
         if (updateTrailerCommand.startPeriod().isPresent()) tth.setStartPeriodDate(updateTrailerCommand.startPeriod().get());
         if (updateTrailerCommand.endPeriod().isPresent()) tth.setEndPeriodDate(updateTrailerCommand.endPeriod().get());
-
-        tthRepository.save(tth);
 
         return convert(trailer);
     }

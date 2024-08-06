@@ -80,7 +80,7 @@ paths:
     patch:
       tags:
         - trailer
-      summary: Endpoint służący do zarządzania naczepami dla danego ciągnika oraz planowanym okresem przypisania naczepy
+      summary: Endpoint służący do zarządzania przypisywaniem naczep do ciągników
       security:
         - basicAuth: [ ]
       parameters:
@@ -96,7 +96,7 @@ paths:
         401:
           description: Brak uwierzytelnienia
         404:
-          description: Pojazd o podanym UUID nie istnieje
+          description: Naczepa o podanym UUID nie istnieje
         500:
           description: Błąd serwera
 
@@ -217,6 +217,29 @@ paths:
           description: Brak uwierzytelnienia
         404:
           description: Pojazd o podanym UUID nie istnieje
+
+    patch:
+      tags:
+        - truck
+      summary: Endpoint służący do aktualizowania stanu pojazdu o danym business id
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący pojazd o id 1 w bazie danych
+          example: 52333a07-520e-465f-a6c2-5891080637e5
+      responses:
+        200:
+          description: Operacja udana
+        400:
+          description: Błąd żądania - nie prawidłowe dane
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: pojazd o podanym UUID nie istnieje
+        500:
+          description: Błąd serwera
 
     delete:
       tags:

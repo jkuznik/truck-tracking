@@ -60,7 +60,6 @@ public class Trailer extends AbstractEntity {
             }
         }
 
-
         // Jeżeli nowe przypisanie określa tylko początek przypisania
         if (startDate != null && endDate == null) {
             if (startPeriodDate != null && endPeriodDate != null) {
