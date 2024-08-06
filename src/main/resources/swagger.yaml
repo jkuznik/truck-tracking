@@ -209,7 +209,7 @@ paths:
           in: path
           description: UUID identyfikujący pojazd o id 1 w bazie danych
           required: true
-          example: 52333a07-520e-465f-a6c2-5891080637e5
+          example: fc936032-52e8-4ec0-b916-3bc4b49b956c
       responses:
         200:
           description: Operacja udana
@@ -228,7 +228,7 @@ paths:
         - name: uuid
           in: path
           description: UUID identyfikujący pojazd o id 1 w bazie danych
-          example: 52333a07-520e-465f-a6c2-5891080637e5
+          example: fc936032-52e8-4ec0-b916-3bc4b49b956c
       responses:
         200:
           description: Operacja udana
@@ -252,7 +252,7 @@ paths:
           in: path
           description: UUID identyfikujący pojazd o id 1 w bazie danych
           required: true
-          example: 52333a07-520e-465f-a6c2-5891080637e5
+          example: fc936032-52e8-4ec0-b916-3bc4b49b956c
       responses:
         204:
           description: Usunięto pojazd

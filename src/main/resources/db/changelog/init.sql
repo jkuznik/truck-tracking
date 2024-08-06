@@ -42,7 +42,7 @@ VALUES (1, 'TRK002', '52333a07-520e-465f-a6c2-5891080637e5', 'd2e9c908-88b5-4c82
        (1, 'TRK004', '004f1383-6d8e-4f55-a39f-8a71477317d3', 'e8a2f7c1-8b1d-4bfb-9d92-3a1b7c6e5071');
 
 INSERT INTO trailer (version, register_plate_number, business_id, cross_hitch)
-VALUES (1, 'TRL001', 'a42c8aab-a60f-4a77-991e-d97c6248b33f', FALSE),
+VALUES (1, 'TRL001', 'a42c8aab-a60f-4a77-991e-d97c6248b33f', TRUE),
        (1, 'TRL002', '5d41877e-a0c4-45e0-9b85-2de15e9352ee', FALSE);
 
 INSERT INTO trailer (version, register_plate_number, business_id, cross_hitch, start_period_date,
