@@ -75,8 +75,49 @@ paths:
         401:
           description: Brak uwierzytelnienia
         404:
-          description: Naczepa o podanym UUID nie isteniej
+          description: Naczepa o podanym UUID nie istenieje
 
+    patch:
+      tags:
+        - trailer
+      summary: Modyfikacja cross hitch naczepy
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          required: true
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
+      responses:
+        200:
+          description: Operacja udana
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: Naczepa o podanym UUID nie istnieje
+
+    delete:
+      tags:
+        - trailer
+      summary: Usuwanie naczepy według UUID
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          required: true
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
+      responses:
+        204:
+          description: Usunięto naczepę
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: Naczepa o podanym UUID nie istnieje
+
+  /trailer/{uuid}/assign-manage:
     patch:
       tags:
         - trailer
@@ -100,10 +141,11 @@ paths:
         500:
           description: Błąd serwera
 
-    delete:
+  /trailer/{uuid}/cross-hitch:
+    patch:
       tags:
         - trailer
-      summary: Usuwanie naczepy według UUID
+      summary: Endpoint odpowiedzialny za operacje 'cross hitch'
       security:
         - basicAuth: [ ]
       parameters:
@@ -113,12 +155,10 @@ paths:
           required: true
           example: a42c8aab-a60f-4a77-991e-d97c6248b33f
       responses:
-        204:
-          description: Usunięto naczepę
+        200:
+          description: Komunikat informacyjny o wyniku operacji
         401:
           description: Brak uwierzytelnienia
-        404:
-          description: Naczepa o podanym UUID nie istnieje
 
   /trailer/history:
     get:
@@ -150,25 +190,6 @@ paths:
       responses:
         200:
           description: Operacja udana
-        401:
-          description: Brak uwierzytelnienia
-
-  /trailer/{uuid}/cross-hitch:
-    patch:
-      tags:
-        - trailer
-      summary: Endpoint odpowiedzialny za operacje 'cross hitch'
-      security:
-        - basicAuth: [ ]
-      parameters:
-        - name: uuid
-          in: path
-          description: UUID identyfikujący naczepę o id 1 w bazie danych
-          required: true
-          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
-      responses:
-        200:
-          description: Komunikat informacyjny o wyniku operacji
         401:
           description: Brak uwierzytelnienia
 

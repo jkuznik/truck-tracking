@@ -54,7 +54,7 @@ public class TruckService implements TruckApi {
 
     @Transactional
     @Override
-    public TruckDTO updateTruckByBusinessId(UUID uuid, UpdateTruckCommand updateTruckCommand) {
+    public TruckDTO updateTruckAssignByBusinessId(UUID uuid, UpdateTruckCommand updateTruckCommand) {
         Truck truck = truckRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("Truck with business id " + uuid.toString() + " not found"));
 

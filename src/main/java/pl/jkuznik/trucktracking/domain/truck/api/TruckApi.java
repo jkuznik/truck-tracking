@@ -21,7 +21,7 @@ public interface TruckApi {
     List<TruckDTO> getTrucksByDateRange(Instant startDate, Instant endDate);
 
     @Transactional
-    TruckDTO updateTruckByBusinessId(UUID uuid, UpdateTruckCommand updateTruckCommand);
+    TruckDTO updateTruckAssignByBusinessId(UUID uuid, UpdateTruckCommand updateTruckCommand);
 
     @Transactional
     void deleteTruckByBusinessId(UUID uuid);

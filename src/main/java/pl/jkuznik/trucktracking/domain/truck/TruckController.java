@@ -1,8 +1,5 @@
 package pl.jkuznik.trucktracking.domain.truck;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +14,9 @@ import java.util.UUID;
 @RequestMapping("/truck")
 @RequiredArgsConstructor
 public class TruckController {
+
+    // todo czy przewidziana jest możliwość edycji numeru rejestracyjnego pojazdu, a jeżeli tak to czy w bazie danych
+    // historia przypisań naczepy do pojazdu powinna uwzględnić poprzednią rejestrację
 
     private final TruckService truckService;
 
@@ -51,8 +51,8 @@ public class TruckController {
     }
 
     @PatchMapping("/{uuid}")
-    public ResponseEntity<TruckDTO> updateTruck(@PathVariable String uuid, @RequestBody UpdateTruckCommand updateTruckCommand) throws Exception {
-        TruckDTO updatedTruck = truckService.updateTruckByBusinessId(UUID.fromString(uuid), updateTruckCommand);
+    public ResponseEntity<TruckDTO> updateTruckAssign(@PathVariable String uuid, @RequestBody UpdateTruckCommand updateTruckCommand) throws Exception {
+        TruckDTO updatedTruck = truckService.updateTruckAssignByBusinessId(UUID.fromString(uuid), updateTruckCommand);
 
         return ResponseEntity.status(200).body(updatedTruck);
     }
