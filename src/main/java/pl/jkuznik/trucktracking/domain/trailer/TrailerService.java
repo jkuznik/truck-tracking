@@ -268,7 +268,6 @@ class TrailerService implements TrailerApi {
             crossHitchTruck.setEndPeriodDate(updateAssignmentTrailerCommand.endPeriod().get());
         crossHitchTruck.setCurrentTrailerBusinessId(processingTrailerBusinessId);
 
-
         TruckTrailerHistory crossHitchOperation = new TruckTrailerHistory();
         crossHitchOperation.setTrailer(processingTrailer);
         crossHitchOperation.setTruck(crossHitchTruck);
@@ -284,6 +283,8 @@ class TrailerService implements TrailerApi {
                 crossHitchTrailer.get().setCurrentTruckBusinessId(processingTrailerCurrentTruck.getBusinessId());
 
                 processingTrailerCurrentTruck.setCurrentTrailerBusinessId(crossHitchTrailer.get().getBusinessId());
+                processingTrailerCurrentTruck.setStartPeriodDate(crossHitchTrailer.get().getStartPeriodDate());
+                processingTrailerCurrentTruck.setEndPeriodDate(crossHitchTrailer.get().getEndPeriodDate());
 
                 TruckTrailerHistory crossHitchOperation2 = new TruckTrailerHistory();
                 crossHitchOperation2.setTrailer(crossHitchTrailer.get());
@@ -293,16 +294,20 @@ class TrailerService implements TrailerApi {
 
                 tthRepository.save(crossHitchOperation2);
             } else {
-                result.append(" Second trailer is not cross hitch available and will be unassigned from any truck - truck assignment to processing trailer before cross hitch operation now will be unassigned to any trailer");
+                result.append("Second trailer is not cross hitch available and will be unassigned from any truck - truck assignment to processing trailer before cross hitch operation now will be unassigned to any trailer");
                 crossHitchTrailer.get().setStartPeriodDate(null);
                 crossHitchTrailer.get().setEndPeriodDate(null);
                 crossHitchTrailer.get().setCurrentTruckBusinessId(null);
 
                 processingTrailerCurrentTruck.setCurrentTrailerBusinessId(null);
+                processingTrailerCurrentTruck.setStartPeriodDate(null);
+                processingTrailerCurrentTruck.setEndPeriodDate(null);
             }
         } else {
-            result.append(" Second truck has no assignment trailer, proccessing trailer current truck now will be unassigned to any trailer.");
+            result.append("Second truck has no assignment trailer, proccessing trailer current truck now will be unassigned to any trailer.");
             processingTrailerCurrentTruck.setCurrentTrailerBusinessId(null);
+            processingTrailerCurrentTruck.setStartPeriodDate(null);
+            processingTrailerCurrentTruck.setEndPeriodDate(null);
         }
 
         result.insert(0, "Cross hitch operation on processing trailer success. ");

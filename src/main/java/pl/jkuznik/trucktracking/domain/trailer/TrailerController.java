@@ -75,9 +75,9 @@ public class TrailerController {
     }
 
     @PatchMapping("/{uuid}/unassign-manage")
-    public ResponseEntity<TrailerDTO> unassignTrailerManage(@PathVariable String uuid, @RequestBody UnassignTrailerCommand unassignTrailerCommand) {
+    public ResponseEntity<TrailerDTO> unassignTrailerManage(@PathVariable String uuid, @RequestBody UnassignTrailerCommand updateAssignmentTrailerCommand) {
 
-        return ResponseEntity.status(200).body(trailerService.unassignTrailerManageByBusinessId(UUID.fromString(uuid), unassignTrailerCommand));
+        return ResponseEntity.status(200).body(trailerService.unassignTrailerManageByBusinessId(UUID.fromString(uuid), updateAssignmentTrailerCommand));
     }
 
     @PatchMapping("/{uuid}/cross-hitch")

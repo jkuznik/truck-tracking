@@ -45,25 +45,42 @@ class TrailerServiceTest {
     TTHRepository tthRepository;
 
     private final UUID trailerBusinessId = UUID.randomUUID();
+    private final UUID crossHitchTrailerBusinessId = UUID.randomUUID();
     private final UUID truckBusinessId = UUID.randomUUID();
+    private final UUID crossHitchTruckBusinessId = UUID.randomUUID();
     private final String trailerRegisterNumber = "TRAILER001";
+    private final String crossHitchTrailerRegisterNumber = "TRAILER002";
     private final String truckRegisterNumber = "TRUCK001";
-    private final Instant stratPeriodDate = Instant.parse("2024-01-01T00:00:00Z");
+    private final String crossHitchTruckRegisterNumber = "TRUCK002";
+    private final Instant startPeriodDate = Instant.parse("2024-01-01T00:00:00Z");
+    private final Instant startPeriodDate2 = Instant.parse("2024-01-03T00:00:00Z");
     private final Instant endPeriodDate = Instant.parse("2024-01-02T00:00:00Z");
+    private final Instant endPeriodDate2 = Instant.parse("2024-01-04T00:00:00Z");
     private Trailer testTrailer = new Trailer(truckBusinessId, trailerRegisterNumber);
     private Truck testTruck = new Truck(truckBusinessId, truckRegisterNumber);
+    private Trailer crossHitchTrailer = new Trailer(crossHitchTrailerBusinessId, crossHitchTrailerRegisterNumber);
+    private Truck crossHitchTruck = new Truck(crossHitchTruckBusinessId, crossHitchTruckRegisterNumber);
 
     @BeforeEach
     void setUp() {
         //given
         testTrailer.setCrossHitch(true);
-        testTrailer.setStartPeriodDate(stratPeriodDate);
+        testTrailer.setStartPeriodDate(startPeriodDate);
         testTrailer.setEndPeriodDate(endPeriodDate);
         testTrailer.setCurrentTruckBusinessId(truckBusinessId);
 
-        testTruck.setStartPeriodDate(stratPeriodDate);
+        testTruck.setStartPeriodDate(startPeriodDate);
         testTruck.setEndPeriodDate(endPeriodDate);
         testTruck.setCurrentTrailerBusinessId(truckBusinessId);
+
+        crossHitchTrailer.setCrossHitch(true);
+        crossHitchTrailer.setStartPeriodDate(startPeriodDate2);
+        crossHitchTrailer.setEndPeriodDate(endPeriodDate2);
+        crossHitchTrailer.setCurrentTruckBusinessId(crossHitchTruckBusinessId);
+
+        crossHitchTruck.setStartPeriodDate(startPeriodDate2);
+        crossHitchTruck.setEndPeriodDate(endPeriodDate2);
+        crossHitchTruck.setCurrentTrailerBusinessId(crossHitchTrailerBusinessId);
     }
 
     @Nested
@@ -657,7 +674,122 @@ class TrailerServiceTest {
         }
 
         @Test
-        void crossHitchOperation() {
+        void crossHitchOperationWhenCommandIsValidAndTruckExistAndSecondTrailerIsCrossHitchAvailable() {
+            //given
+            var newStartDate = Instant.parse("2024-01-03T00:00:00Z");
+            var newEndDate = Instant.parse("2024-01-04T00:00:00Z");
+            var updateAssignment = new UpdateAssignmentTrailerCommand(
+                    Optional.of(true), Optional.of(newStartDate),
+                    Optional.of(newEndDate), Optional.of(crossHitchTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class)))
+                    .thenReturn(Optional.of(testTrailer))
+                    .thenReturn(Optional.of(crossHitchTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class)))
+                    .thenReturn(Optional.of(testTruck))
+                    .thenReturn(Optional.of(crossHitchTruck));
+
+            //then
+            String result = trailerApi.crossHitchOperation(trailerBusinessId, updateAssignment);
+
+            assertThat(testTrailer.getCurrentTruckBusinessId()).isEqualTo(crossHitchTruckBusinessId);
+            assertThat(testTrailer.getStartPeriodDate()).isEqualTo(newStartDate);
+            assertThat(testTrailer.getEndPeriodDate()).isEqualTo(newEndDate);
+
+            assertThat(crossHitchTruck.getCurrentTrailerBusinessId()).isEqualTo(trailerBusinessId);
+            assertThat(crossHitchTruck.getStartPeriodDate()).isEqualTo(newStartDate);
+            assertThat(crossHitchTruck.getEndPeriodDate()).isEqualTo(newEndDate);
+
+            assertThat(crossHitchTrailer.getCurrentTruckBusinessId()).isEqualTo(testTruck.getBusinessId());
+            assertThat(crossHitchTrailer.getStartPeriodDate()).isEqualTo(startPeriodDate2);
+            assertThat(crossHitchTrailer.getEndPeriodDate()).isEqualTo(endPeriodDate2);
+
+            assertThat(testTruck.getCurrentTrailerBusinessId()).isEqualTo(crossHitchTrailer.getBusinessId());
+            assertThat(testTruck.getStartPeriodDate()).isEqualTo(startPeriodDate2);
+            assertThat(testTruck.getEndPeriodDate()).isEqualTo(endPeriodDate2);
+            assertThat(result).isEqualTo("Cross hitch operation on processing trailer success. ");
+        }
+
+        @Test
+        void crossHitchOperationWhenCommandIsValidAndTruckExistAndSecondTrailerIsCrossHitchNotAvailable() {
+            //given
+            var newStartDate = Instant.parse("2024-01-03T00:00:00Z");
+            var newEndDate = Instant.parse("2024-01-04T00:00:00Z");
+            var updateAssignment = new UpdateAssignmentTrailerCommand(
+                    Optional.of(true), Optional.of(newStartDate),
+                    Optional.of(newEndDate), Optional.of(crossHitchTruckBusinessId));
+            crossHitchTrailer.setCrossHitch(false);
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class)))
+                    .thenReturn(Optional.of(testTrailer))
+                    .thenReturn(Optional.of(crossHitchTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class)))
+                    .thenReturn(Optional.of(testTruck))
+                    .thenReturn(Optional.of(crossHitchTruck));
+
+
+            //then
+            String result = trailerApi.crossHitchOperation(trailerBusinessId, updateAssignment);
+
+            assertThat(testTrailer.getCurrentTruckBusinessId()).isEqualTo(crossHitchTruckBusinessId);
+            assertThat(testTrailer.getStartPeriodDate()).isEqualTo(newStartDate);
+            assertThat(testTrailer.getEndPeriodDate()).isEqualTo(newEndDate);
+
+            assertThat(crossHitchTruck.getCurrentTrailerBusinessId()).isEqualTo(trailerBusinessId);
+            assertThat(crossHitchTruck.getStartPeriodDate()).isEqualTo(newStartDate);
+            assertThat(crossHitchTruck.getEndPeriodDate()).isEqualTo(newEndDate);
+
+            assertThat(crossHitchTrailer.getCurrentTruckBusinessId()).isNull();
+            assertThat(crossHitchTrailer.getStartPeriodDate()).isNull();
+            assertThat(crossHitchTrailer.getEndPeriodDate()).isNull();
+
+            assertThat(testTruck.getCurrentTrailerBusinessId()).isNull();
+            assertThat(testTruck.getStartPeriodDate()).isNull();
+            assertThat(testTruck.getEndPeriodDate()).isNull();
+
+            assertThat(result).isEqualTo("Cross hitch operation on processing trailer success. " +
+                    "Second trailer is not cross hitch available and will be unassigned from any truck - " +
+                    "truck assignment to processing trailer before cross hitch operation now will be unassigned to any trailer");
+        }
+
+        @Test
+        void crossHitchOperationWhenCommandIsValidAndTruckExistAndSecondTruckHasNoAssignTrailer() {
+            //given
+            var newStartDate = Instant.parse("2024-01-03T00:00:00Z");
+            var newEndDate = Instant.parse("2024-01-04T00:00:00Z");
+            var updateAssignment = new UpdateAssignmentTrailerCommand(
+                    Optional.of(true), Optional.of(newStartDate),
+                    Optional.of(newEndDate), Optional.of(crossHitchTruckBusinessId));
+            crossHitchTrailer.setCrossHitch(false);
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class)))
+                    .thenReturn(Optional.of(testTrailer))
+                    .thenReturn(Optional.empty());
+            when(truckRepository.findByBusinessId(any(UUID.class)))
+                    .thenReturn(Optional.of(testTruck))
+                    .thenReturn(Optional.of(crossHitchTruck));
+
+
+            //then
+            String result = trailerApi.crossHitchOperation(trailerBusinessId, updateAssignment);
+
+            assertThat(testTrailer.getCurrentTruckBusinessId()).isEqualTo(crossHitchTruckBusinessId);
+            assertThat(testTrailer.getStartPeriodDate()).isEqualTo(newStartDate);
+            assertThat(testTrailer.getEndPeriodDate()).isEqualTo(newEndDate);
+
+            assertThat(crossHitchTruck.getCurrentTrailerBusinessId()).isEqualTo(trailerBusinessId);
+            assertThat(crossHitchTruck.getStartPeriodDate()).isEqualTo(newStartDate);
+            assertThat(crossHitchTruck.getEndPeriodDate()).isEqualTo(newEndDate);
+
+            assertThat(testTruck.getCurrentTrailerBusinessId()).isNull();
+            assertThat(testTruck.getStartPeriodDate()).isNull();
+            assertThat(testTruck.getEndPeriodDate()).isNull();
+
+            assertThat(result).isEqualTo("Cross hitch operation on processing trailer success. " +
+                    "Second truck has no assignment trailer, proccessing trailer current truck now will be unassigned to any trailer.");
         }
     }
 
