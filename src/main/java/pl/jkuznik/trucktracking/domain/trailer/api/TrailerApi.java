@@ -1,10 +1,12 @@
 package pl.jkuznik.trucktracking.domain.trailer.api;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
-import pl.jkuznik.trucktracking.domain.trailer.api.command.UpadeteAssignmentTrailerCommand;
+import pl.jkuznik.trucktracking.domain.trailer.api.command.UnassignTrailerCommand;
+import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateAssignmentTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateCrossHitchTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
 
@@ -15,21 +17,26 @@ import java.util.UUID;
 @Validated
 public interface TrailerApi {
 
-    TrailerDTO addTrailer(@Valid AddTrailerCommand newTrailer);
+    TrailerDTO addTrailer(@NotNull @Valid AddTrailerCommand addTrailerCommand);
 
-    TrailerDTO getTrailerByBusinessId(UUID uuid);
+    TrailerDTO getTrailerByBusinessId(@NotNull UUID uuid);
     List<TrailerDTO> getAllTrailers();
     List<TrailerDTO> getTrailersByStartPeriodDate(Instant startDate);
     List<TrailerDTO> getTrailersByEndPeriodDate(Instant endDate);
-    List<TrailerDTO> getTrailersByCrossHitch(Boolean crossHitch);
+    List<TrailerDTO> getTrailersByCrossHitch(@NotNull Boolean crossHitch);
 
     @Transactional
-    TrailerDTO assignTrailerManageByBusinessId(UUID uuid, @Valid UpadeteAssignmentTrailerCommand newTrailer);
+    TrailerDTO updateTrailerByBusinessId(@NotNull UUID uuid, @Valid UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand);
 
     @Transactional
-    void deleteTrailerByBusinessId(UUID uuid);
+    TrailerDTO unassignTrailerManageByBusinessId(@NotNull UUID uuid, @Valid UnassignTrailerCommand unassignTrailerCommand);
 
-    String crossHitchOperation(UUID uuid, UpadeteAssignmentTrailerCommand upadeteAssignmentTrailerCommand);
+    @Transactional
+    TrailerDTO assignTrailerManageByBusinessId(@NotNull UUID uuid,@NotNull @Valid UpdateAssignmentTrailerCommand newTrailer);
 
-    TrailerDTO updateTrailerByBusinessId(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) throws Exception;
+    @Transactional
+    String crossHitchOperation(@NotNull UUID uuid, @NotNull @Valid UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand);
+
+    @Transactional
+    void deleteTrailerByBusinessId(@NotNull UUID uuid);
 }
