@@ -10,10 +10,12 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
+import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateAssignmentTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
 import pl.jkuznik.trucktracking.domain.truck.Truck;
 import pl.jkuznik.trucktracking.domain.truck.TruckRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
 import java.time.Instant;
 import java.util.List;
@@ -195,11 +197,305 @@ class TrailerServiceTest {
     class PatchMethodsTests {
 
         @Test
-        void updateTrailerByBusinessId() {
+        void updateTrailerManageByBusinessId() {
         }
 
         @Test
-        void assignTrailerManageByBusinessId() {
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndTrailerExistAndNewTimePeriodDoesNotConflict() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            Instant newStartPeriodTime = Instant.parse("2024-01-03T00:00:00Z");
+            Instant newEndPeriodTime = Instant.parse("2024-01-04T00:00:00Z");
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.of(newStartPeriodTime),
+                    Optional.of(newEndPeriodTime), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            TrailerDTO result = trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand);
+
+            assertThat(result.trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
+            assertThat(result.isCrossHitch()).isEqualTo(newCrossHitch);
+            assertThat(result.startPeriod()).isEqualTo(newStartPeriodTime);
+            assertThat(result.endPeriod()).isEqualTo(newEndPeriodTime);
+            assertThat(result.currentTruckBusinessId()).isEqualTo(newTruckBusinessId);
+
+            verify(trailerRepository, times(1)).save(any(Trailer.class));
+            verify(truckRepository, times(1)).save(any(Truck.class));
+            verify(tthRepository, times(1)).save(any(TruckTrailerHistory.class));
+        }
+
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodDoesNotConflict2() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            // the current assignment period is defined by the start and end dates of the assignment but new value
+            // has no defined start date and new end date is before current assignment what should not generate conflict
+            Instant newEndPeriodTime = Instant.parse("2023-01-01T00:00:00Z");
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.empty(),
+                    Optional.of(newEndPeriodTime), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            var result = trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand);
+
+            assertThat(result.trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
+            assertThat(result.isCrossHitch()).isEqualTo(newCrossHitch);
+            assertThat(result.startPeriod()).isNull();
+            assertThat(result.endPeriod()).isEqualTo(newEndPeriodTime);
+            assertThat(result.currentTruckBusinessId()).isEqualTo(newTruckBusinessId);
+        }
+
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodDoesNotConflict3() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            Instant newStartPeriodTime = Instant.parse("2024-01-03T00:00:00Z");
+            // the current assignment period is defined by the start and end dates of the assignment but new value
+            // has no defined end date and new start date is after current assignment what should not generate conflict
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.of(newStartPeriodTime),
+                    Optional.empty(), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            var result = trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand);
+
+            assertThat(result.trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
+            assertThat(result.isCrossHitch()).isEqualTo(newCrossHitch);
+            assertThat(result.startPeriod()).isEqualTo(newStartPeriodTime);
+            assertThat(result.endPeriod()).isNull();
+            assertThat(result.currentTruckBusinessId()).isEqualTo(newTruckBusinessId);
+        }
+
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodDoesNotConflict4() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            testTrailer.setStartPeriodDate(null);
+            Instant newStartPeriodTime = Instant.parse("2024-01-03T00:00:00Z");
+            // the current assignment period is defined by the end but not by the start date of the assignment and new value
+            // has no defined end date and new start date is after current assignment what should not generate conflict
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.of(newStartPeriodTime),
+                    Optional.empty(), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            var result = trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand);
+
+            assertThat(result.trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
+            assertThat(result.isCrossHitch()).isEqualTo(newCrossHitch);
+            assertThat(result.startPeriod()).isEqualTo(newStartPeriodTime);
+            assertThat(result.endPeriod()).isNull();
+            assertThat(result.currentTruckBusinessId()).isEqualTo(newTruckBusinessId);
+        }
+
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodDoesNotConflict5() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            testTrailer.setEndPeriodDate(null);
+            Instant newEndPeriodTime = Instant.parse("2023-01-01T00:00:00Z");
+            // the current assignment period is defined by the start but not by the end date of the assignment and new value
+            // has no defined start date and new end date is before current assignment what should not generate conflict
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.empty(),
+                    Optional.of(newEndPeriodTime), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            var result = trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand);
+
+            assertThat(result.trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
+            assertThat(result.isCrossHitch()).isEqualTo(newCrossHitch);
+            assertThat(result.startPeriod()).isNull();
+            assertThat(result.endPeriod()).isEqualTo(newEndPeriodTime);
+            assertThat(result.currentTruckBusinessId()).isEqualTo(newTruckBusinessId);
+        }
+
+//        @Test
+//        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTruckIdIsEmpty() {
+//            //given
+//            var newCrossHitch = false;
+//            var newTruckBusinessId = UUID.randomUUID();
+//            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+//                    Optional.of(newCrossHitch), Optional.empty(),
+//                    Optional.empty(), Optional.of(newTruckBusinessId));
+//
+//            //when
+//            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+//            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+//
+//            //then
+//            var exception = catchException(() ->
+//                    trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand));
+//
+//            assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
+//            assertThat(exception.getMessage()).isEqualTo("Both of start period and end period are empty. To assignment you need to fill one of date field");
+//
+//        }
+
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndTrailerNotExist() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            Instant newStartPeriodTime = Instant.parse("2024-01-03T00:00:00Z");
+            Instant newEndPeriodTime = Instant.parse("2024-01-04T00:00:00Z");
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.of(newStartPeriodTime),
+                    Optional.of(newEndPeriodTime), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.empty());
+
+            //then
+            var exception = catchException(() ->
+                    trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand));
+
+            assertThat(exception).isExactlyInstanceOf(NoSuchElementException.class);
+            assertThat(exception.getMessage()).isEqualTo("No trailer with business id " + trailerBusinessId);
+        }
+
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            // current end of assignment period time is after new start of period time what should generate conflict
+            Instant newStartPeriodTime = Instant.parse("2024-01-01T00:00:00Z");
+            Instant newEndPeriodTime = Instant.parse("2024-01-04T00:00:00Z");
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.of(newStartPeriodTime),
+                    Optional.of(newEndPeriodTime), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            var exception = catchException(() ->
+                    trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand));
+
+            assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
+            assertThat(exception.getMessage()).isEqualTo("The trailer is in use during the specified period.");
+        }
+
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict2() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            // the current assignment period is defined by the start and end dates of the assignment but new value
+            // has no defined start date and new end date is after current assignment what should generate conflict
+            Instant newEndPeriodTime = Instant.parse("2024-01-01T00:00:00Z");
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.empty(),
+                    Optional.of(newEndPeriodTime), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            var exception = catchException(() ->
+                    trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand));
+
+            assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
+            assertThat(exception.getMessage()).isEqualTo("The trailer is in use during the specified period.");
+        }
+
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict3() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            Instant newStartPeriodTime = Instant.parse("2023-01-01T00:00:00Z");
+            // the current assignment period is defined by the start and end dates of the assignment but new value
+            // has no defined end date and new start date is before current assignment what should generate conflict
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.of(newStartPeriodTime),
+                    Optional.empty(), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            var exception = catchException(() -> trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand));
+
+            assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
+            assertThat(exception.getMessage()).isEqualTo("The trailer is in use during the specified period.");
+        }
+
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict4() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            testTrailer.setEndPeriodDate(null);
+            Instant newStartPeriodTime = Instant.parse("2023-01-01T00:00:00Z");
+            // the current assignment period is defined by the start but not by end date of the assignment and new value
+            // has no defined start date but not by end date and new start date is after current assignment what should generate conflict
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.of(newStartPeriodTime),
+                    Optional.empty(), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            var exception = catchException(() -> trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand));
+
+            assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
+            assertThat(exception.getMessage()).isEqualTo("Processing trailer is currently assigned to a truck without end period. To add new assign edit first current assignment date or fill end date of new assign");
+        }
+
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict5() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            testTrailer.setStartPeriodDate(null);
+            Instant newEndPeriodTime = Instant.parse("2023-01-01T00:00:00Z");
+            // the current assignment period is defined by the end but not by star date of the assignment and new value
+            // has no defined end date but not by staar date and new end date is before current assignment what should generate conflict
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.empty(),
+                    Optional.of(newEndPeriodTime), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            var exception = catchException(() -> trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand));
+
+            assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
+            assertThat(exception.getMessage()).isEqualTo("Processing trailer is currently assigned to a truck without start period. To add new assign edit first current assignment date or fill start date of new assign");
         }
 
         @Test

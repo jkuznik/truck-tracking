@@ -40,7 +40,7 @@ public class Trailer extends AbstractEntity {
         this.registerPlateNumber = registerPlateNumber;
     }
 
-    public boolean isInUse(Instant startDate, Instant endDate) throws Exception {
+    public boolean isInUse(Instant startDate, Instant endDate) throws IllegalStateException {
 
         // Jeżeli naczepa nie ma określonego czasu przypisania wtedy jest dostępna w każdym terminie,
         // w innym wypadku 'result' metody isInUse() '= true' oraz ewentalna dostępność naczepy wg poniższej logiki warunków
@@ -66,7 +66,7 @@ public class Trailer extends AbstractEntity {
                 if (endPeriodDate.isBefore(startDate)) result = false;
             }
             if (startPeriodDate != null && endPeriodDate == null) {
-                throw new Exception("Processing trailer is currently assigned to a truck without end period. To add new assign edit first current assignment date or fill end date of new assign");
+                throw new IllegalStateException("Processing trailer is currently assigned to a truck without end period. To add new assign edit first current assignment date or fill end date of new assign");
             }
             if (startPeriodDate == null && endPeriodDate != null) {
                 if (endPeriodDate.isBefore(startDate)) result = false;
@@ -74,6 +74,9 @@ public class Trailer extends AbstractEntity {
         }
 
         // Jeżeli nowe przypisanie określa tylko koniec przypisania
+        // todo jeżeli nowe przypisanie określa tylko koniec okresu a obecnie jest przypisana naczepa to ma być rzucony
+        // wyjatek czy automatycznie ma nadac nowe przypisanie z wartością początekNowego = koniecStarego?
+        // na ten moment metoda sprawdzająca rzuca wyjątek konfliktu okresów przypisania
         if (startDate == null && endDate != null) {
             if (startPeriodDate != null && endPeriodDate != null) {
                 if (startPeriodDate.isAfter(endDate)) result = false;
@@ -82,7 +85,7 @@ public class Trailer extends AbstractEntity {
                 if (startPeriodDate.isAfter(endDate)) result = false;
             }
             if (startPeriodDate == null && endPeriodDate != null) {
-                throw new Exception("Processing trailer is currently assigned to a truck without start period. To add new assign edit first current assignment date or fill start date of new assign");
+                throw new IllegalStateException("Processing trailer is currently assigned to a truck without start period. To add new assign edit first current assignment date or fill start date of new assign");
             }
         }
         return result;

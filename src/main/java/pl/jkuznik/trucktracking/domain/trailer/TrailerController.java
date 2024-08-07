@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
-import pl.jkuznik.trucktracking.domain.trailer.api.command.UpadeteAssignmentTrailerCommand;
+import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateAssignmentTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateCrossHitchTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.api.dto.TruckTrailerHistoryDTO;
@@ -71,25 +71,25 @@ public class TrailerController {
     }
 
     @PatchMapping("/{uuid}/assign-manage")
-    public ResponseEntity<TrailerDTO> assignTrailerManage(@PathVariable String uuid, @RequestBody UpadeteAssignmentTrailerCommand upadeteAssignmentTrailerCommand) throws Exception {
-        TrailerDTO updatedTrailer = trailerService.assignTrailerManageByBusinessId(UUID.fromString(uuid), upadeteAssignmentTrailerCommand);
+    public ResponseEntity<TrailerDTO> assignTrailerManage(@PathVariable String uuid, @RequestBody UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) throws Exception {
+        TrailerDTO updatedTrailer = trailerService.assignTrailerManageByBusinessId(UUID.fromString(uuid), updateAssignmentTrailerCommand);
 
         return ResponseEntity.status(200).body(updatedTrailer);
     }
 
     @PatchMapping("/{uuid}/cross-hitch")
-    public ResponseEntity<String> crossHitchTrailerByBusinessId(@PathVariable String uuid, @RequestBody UpadeteAssignmentTrailerCommand upadeteAssignmentTrailerCommand) {
+    public ResponseEntity<String> crossHitchTrailerByBusinessId(@PathVariable String uuid, @RequestBody UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
         TrailerDTO processingTrailer = trailerService.getTrailerByBusinessId(UUID.fromString(uuid));
 
         if (!processingTrailer.isCrossHitch()) {
             return ResponseEntity.badRequest().body("Trailer is not cross hitch operation available");
         }
 
-        if (upadeteAssignmentTrailerCommand.truckId().isEmpty()) {
+        if (updateAssignmentTrailerCommand.truckId().isEmpty()) {
             return ResponseEntity.badRequest().body("Truck id cannot be empty in cross hitch operation");
         }
 
-        var result = trailerService.crossHitchOperation(UUID.fromString(uuid), upadeteAssignmentTrailerCommand);
+        var result = trailerService.crossHitchOperation(UUID.fromString(uuid), updateAssignmentTrailerCommand);
 
         return ResponseEntity.ok(result);
     }
