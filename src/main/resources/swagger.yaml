@@ -80,7 +80,7 @@ paths:
     patch:
       tags:
         - trailer
-      summary: Modyfikacja cross hitch naczepy
+      summary: Modyfikacja pola cross hitch naczepy
       security:
         - basicAuth: [ ]
       parameters:
@@ -122,6 +122,30 @@ paths:
       tags:
         - trailer
       summary: Endpoint służący do zarządzania przypisywaniem naczep do ciągników
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
+      responses:
+        200:
+          description: Operacja udana
+        400:
+          description: Błąd żądania - nie prawidłowe dane
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: Naczepa o podanym UUID nie istnieje
+        500:
+          description: Błąd serwera
+
+  /trailer/{uuid}/unassign-manage:
+    patch:
+      tags:
+        - trailer
+      summary: Endpoint służący do usuniecia przypisania naczepy do ciągników
       security:
         - basicAuth: [ ]
       parameters:

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
+import pl.jkuznik.trucktracking.domain.trailer.api.command.UnassignTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateAssignmentTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateCrossHitchTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
@@ -125,11 +126,36 @@ class TrailerService implements TrailerApi {
 
     @Transactional
     @Override
-    public TrailerDTO updateTrailerByBusinessId(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) throws Exception {
+    public TrailerDTO updateTrailerByBusinessId(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) {
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
 
         trailer.setCrossHitch(updateCrossHitchTrailerCommand.crossHitch());
+
+        return convert(trailer);
+    }
+
+    @Transactional
+    @Override
+    public TrailerDTO unassignTrailerManageByBusinessId(UUID uuid, UnassignTrailerCommand unassignTrailerCommand) {
+        Trailer trailer = trailerRepository.findByBusinessId(uuid)
+                .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
+
+        if (trailer.getCurrentTruckBusinessId() == null) {
+            throw new IllegalStateException("Current trailer is already unassigned");
+        }
+
+        Truck truck = truckRepository.findByBusinessId(trailer.getCurrentTruckBusinessId()).orElse(null);
+
+        trailer.setStartPeriodDate(null);
+        trailer.setEndPeriodDate(null);
+        trailer.setCurrentTruckBusinessId(null);
+
+        if (truck != null) {
+            truck.setStartPeriodDate(null);
+            truck.setEndPeriodDate(null);
+            truck.setCurrentTrailerBusinessId(null);
+        }
 
         return convert(trailer);
     }

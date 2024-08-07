@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
+import pl.jkuznik.trucktracking.domain.trailer.api.command.UnassignTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateAssignmentTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateCrossHitchTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
@@ -21,22 +22,20 @@ import java.util.UUID;
 public class TrailerController {
 
     // todo czy przewidziana jest możliwość edycji numeru rejestracyjnego naczepy, a jeżeli tak to czy w bazie danych
-
     // historia przypisań naczepy do pojazdu powinna uwzględnić poprzednią rejestrację
+
     private final TrailerService trailerService;
 
     @GetMapping
     public ResponseEntity<List<TrailerDTO>> getTrailers() {
-        List<TrailerDTO> trailers = trailerService.getAllTrailers();
 
-        return ResponseEntity.ok(trailers);
+        return ResponseEntity.ok(trailerService.getAllTrailers());
     }
 
     @GetMapping("/{uuid}")
     public ResponseEntity<TrailerDTO> getTrailer(@PathVariable String uuid) {
-        TrailerDTO trailerDTO = trailerService.getTrailerByBusinessId(UUID.fromString(uuid));
 
-        return ResponseEntity.ok(trailerDTO);
+        return ResponseEntity.ok(trailerService.getTrailerByBusinessId(UUID.fromString(uuid)));
     }
 
     @GetMapping("/search")
@@ -58,23 +57,27 @@ public class TrailerController {
 
     @PostMapping()
     public ResponseEntity<TrailerDTO> createTrailer(@RequestBody AddTrailerCommand addTrailerCommand) {
-        TrailerDTO responseTrailer = trailerService.addTrailer(addTrailerCommand);
 
         //TODO dopisać generowanie adresu pod ktorym bedzie dostepny nowy zasob oraz obsłużyć wyjątki
-        return ResponseEntity.status(201).body(responseTrailer);
+        return ResponseEntity.status(201).body(trailerService.addTrailer(addTrailerCommand));
     }
 
     @PatchMapping("/{uuid}")
-    public ResponseEntity<TrailerDTO> updateTrailerByBusinessId(@PathVariable String uuid, @RequestBody UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) throws Exception {
+    public ResponseEntity<TrailerDTO> updateTrailerByBusinessId(@PathVariable String uuid, @RequestBody UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) {
 
         return ResponseEntity.ok(trailerService.updateTrailerByBusinessId(UUID.fromString(uuid), updateCrossHitchTrailerCommand));
     }
 
     @PatchMapping("/{uuid}/assign-manage")
-    public ResponseEntity<TrailerDTO> assignTrailerManage(@PathVariable String uuid, @RequestBody UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) throws Exception {
-        TrailerDTO updatedTrailer = trailerService.assignTrailerManageByBusinessId(UUID.fromString(uuid), updateAssignmentTrailerCommand);
+    public ResponseEntity<TrailerDTO> assignTrailerManage(@PathVariable String uuid, @RequestBody UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
 
-        return ResponseEntity.status(200).body(updatedTrailer);
+        return ResponseEntity.status(200).body(trailerService.assignTrailerManageByBusinessId(UUID.fromString(uuid), updateAssignmentTrailerCommand));
+    }
+
+    @PatchMapping("/{uuid}/unassign-manage")
+    public ResponseEntity<TrailerDTO> unassignTrailerManage(@PathVariable String uuid, @RequestBody UnassignTrailerCommand unassignTrailerCommand) {
+
+        return ResponseEntity.status(200).body(trailerService.unassignTrailerManageByBusinessId(UUID.fromString(uuid), unassignTrailerCommand));
     }
 
     @PatchMapping("/{uuid}/cross-hitch")
@@ -89,9 +92,7 @@ public class TrailerController {
             return ResponseEntity.badRequest().body("Truck id cannot be empty in cross hitch operation");
         }
 
-        var result = trailerService.crossHitchOperation(UUID.fromString(uuid), updateAssignmentTrailerCommand);
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(trailerService.crossHitchOperation(UUID.fromString(uuid), updateAssignmentTrailerCommand));
     }
 
     @DeleteMapping("/{uuid}")

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
+import pl.jkuznik.trucktracking.domain.trailer.api.command.UnassignTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateAssignmentTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateCrossHitchTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
@@ -26,6 +27,9 @@ public interface TrailerApi {
 
     @Transactional
     TrailerDTO updateTrailerByBusinessId(@NotNull UUID uuid, @NotNull @Valid UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) throws Exception;
+
+    @Transactional
+    TrailerDTO unassignTrailerManageByBusinessId(@NotNull UUID uuid, @Valid UnassignTrailerCommand unassignTrailerCommand);
 
     @Transactional
     TrailerDTO assignTrailerManageByBusinessId(@NotNull UUID uuid,@NotNull @Valid UpdateAssignmentTrailerCommand newTrailer);
