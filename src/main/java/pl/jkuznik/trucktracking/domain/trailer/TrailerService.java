@@ -78,16 +78,21 @@ class TrailerService implements TrailerApi {
     }
 
     @Override
-    public TrailerDTO addTrailer(AddTrailerCommand newTrailer) {
+    public TrailerDTO addTrailer(AddTrailerCommand addTrailerCommand) {
+        Optional<Trailer> existTrailer = trailerRepository.findByRegisterPlateNumber(addTrailerCommand.registerPlateNumber());
+        if (existTrailer.isPresent()) {
+            throw new RuntimeException("Trailer with " + addTrailerCommand.registerPlateNumber() + " plate number already exists");  //TODO działa ale poprawic bo leci status 500
+        }
+
         return convert(trailerRepository.save(new Trailer(
                 UUID.randomUUID(),
-                newTrailer.registerPlateNumber())));
+                addTrailerCommand.registerPlateNumber())));
     }
 
     @Override
     public TrailerDTO getTrailerByBusinessId(UUID uuid) {
         return convert(trailerRepository.findByBusinessId(uuid)
-                .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid.toString())));
+                .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid)));
     }
 
     @Override
@@ -122,7 +127,7 @@ class TrailerService implements TrailerApi {
     @Override
     public TrailerDTO updateTrailerByBusinessId(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) throws Exception {
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
-                .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid.toString()));
+                .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
 
         trailer.setCrossHitch(updateCrossHitchTrailerCommand.crossHitch());
 
@@ -134,12 +139,12 @@ class TrailerService implements TrailerApi {
     public TrailerDTO assignTrailerManageByBusinessId(UUID uuid, UpadeteAssignmentTrailerCommand upadeteAssignmentTrailerCommand) {
         // TODO dodać obsługę wyjątków
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
-                .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid.toString()));
+                .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
         Truck truck;
 
         if (upadeteAssignmentTrailerCommand.truckId().isPresent()) {
             truck = truckRepository.findByBusinessId(upadeteAssignmentTrailerCommand.truckId().get())
-                    .orElseThrow(() -> new NoSuchElementException("No truck with id " + upadeteAssignmentTrailerCommand.truckId().get().toString()));
+                    .orElseThrow(() -> new NoSuchElementException("No truck with id " + upadeteAssignmentTrailerCommand.truckId().get()));
         } else {
             throw new NoSuchElementException("Truck business id is needed in this operation");
         }
@@ -205,7 +210,7 @@ class TrailerService implements TrailerApi {
             if (upadeteAssignmentTrailerCommand.truckId().isPresent())
                 processingTrailer.get().setCurrentTruckBusinessId(upadeteAssignmentTrailerCommand.truckId().get());
         } else {
-            return "Trailer with business id " + processingTrailerBusinessId.toString() + " not found";
+            return "Trailer with business id " + processingTrailerBusinessId + " not found";
         }
 
         Optional<Truck> crossHitchTruck = truckRepository.findByBusinessId(upadeteAssignmentTrailerCommand.truckId().get());
@@ -220,7 +225,7 @@ class TrailerService implements TrailerApi {
                 crossHitchTruck.get().setEndPeriodDate(upadeteAssignmentTrailerCommand.endPeriod().get());
             crossHitchTruck.get().setCurrentTrailerBusinessId(processingTrailerBusinessId);
         } else {
-            return "Truck with business id " + processingTrailerBusinessId.toString() + " not found";
+            return "Truck with business id " + processingTrailerBusinessId + " not found";
         }
 
         TruckTrailerHistory crossHitchOperation = new TruckTrailerHistory();

@@ -1,6 +1,8 @@
 package pl.jkuznik.trucktracking.domain.truck;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 import pl.jkuznik.trucktracking.domain.shared.AbstractEntity;
@@ -31,9 +33,5 @@ public class Truck extends AbstractEntity {
     public Truck(UUID businessId, String registerPlateNumber) {
         super(businessId);
         this.registerPlateNumber = registerPlateNumber;
-    }
-
-    public boolean isInUse(Instant now) {
-        return false;
     }
 }

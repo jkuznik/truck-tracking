@@ -58,14 +58,6 @@ public class TrailerController {
 
     @PostMapping()
     public ResponseEntity<TrailerDTO> createTrailer(@RequestBody AddTrailerCommand addTrailerCommand) {
-        List<String> currentTrailers = trailerService.getAllTrailers().stream()
-                .map(TrailerDTO::trailerPlateNumber)
-                .toList();
-
-        if (currentTrailers.contains(addTrailerCommand.registerPlateNumber())) {
-            throw new RuntimeException("Plate number already exists");  //TODO działa ale poprawic bo leci status 500
-        }
-
         TrailerDTO responseTrailer = trailerService.addTrailer(addTrailerCommand);
 
         //TODO dopisać generowanie adresu pod ktorym bedzie dostepny nowy zasob oraz obsłużyć wyjątki

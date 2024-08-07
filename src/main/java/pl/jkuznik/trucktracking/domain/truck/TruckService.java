@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class TruckService implements TruckApi {
+class TruckService implements TruckApi {
 
     private final TruckRepository truckRepository;
     private final TrailerRepository trailerRepository;
