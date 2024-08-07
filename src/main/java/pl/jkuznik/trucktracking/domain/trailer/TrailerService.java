@@ -141,11 +141,20 @@ class TrailerService implements TrailerApi {
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
 
+        Truck truck;
+
         if (trailer.getCurrentTruckBusinessId() == null) {
             throw new IllegalStateException("Current trailer is already unassigned");
         }
 
-        Truck truck = truckRepository.findByBusinessId(trailer.getCurrentTruckBusinessId()).orElse(null);
+        if (unassignTrailerCommand.isTruckStillExist()) {
+            truck = truckRepository.findByBusinessId(trailer.getCurrentTruckBusinessId())
+                    .orElseThrow(() ->
+                            new NoSuchElementException("No truck with business id " + trailer.getCurrentTruckBusinessId() +
+                                    "Consider to switch 'isTruckStillExist' as false"));
+        } else {
+            truck = null;
+        }
 
         trailer.setStartPeriodDate(null);
         trailer.setEndPeriodDate(null);

@@ -6,5 +6,6 @@ import org.springframework.validation.annotation.Validated;
 import java.util.UUID;
 
 @Validated
-public record UnassignTrailerCommand(@NotNull UUID trailerId) {
+public record UnassignTrailerCommand(@NotNull UUID trailerId,
+                                     boolean isTruckStillExist) {
 }

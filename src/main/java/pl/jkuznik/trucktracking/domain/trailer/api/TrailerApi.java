@@ -26,7 +26,7 @@ public interface TrailerApi {
     List<TrailerDTO> getTrailersByCrossHitch(@NotNull Boolean crossHitch);
 
     @Transactional
-    TrailerDTO updateTrailerByBusinessId(@NotNull UUID uuid, @NotNull @Valid UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) throws Exception;
+    TrailerDTO updateTrailerByBusinessId(@NotNull UUID uuid, @Valid UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand);
 
     @Transactional
     TrailerDTO unassignTrailerManageByBusinessId(@NotNull UUID uuid, @Valid UnassignTrailerCommand unassignTrailerCommand);
