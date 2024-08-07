@@ -88,6 +88,8 @@ public class Trailer extends AbstractEntity {
                 throw new IllegalStateException("Processing trailer is currently assigned to a truck without start period. To add new assign edit first current assignment date or fill start date of new assign");
             }
         }
+
+        if (startDate == null && endDate == null) result = false;
         return result;
     }
 }

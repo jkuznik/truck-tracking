@@ -335,27 +335,72 @@ class TrailerServiceTest {
             assertThat(result.currentTruckBusinessId()).isEqualTo(newTruckBusinessId);
         }
 
-//        @Test
-//        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTruckIdIsEmpty() {
-//            //given
-//            var newCrossHitch = false;
-//            var newTruckBusinessId = UUID.randomUUID();
-//            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
-//                    Optional.of(newCrossHitch), Optional.empty(),
-//                    Optional.empty(), Optional.of(newTruckBusinessId));
-//
-//            //when
-//            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
-//            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
-//
-//            //then
-//            var exception = catchException(() ->
-//                    trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand));
-//
-//            assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
-//            assertThat(exception.getMessage()).isEqualTo("Both of start period and end period are empty. To assignment you need to fill one of date field");
-//
-//        }
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTruckIdIsEmpty() {
+            //given
+            var newCrossHitch = false;
+            Instant newStartPeriodTime = Instant.parse("2024-01-03T00:00:00Z");
+            Instant newEndPeriodTime = Instant.parse("2024-01-04T00:00:00Z");
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.of(newStartPeriodTime),
+                    Optional.of(newEndPeriodTime), Optional.empty());
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            var exception = catchException(() ->
+                    trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand));
+
+            assertThat(exception).isExactlyInstanceOf(NoSuchElementException.class);
+            assertThat(exception.getMessage()).isEqualTo("Truck business id is needed in this operation");
+        }
+
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodIsEmptyButNewTruckIdIsPresent() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.empty(),
+                    Optional.empty(), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            var exception = catchException(() ->
+                    trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand));
+
+            assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
+            assertThat(exception.getMessage()).isEqualTo("Wrong operation to unassign a truck");
+        }
+
+        @Test
+        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewStartDateIsAfterEndDate() {
+            //given
+            var newCrossHitch = false;
+            var newTruckBusinessId = UUID.randomUUID();
+            Instant newStartPeriodTime = Instant.parse("2024-01-05T00:00:00Z");
+            Instant newEndPeriodTime = Instant.parse("2024-01-04T00:00:00Z");
+            var updateTrailerCommand = new UpdateAssignmentTrailerCommand(
+                    Optional.of(newCrossHitch), Optional.of(newStartPeriodTime),
+                    Optional.of(newEndPeriodTime), Optional.of(newTruckBusinessId));
+
+            //when
+            when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            var exception = catchException(() ->
+                    trailerApi.assignTrailerManageByBusinessId(trailerBusinessId, updateTrailerCommand));
+
+            assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
+            assertThat(exception.getMessage()).isEqualTo("End period is before start period");
+
+        }
 
         @Test
         void assignTrailerManageByBusinessIdWhenCommandIsValidAndTrailerNotExist() {
