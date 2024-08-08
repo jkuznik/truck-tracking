@@ -2,7 +2,8 @@ spring:
   application:
     name: truck-tracking
   profiles:
-    active: test
+    active: prod
+    include: test
 #springdoc:
 #  api-docs:
 #    enabled: true

@@ -14,7 +14,9 @@ info:
     url: http://www.github.com/jkuznik
 servers:
   - url: http://localhost:8080
-    description: Lokalny dostęp do aplikacji
+    description: Środowisko test
+  - url: http://localhost:8081
+    description: Środowisko prod
 externalDocs:
   description: Konsola h2 - dostępna w środowisku testowym
   url: http://localhost:8080/secret-h2

@@ -8,3 +8,5 @@ spring:
     console:
       enabled: true
       path: /secret-h2
+server:
+  port: 8080

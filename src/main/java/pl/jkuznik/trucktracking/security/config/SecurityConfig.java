@@ -27,7 +27,7 @@ public class SecurityConfig {
 
     @Bean
     @Profile(value = "prod")
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .httpBasic(Customizer.withDefaults())

@@ -13,7 +13,7 @@ public class TestSecurityConfig {
 
     @Bean
     @Profile(value = "test")
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .httpBasic(Customizer.withDefaults())
