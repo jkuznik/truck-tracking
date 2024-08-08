@@ -1,0 +1,35 @@
+name: Janusz Kuźnik
+
+services:
+
+  truck-tracking:
+    build: ./Dockerfile
+    image: truck tracking
+    ports:
+      - "8080:8080"
+      - "[::]:80:8080"
+    networks:
+      - tms
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16.3
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASS}
+    ports:
+      - "5432:5432"
+    networks:
+      - tms
+    volumes:
+      - postgres_database:/var/lib/postgresql/data
+
+
+networks:
+  tms:
+    driver: bridge
+
+volumes:
+  postgres_database:

@@ -34,8 +34,13 @@ public class TrailerController {
 
     @GetMapping("/{uuid}")
     public ResponseEntity<TrailerDTO> getTrailer(@PathVariable String uuid) {
+        TrailerDTO trailerByBusinessId = trailerService.getTrailerByBusinessId(UUID.fromString(uuid));
 
-        return ResponseEntity.ok(trailerService.getTrailerByBusinessId(UUID.fromString(uuid)));
+        if (trailerByBusinessId == null) {
+            throw new NoSuchElementException("No trailer with business id " + uuid);
+        }
+
+        return ResponseEntity.ok(trailerByBusinessId);
     }
 
     @GetMapping("/search")

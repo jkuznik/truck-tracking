@@ -120,25 +120,6 @@ class TrailerServiceTest {
             assertThat(trailers.getFirst().trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
         }
 
-
-        //        @Test
-//        void getTrailersByStartPeriodDate() {
-//
-//        }
-//
-//        @Test
-//        void getTrailersByEndPeriodDate() {
-//        }
-
-//        @Test
-//        void getTrailersByFilters() {
-//
-//        }
-//
-//        @Test
-//        void getTrailersHistoryByFilters() {
-//        }
-
         @Test
         void getTrailersByCrossHitch() {
             //when
