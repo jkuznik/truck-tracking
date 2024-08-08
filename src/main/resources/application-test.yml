@@ -8,8 +8,3 @@ spring:
     console:
       enabled: true
       path: /secret-h2
-#springdoc:
-#  api-docs:
-#    enabled: true
-#  swagger-ui:
-#    url: swagger.yaml

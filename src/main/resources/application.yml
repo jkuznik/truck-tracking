@@ -3,3 +3,8 @@ spring:
     name: truck-tracking
   profiles:
     active: test
+#springdoc:
+#  api-docs:
+#    enabled: true
+#  swagger-ui:
+#    url: swagger.yaml

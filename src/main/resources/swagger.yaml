@@ -2,20 +2,22 @@ openapi: 3.0.3
 info:
   version: 1.0.0
   title: Truck tracking
-  description: Truck tracking jest to moja implementacja założeń zadania rekrutacyjnego dla firmy fireTMS.
-              Cała aplikacja jest zabezpieczona metodą BasicAuth z istniejącym użytkownikiem/hasłem **'fire/tms'**
+  description: "
+  <h3>Truck tracking jest to moja implementacja założeń zadania rekrutacyjnego dla firmy fireTMS. </h3>
+  <h3>W środowisku produkcyjnym aplikacja jest zabezpieczona metodą BasicAuth z istniejącym użytkownikiem/hasłem: </h3>
+  <h2>login: fire</h2>
+  <h2>hasło: tms</h2>
+  W środowisku testowym uwierzytelnienie nie jest wymagane."
   contact:
     name: Janusz Kuźnik
     email: janusz.kuznik89@gmail.com
     url: http://www.github.com/jkuznik
 servers:
-  - url: 'http://localhost:8080'
-    description: 'Server URL in Development environment'
-  - url: 'http://localhost:8081'
-    description: 'Server URL in Production environment'
+  - url: http://localhost:8080
+    description: Lokalny dostęp do aplikacji
 externalDocs:
-  description: Treść zadania
-  url: http://localhost:8080/zadanie.html
+  description: Konsola h2 - dostępna w środowisku testowym
+  url: http://localhost:8080/secret-h2
 tags:
   - name: trailer
     description: Metody CRUD przewidziane według założeń zadania
