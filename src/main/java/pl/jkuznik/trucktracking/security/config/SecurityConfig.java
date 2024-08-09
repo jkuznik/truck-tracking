@@ -3,7 +3,6 @@ package pl.jkuznik.trucktracking.security.config;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,7 +22,10 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-resources/**",
             "/webjars/**",
-            "/v3/api-docs/**"};
+            "/v3/api-docs/**",
+            "/static/swagger.yaml",
+            "/swagger.yaml",
+            "/zadanie.html"};
 
     @Bean
     @Profile(value = "prod")

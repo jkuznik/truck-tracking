@@ -20,7 +20,10 @@ public class TestSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .anyRequest().permitAll());
+                                .anyRequest().permitAll())
+                .headers(headers ->
+                        headers.frameOptions(Customizer.withDefaults()).disable())
+                .formLogin(Customizer.withDefaults());
 
         return http.build();
     }

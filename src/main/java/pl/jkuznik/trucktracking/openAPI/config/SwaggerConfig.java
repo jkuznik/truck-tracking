@@ -20,7 +20,7 @@ class SwaggerConfig {
     public OpenAPI myOpenAPI() {
 
         try {
-            Path path = Paths.get("src/main/resources/swagger.yaml");
+            Path path = Paths.get("src/main/resources/static/swagger.yaml");
             InputStream inputStream = Files.newInputStream(path);
             Yaml yaml = new Yaml();
             Map<String, Object> yamlMap = yaml.load(inputStream);
