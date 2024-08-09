@@ -1,17 +1,17 @@
-name: Janusz Kuźnik
+name: jkuznik
 
 services:
-
-  truck-tracking:
-    build: ./Dockerfile
-    image: truck tracking
-    ports:
-      - "8080:8080"
-      - "[::]:80:8080"
-    networks:
-      - tms
-    depends_on:
-      - postgres
+# TODO w obrazie srodowiska testowego jest problem z utworzeniem h2
+#  truck-tracking:
+#    build: ./Dockerfile
+#    image: truck tracking
+#    ports:
+#      - "8080:8080"
+#      - "[::]:80:8080"
+#    networks:
+#      - tms
+#    depends_on:
+#      - postgres
 
   postgres:
     image: postgres:16.3

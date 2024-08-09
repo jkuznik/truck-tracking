@@ -1,15 +1,15 @@
-#spring:
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/ttdb
-#    driver-class-name: org.postgresql.Driver
-#    username: fire
-#    password: tms
-#  jpa:
-#    hibernate:
-#      ddl-auto: update
-#    properties:
-#      hibernate:
-#        dialect: org.hibernate.dialect.PostgreSQLDialect
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ttdb
+    driver-class-name: org.postgresql.Driver
+    username: fire
+    password: tms
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   port: 8081
