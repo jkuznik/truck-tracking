@@ -9,6 +9,7 @@ import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Validated
@@ -17,8 +18,7 @@ public interface TruckApi {
     TruckDTO addTruck(@Valid AddTruckCommand newTruck);
 
     TruckDTO getTruckByBusinessId(@NotNull UUID uuid);
-    List<TruckDTO> getAllTrucks();
-    List<TruckDTO> getTrucksByUsingInLastMonth();
+    List<TruckDTO> getAllTrucks(Optional<String> date);
 
     @Transactional
     TruckDTO updateTruckAssignByBusinessId(@NotNull UUID uuid, @NotNull @Valid UpdateTruckCommand updateTruckCommand);

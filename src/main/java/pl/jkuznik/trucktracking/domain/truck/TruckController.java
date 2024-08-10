@@ -8,6 +8,7 @@ import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -28,15 +29,17 @@ public class TruckController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TruckDTO>> getTrucks() {
-        List<TruckDTO> trucks = truckService.getAllTrucks();
+    public ResponseEntity<List<TruckDTO>> getTrucks(@RequestParam(required = false) String date) {
+        List<TruckDTO> trucks = truckService.getAllTrucks(Optional.of(date));
 
         return ResponseEntity.ok(trucks);
     }
 
+
     @PostMapping()
     public ResponseEntity<TruckDTO> createTruck(@RequestBody AddTruckCommand addTruckCommand) {
-        List<String> currentTrucks = truckService.getAllTrucks().stream()
+        // TODO utowrzyć metodę getByPlateNumber i wykorzystać ją do sprawdzenia czy taki pojazd już istnieje
+        List<String> currentTrucks = truckService.getAllTrucks(Optional.empty()).stream()
                 .map(TruckDTO::trailerPlateNumber)
                 .toList();
 

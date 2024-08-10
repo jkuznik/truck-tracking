@@ -314,6 +314,7 @@ class TrailerService implements TrailerApi {
             Optional<Truck> truck = truckRepository.findByBusinessId(trailer.getCurrentTruckBusinessId());
 
             if (truck.isPresent()) {
+                // TODO wyświetlić komunikat o tym że naczepa była aktualnie przypisana do pojazdu
                 truck.get().setStartPeriodDate(null);
                 truck.get().setEndPeriodDate(null);
                 truck.get().setCurrentTrailerBusinessId(null);

@@ -1,6 +1,13 @@
 package pl.jkuznik.trucktracking.domain.truck;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPQLTemplates;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.jkuznik.trucktracking.domain.trailer.Trailer;
@@ -13,10 +20,8 @@ import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,18 +44,24 @@ class TruckService implements TruckApi {
                 .orElseThrow(() -> new NoSuchElementException("Truck with business id " + uuid + " not found")));
     }
 
-    @Override
-    public List<TruckDTO> getAllTrucks() {
-        return truckRepository.findAll().stream()
-                .map(this::convert)
-                .toList();
+        @Override
+    public List<TruckDTO> getAllTrucks(Optional<String> date) {
+        List<TruckDTO> trucks = new ArrayList<>();
+
+        if (date.isPresent()) {
+            trucks = truckRepository.findByStartPeriodDateBeforeOrEndPeriodDateAfter(Instant.parse(date.get())).stream()
+                    .map(this::convert)
+                    .collect(Collectors.toList());
+        } else {
+            trucks = truckRepository.findAll().stream()
+                    .map(this::convert)
+                    .collect(Collectors.toList());
+        }
+
+
+        return trucks;
     }
 
-    @Override
-    public List<TruckDTO> getTrucksByUsingInLastMonth() {
-
-        return null;
-    }
 
     @Transactional
     @Override
@@ -120,6 +131,7 @@ class TruckService implements TruckApi {
             Optional<Trailer> trailer = trailerRepository.findByBusinessId(truck.getCurrentTrailerBusinessId());
 
             if (trailer.isPresent()) {
+                // TODO wyświetlić komunikat o tym że pojazd był aktualnie przypisany do naczepy
                 trailer.get().setStartPeriodDate(null);
                 trailer.get().setEndPeriodDate(null);
                 trailer.get().setCurrentTruckBusinessId(null);
