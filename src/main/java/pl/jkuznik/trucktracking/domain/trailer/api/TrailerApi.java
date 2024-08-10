@@ -12,6 +12,7 @@ import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Validated
@@ -21,18 +22,16 @@ public interface TrailerApi {
 
     TrailerDTO getTrailerByBusinessId(@NotNull UUID uuid);
     List<TrailerDTO> getAllTrailers();
-    List<TrailerDTO> getTrailersByStartPeriodDate(Instant startDate);
-    List<TrailerDTO> getTrailersByEndPeriodDate(Instant endDate);
     List<TrailerDTO> getTrailersByCrossHitch(@NotNull Boolean crossHitch);
 
     @Transactional
-    TrailerDTO updateTrailerByBusinessId(@NotNull UUID uuid, @Valid UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand);
+    TrailerDTO updateCrossHitchTrailerByBusinessId(@NotNull UUID uuid, @Valid UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand);
 
     @Transactional
-    TrailerDTO unassignTrailerManageByBusinessId(@NotNull UUID uuid, @Valid UnassignTrailerCommand unassignTrailerCommand);
+    TrailerDTO unassignTrailerByBusinessId(@NotNull UUID uuid, @Valid UnassignTrailerCommand unassignTrailerCommand);
 
     @Transactional
-    TrailerDTO assignTrailerManageByBusinessId(@NotNull UUID uuid,@NotNull @Valid UpdateAssignmentTrailerCommand newTrailer);
+    TrailerDTO assignTrailerByBusinessId(@NotNull UUID uuid, @NotNull @Valid UpdateAssignmentTrailerCommand newTrailer);
 
     @Transactional
     String crossHitchOperation(@NotNull UUID uuid, @NotNull @Valid UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand);

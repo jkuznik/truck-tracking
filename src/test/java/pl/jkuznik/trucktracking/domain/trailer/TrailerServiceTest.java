@@ -193,7 +193,7 @@ class TrailerServiceTest {
     class PatchMethodsTests {
 
         @Test
-        void updateTrailerManageByBusinessIdWhenTrailerExist() {
+        void updateCrossHitchTrailerByBusinessIdWhenTrailerExist() {
             //given
             var updateCommand = new UpdateCrossHitchTrailerCommand(false);
 
@@ -201,13 +201,13 @@ class TrailerServiceTest {
             when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
 
             //then
-            TrailerDTO trailerDTO = trailerApi.updateTrailerByBusinessId(TRAILER_BUSINESS_ID, updateCommand);
+            TrailerDTO trailerDTO = trailerApi.updateCrossHitchTrailerByBusinessId(TRAILER_BUSINESS_ID, updateCommand);
 
             assertThat(trailerDTO.isCrossHitch()).isFalse();
         }
 
         @Test
-        void updateTrailerManageByBusinessIdWhenTrailerNotExist() {
+        void updateCrossHitchTrailerByBusinessIdWhenTrailerNotExist() {
             //given
             var updateCommand = new UpdateCrossHitchTrailerCommand(false);
 
@@ -216,14 +216,14 @@ class TrailerServiceTest {
 
             //then
             var exception = catchException(() ->
-                    trailerApi.updateTrailerByBusinessId(TRAILER_BUSINESS_ID, updateCommand));
+                    trailerApi.updateCrossHitchTrailerByBusinessId(TRAILER_BUSINESS_ID, updateCommand));
 
             assertThat(exception).isInstanceOf(NoSuchElementException.class);
             assertThat(exception.getMessage()).isEqualTo("No trailer with business id " + TRAILER_BUSINESS_ID);
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndTrailerExistAndNewTimePeriodDoesNotConflict() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndTrailerExistAndNewTimePeriodDoesNotConflict() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -238,7 +238,7 @@ class TrailerServiceTest {
             when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
 
             //then
-            TrailerDTO result = trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand);
+            TrailerDTO result = trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand);
 
             assertThat(result.trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
             assertThat(result.isCrossHitch()).isEqualTo(newCrossHitch);
@@ -252,7 +252,7 @@ class TrailerServiceTest {
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodDoesNotConflict2() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndNewTimePeriodDoesNotConflict2() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -268,7 +268,7 @@ class TrailerServiceTest {
             when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
 
             //then
-            var result = trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand);
+            var result = trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand);
 
             assertThat(result.trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
             assertThat(result.isCrossHitch()).isEqualTo(newCrossHitch);
@@ -278,7 +278,7 @@ class TrailerServiceTest {
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodDoesNotConflict3() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndNewTimePeriodDoesNotConflict3() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -294,7 +294,7 @@ class TrailerServiceTest {
             when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
 
             //then
-            var result = trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand);
+            var result = trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand);
 
             assertThat(result.trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
             assertThat(result.isCrossHitch()).isEqualTo(newCrossHitch);
@@ -304,7 +304,7 @@ class TrailerServiceTest {
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodDoesNotConflict4() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndNewTimePeriodDoesNotConflict4() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -321,7 +321,7 @@ class TrailerServiceTest {
             when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
 
             //then
-            var result = trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand);
+            var result = trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand);
 
             assertThat(result.trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
             assertThat(result.isCrossHitch()).isEqualTo(newCrossHitch);
@@ -331,7 +331,7 @@ class TrailerServiceTest {
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodDoesNotConflict5() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndNewTimePeriodDoesNotConflict5() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -348,7 +348,7 @@ class TrailerServiceTest {
             when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
 
             //then
-            var result = trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand);
+            var result = trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand);
 
             assertThat(result.trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
             assertThat(result.isCrossHitch()).isEqualTo(newCrossHitch);
@@ -358,7 +358,7 @@ class TrailerServiceTest {
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTruckIdIsEmpty() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndNewTruckIdIsEmpty() {
             //given
             var newCrossHitch = false;
             Instant newStartPeriodTime = Instant.parse("2024-01-03T00:00:00Z");
@@ -373,14 +373,14 @@ class TrailerServiceTest {
 
             //then
             var exception = catchException(() ->
-                    trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
+                    trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
 
             assertThat(exception).isExactlyInstanceOf(NoSuchElementException.class);
             assertThat(exception.getMessage()).isEqualTo("Truck business id is needed in this operation");
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodIsEmptyButNewTruckIdIsPresent() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndNewTimePeriodIsEmptyButNewTruckIdIsPresent() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -394,14 +394,14 @@ class TrailerServiceTest {
 
             //then
             var exception = catchException(() ->
-                    trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
+                    trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
 
             assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
             assertThat(exception.getMessage()).isEqualTo("Wrong operation to unassign a truck");
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewStartDateIsAfterEndDate() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndNewStartDateIsAfterEndDate() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -417,7 +417,7 @@ class TrailerServiceTest {
 
             //then
             var exception = catchException(() ->
-                    trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
+                    trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
 
             assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
             assertThat(exception.getMessage()).isEqualTo("End period is before start period");
@@ -425,7 +425,7 @@ class TrailerServiceTest {
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndTrailerNotExist() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndTrailerNotExist() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -440,14 +440,14 @@ class TrailerServiceTest {
 
             //then
             var exception = catchException(() ->
-                    trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
+                    trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
 
             assertThat(exception).isExactlyInstanceOf(NoSuchElementException.class);
             assertThat(exception.getMessage()).isEqualTo("No trailer with business id " + TRAILER_BUSINESS_ID);
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -464,14 +464,14 @@ class TrailerServiceTest {
 
             //then
             var exception = catchException(() ->
-                    trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
+                    trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
 
             assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
             assertThat(exception.getMessage()).isEqualTo("The trailer is in use during the specified period.");
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict2() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict2() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -488,14 +488,14 @@ class TrailerServiceTest {
 
             //then
             var exception = catchException(() ->
-                    trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
+                    trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
 
             assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
             assertThat(exception.getMessage()).isEqualTo("The trailer is in use during the specified period.");
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict3() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict3() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -511,14 +511,14 @@ class TrailerServiceTest {
             when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
 
             //then
-            var exception = catchException(() -> trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
+            var exception = catchException(() -> trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
 
             assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
             assertThat(exception.getMessage()).isEqualTo("The trailer is in use during the specified period.");
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict4() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict4() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -535,14 +535,14 @@ class TrailerServiceTest {
             when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
 
             //then
-            var exception = catchException(() -> trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
+            var exception = catchException(() -> trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
 
             assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
             assertThat(exception.getMessage()).isEqualTo("Processing trailer is currently assigned to a truck without end period. To add new assign edit first current assignment date or fill end date of new assign");
         }
 
         @Test
-        void assignTrailerManageByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict5() {
+        void assignTrailerByBusinessIdWhenCommandIsValidAndNewTimePeriodHasConflict5() {
             //given
             var newCrossHitch = false;
             var newTruckBusinessId = UUID.randomUUID();
@@ -559,14 +559,14 @@ class TrailerServiceTest {
             when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
 
             //then
-            var exception = catchException(() -> trailerApi.assignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
+            var exception = catchException(() -> trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
 
             assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
             assertThat(exception.getMessage()).isEqualTo("Processing trailer is currently assigned to a truck without start period. To add new assign edit first current assignment date or fill start date of new assign");
         }
 
         @Test
-        void unassignTrailerManageByBusinessIdWhenCommandIsValidAndTruckIsAssigned() {
+        void unassignTrailerByBusinessIdWhenCommandIsValidAndTruckIsAssigned() {
             //given
             var unassignCommand = new UnassignTrailerCommand(TRAILER_BUSINESS_ID, true);
 
@@ -575,7 +575,7 @@ class TrailerServiceTest {
             when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
 
             //then
-            TrailerDTO trailerDTO = trailerApi.unassignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, unassignCommand);
+            TrailerDTO trailerDTO = trailerApi.unassignTrailerByBusinessId(TRAILER_BUSINESS_ID, unassignCommand);
 
             assertThat(trailerDTO.startPeriod()).isNull();
             assertThat(trailerDTO.endPeriod()).isNull();
@@ -587,7 +587,7 @@ class TrailerServiceTest {
         }
 
         @Test
-        void unassignTrailerManageByBusinessIdWhenCommandIsValidAndTruckIsUnassigned() {
+        void unassignTrailerByBusinessIdWhenCommandIsValidAndTruckIsUnassigned() {
             //given
             var unassignCommand = new UnassignTrailerCommand(TRAILER_BUSINESS_ID, true);
             testTrailer.setCurrentTruckBusinessId(null);
@@ -597,14 +597,14 @@ class TrailerServiceTest {
 
             //then
             var exception = catchException(() ->
-                    trailerApi.unassignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, unassignCommand));
+                    trailerApi.unassignTrailerByBusinessId(TRAILER_BUSINESS_ID, unassignCommand));
 
             assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
             assertThat(exception.getMessage()).isEqualTo("Current trailer is already unassigned");
         }
 
         @Test
-        void unassignTrailerManageByBusinessIdWhenCommandIsValidAndTrailerNotExist() {
+        void unassignTrailerByBusinessIdWhenCommandIsValidAndTrailerNotExist() {
             //given
             var unassignCommand = new UnassignTrailerCommand(TRAILER_BUSINESS_ID, true);
 
@@ -613,14 +613,14 @@ class TrailerServiceTest {
 
             //then
             var exception = catchException(() ->
-                    trailerApi.unassignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, unassignCommand));
+                    trailerApi.unassignTrailerByBusinessId(TRAILER_BUSINESS_ID, unassignCommand));
 
             assertThat(exception).isExactlyInstanceOf(NoSuchElementException.class);
             assertThat(exception.getMessage()).isEqualTo("No trailer with business id " + TRAILER_BUSINESS_ID);
         }
 
         @Test
-        void unassignTrailerManageByBusinessIdWhenCommandIsValidAndTrailerExistButAssignedTruckNotExist() {
+        void unassignTrailerByBusinessIdWhenCommandIsValidAndTrailerExistButAssignedTruckNotExist() {
             //given
             var unassignCommand = new UnassignTrailerCommand(TRAILER_BUSINESS_ID, false);
 
@@ -629,7 +629,7 @@ class TrailerServiceTest {
             when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.empty());
 
             //then
-            TrailerDTO trailerDTO = trailerApi.unassignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, unassignCommand);
+            TrailerDTO trailerDTO = trailerApi.unassignTrailerByBusinessId(TRAILER_BUSINESS_ID, unassignCommand);
 
             assertThat(trailerDTO.startPeriod()).isNull();
             assertThat(trailerDTO.endPeriod()).isNull();
@@ -637,7 +637,7 @@ class TrailerServiceTest {
         }
 
         @Test
-        void unassignTrailerManageByBusinessIdWhenCommandIsNotValid() {
+        void unassignTrailerByBusinessIdWhenCommandIsNotValid() {
             //given
             var unassignCommand = new UnassignTrailerCommand(TRAILER_BUSINESS_ID, true);
 
@@ -647,7 +647,7 @@ class TrailerServiceTest {
 
             //then
             var exception = catchException(() ->
-                    trailerApi.unassignTrailerManageByBusinessId(TRAILER_BUSINESS_ID, unassignCommand));
+                    trailerApi.unassignTrailerByBusinessId(TRAILER_BUSINESS_ID, unassignCommand));
 
             assertThat(exception).isExactlyInstanceOf(NoSuchElementException.class);
             assertThat(exception.getMessage()).isEqualTo("No truck with business id " + testTrailer.getCurrentTruckBusinessId() +

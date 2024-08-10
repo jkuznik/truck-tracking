@@ -35,10 +35,7 @@
             <column name="business_id" value="004f1383-6d8e-4f55-a39f-8a71477317d3"/>
             <column name="current_trailer_business_id" value="e8a2f7c1-8b1d-4bfb-9d92-3a1b7c6e5071"/>
         </insert>
-    </changeSet>
 
-    <!-- Insert data into the trailer table -->
-    <changeSet id="5" author="your_username">
         <insert tableName="trailer">
             <column name="version" value="1"/>
             <column name="register_plate_number" value="TRL001"/>

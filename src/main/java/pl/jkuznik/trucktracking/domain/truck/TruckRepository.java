@@ -13,12 +13,4 @@ public interface TruckRepository extends JpaRepository<Truck, Long> {
 
     Optional<Truck> findByBusinessId(UUID uuid);
     void deleteByBusinessId(UUID uuid);
-
-    @Query("""
-            SELECT t
-            FROM Truck t
-            JOIN t.history h
-            WHERE (h.startPeriodDate <= :endDate AND h.endPeriodDate >= :startDate)
-            """)
-    List<Truck> findTrucksByDateRange(@Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
 }

@@ -98,21 +98,8 @@ class TrailerService implements TrailerApi {
 
     @Override
     public List<TrailerDTO> getAllTrailers() {
+
         return trailerRepository.findAll().stream()
-                .map(this::convert)
-                .toList();
-    }
-
-    @Override
-    public List<TrailerDTO> getTrailersByStartPeriodDate(Instant startDate) {
-        return trailerRepository.findAllByStartPeriodDate(startDate).stream()
-                .map(this::convert)
-                .toList();
-    }
-
-    @Override
-    public List<TrailerDTO> getTrailersByEndPeriodDate(Instant endDate) {
-        return trailerRepository.findAllByEndPeriodDate(endDate).stream()
                 .map(this::convert)
                 .toList();
     }
@@ -126,7 +113,7 @@ class TrailerService implements TrailerApi {
 
     @Transactional
     @Override
-    public TrailerDTO updateTrailerByBusinessId(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) {
+    public TrailerDTO updateCrossHitchTrailerByBusinessId(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) {
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
 
@@ -137,7 +124,7 @@ class TrailerService implements TrailerApi {
 
     @Transactional
     @Override
-    public TrailerDTO unassignTrailerManageByBusinessId(UUID uuid, UnassignTrailerCommand unassignTrailerCommand) {
+    public TrailerDTO unassignTrailerByBusinessId(UUID uuid, UnassignTrailerCommand unassignTrailerCommand) {
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
 
@@ -171,7 +158,7 @@ class TrailerService implements TrailerApi {
 
     @Transactional
     @Override
-    public TrailerDTO assignTrailerManageByBusinessId(UUID uuid, UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
+    public TrailerDTO assignTrailerByBusinessId(UUID uuid, UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
         // TODO dodać obsługę wyjątków
         if (updateAssignmentTrailerCommand.startPeriod().isEmpty() &&
                 updateAssignmentTrailerCommand.endPeriod().isEmpty() && updateAssignmentTrailerCommand.truckId().isPresent()) {
@@ -315,9 +302,26 @@ class TrailerService implements TrailerApi {
         return result.toString();
     }
 
+    //TODO dopisac testy if trailer not exist
     @Transactional
     @Override
     public void deleteTrailerByBusinessId(UUID uuid) {
+        Trailer trailer = trailerRepository.findByBusinessId(uuid).orElseThrow(
+                () -> new NoSuchElementException("Trailer with business id " + uuid + " not found")
+        );
+
+        if (trailer.getCurrentTruckBusinessId() != null) {
+            Optional<Truck> truck = truckRepository.findByBusinessId(trailer.getCurrentTruckBusinessId());
+
+            if (truck.isPresent()) {
+                truck.get().setStartPeriodDate(null);
+                truck.get().setEndPeriodDate(null);
+                truck.get().setCurrentTrailerBusinessId(null);
+
+                truckRepository.save(truck.get());
+            }
+        }
+
         trailerRepository.deleteByBusinessId(uuid);
     }
 

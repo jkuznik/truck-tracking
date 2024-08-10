@@ -15,6 +15,7 @@ import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -46,10 +47,9 @@ class TruckService implements TruckApi {
     }
 
     @Override
-    public List<TruckDTO> getTrucksByDateRange(Instant startDate, Instant endDate) {
-        return truckRepository.findTrucksByDateRange(startDate, endDate).stream()
-                .map(this::convert)
-                .toList();
+    public List<TruckDTO> getTrucksByUsingInLastMonth() {
+
+        return null;
     }
 
     @Transactional
@@ -112,6 +112,22 @@ class TruckService implements TruckApi {
     @Transactional
     @Override
     public void deleteTruckByBusinessId(UUID uuid) {
+        Truck truck = truckRepository.findByBusinessId(uuid).orElseThrow(
+                () -> new NoSuchElementException("Truck with business id " + uuid + " not found")
+        );
+
+        if (truck.getCurrentTrailerBusinessId() != null) {
+            Optional<Trailer> trailer = trailerRepository.findByBusinessId(truck.getCurrentTrailerBusinessId());
+
+            if (trailer.isPresent()) {
+                trailer.get().setStartPeriodDate(null);
+                trailer.get().setEndPeriodDate(null);
+                trailer.get().setCurrentTruckBusinessId(null);
+
+                trailerRepository.save(trailer.get());
+            }
+        }
+
         truckRepository.deleteByBusinessId(uuid);
     }
 
