@@ -20,6 +20,11 @@ import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,13 +50,22 @@ class TruckService implements TruckApi {
     }
 
         @Override
-    public List<TruckDTO> getAllTrucks(Optional<String> date) {
+    public List<TruckDTO> getAllTrucks(boolean lastMonth) {
         List<TruckDTO> trucks = new ArrayList<>();
 
-        if (date.isPresent()) {
-            trucks = truckRepository.findByStartPeriodDateBeforeOrEndPeriodDateAfter(Instant.parse(date.get())).stream()
+        if (lastMonth) {
+            Instant now = Instant.now();
+            ZonedDateTime zonedDateTimeNow = now.atZone(ZoneId.of("UTC"));
+            ZonedDateTime zonedDateTimePastMonth = zonedDateTimeNow.minusMonths(1);
+            Instant date = zonedDateTimePastMonth.toInstant();
+
+            trucks = tthRepository.findByUsingInLastMonth(date).stream()
+                    .map(TruckTrailerHistory::getTruck)
+                    .collect(Collectors.toList()).stream()
                     .map(this::convert)
-                    .collect(Collectors.toList());
+                    .toList();
+
+
         } else {
             trucks = truckRepository.findAll().stream()
                     .map(this::convert)

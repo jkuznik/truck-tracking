@@ -29,8 +29,8 @@ public class TruckController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TruckDTO>> getTrucks(@RequestParam(required = false) String date) {
-        List<TruckDTO> trucks = truckService.getAllTrucks(Optional.of(date));
+    public ResponseEntity<List<TruckDTO>> getTrucks(@RequestParam(required = false) boolean lastMonth) {
+        List<TruckDTO> trucks = truckService.getAllTrucks(lastMonth);
 
         return ResponseEntity.ok(trucks);
     }
@@ -39,7 +39,7 @@ public class TruckController {
     @PostMapping()
     public ResponseEntity<TruckDTO> createTruck(@RequestBody AddTruckCommand addTruckCommand) {
         // TODO utowrzyć metodę getByPlateNumber i wykorzystać ją do sprawdzenia czy taki pojazd już istnieje
-        List<String> currentTrucks = truckService.getAllTrucks(Optional.empty()).stream()
+        List<String> currentTrucks = truckService.getAllTrucks(false).stream()
                 .map(TruckDTO::trailerPlateNumber)
                 .toList();
 

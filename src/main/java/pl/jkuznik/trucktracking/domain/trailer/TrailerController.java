@@ -81,7 +81,6 @@ public class TrailerController {
 
     @PatchMapping("/{uuid}/unassign-manage")
     public ResponseEntity<TrailerDTO> unassignTrailerManage(@PathVariable String uuid, @RequestBody UnassignTrailerCommand updateAssignmentTrailerCommand) {
-
         return ResponseEntity.status(200).body(trailerService.unassignTrailerByBusinessId(UUID.fromString(uuid), updateAssignmentTrailerCommand));
     }
 

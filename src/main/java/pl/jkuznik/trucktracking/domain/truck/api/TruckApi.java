@@ -18,7 +18,7 @@ public interface TruckApi {
     TruckDTO addTruck(@Valid AddTruckCommand newTruck);
 
     TruckDTO getTruckByBusinessId(@NotNull UUID uuid);
-    List<TruckDTO> getAllTrucks(Optional<String> date);
+    List<TruckDTO> getAllTrucks(boolean lastMonth);
 
     @Transactional
     TruckDTO updateTruckAssignByBusinessId(@NotNull UUID uuid, @NotNull @Valid UpdateTruckCommand updateTruckCommand);

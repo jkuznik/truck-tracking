@@ -11,10 +11,5 @@ import java.util.List;
 @Validated
 public interface TTHApi {
 
-    TruckTrailerHistory save(TruckTrailerHistory truckTrailerHistory);
-
-    List<TruckTrailerHistoryDTO> getAllTrailersByTruckId(Long truckId);
-    List<TruckTrailerHistoryDTO> getAllTrucksByTrailerId(Long truckId);
-    List<TruckTrailerHistoryDTO> getTrailersByStartPeriodDate(Instant startDate);
-    List<TruckTrailerHistoryDTO> getTrailersByEndPeriodDate(Instant endDate);
+    List<TruckTrailerHistoryDTO> getLastMonthTruckTrailerHistory();
 }

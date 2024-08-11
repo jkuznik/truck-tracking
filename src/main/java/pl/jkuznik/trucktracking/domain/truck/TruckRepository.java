@@ -15,7 +15,4 @@ public interface TruckRepository extends JpaRepository<Truck, Long> {
 
     Optional<Truck> findByBusinessId(UUID uuid);
     void deleteByBusinessId(UUID uuid);
-
-    List<Truck> findByStartPeriodDateBeforeOrEndPeriodDateAfter(Instant date);
-    List<Truck> findByEndPeriodDateAfter(Instant date);
 }

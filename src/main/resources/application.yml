@@ -2,10 +2,10 @@ spring:
   application:
     name: truck-tracking
   profiles:
-#    active: prod
+    active: prod
     include: test
-springdoc:
-  api-docs:
-    enabled: true
-  swagger-ui:
-    url: swagger.yaml
+#springdoc:
+#  api-docs:
+#    enabled: true
+#  swagger-ui:
+#    url: swagger.yaml
