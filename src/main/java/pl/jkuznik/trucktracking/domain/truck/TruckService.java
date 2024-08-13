@@ -1,5 +1,8 @@
 package pl.jkuznik.trucktracking.domain.truck;
 
+import com.querydsl.jpa.JPQLTemplates;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -12,9 +15,11 @@ import pl.jkuznik.trucktracking.domain.truck.api.TruckApi;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.QTruckTrailerHistory;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -31,6 +36,9 @@ class TruckService implements TruckApi {
     private final TruckRepository truckRepository;
     private final TrailerRepository trailerRepository;
     private final TTHRepository tthRepository;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     public TruckDTO addTruck(AddTruckCommand newTruck) {
@@ -64,7 +72,36 @@ class TruckService implements TruckApi {
     @Override
     public Page<TruckDTO> getAllTrucksUsedInLastMonth(Integer pageNumber, Integer pageSize) {
 
-        return null;
+        Instant now = Instant.now();
+        ZoneId zoneId = ZoneId.systemDefault();
+        ZonedDateTime zdt = ZonedDateTime.ofInstant(now, zoneId);
+        Instant montAgo = zdt.minusMonths(1).toInstant();
+        List<TruckTrailerHistory> fetchedTTH = new ArrayList<>();
+
+        try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("TTHpersistence-unit")) {
+            EntityManager em = emf.createEntityManager();
+            JPAQueryFactory queryFactory = new JPAQueryFactory(JPQLTemplates.DEFAULT, em);
+
+            QTruckTrailerHistory qtth = QTruckTrailerHistory.truckTrailerHistory;
+
+            List<TruckTrailerHistory> fetch = queryFactory.selectFrom(qtth)
+                    .where(qtth.startPeriodDate.after(montAgo))
+                    .where(qtth.endPeriodDate.after(montAgo))
+                    .fetch();
+
+            fetchedTTH.addAll(fetch);
+
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+        }
+
+        List<TruckDTO> list = fetchedTTH.stream()
+                .map(TruckTrailerHistory::getTruck)
+                .map(this::convert)
+                .toList();
+
+        return new PageImpl<>(list);
+
     }
 
     private PageRequest getPageRequest(Integer pageNumber, Integer pageSize) {

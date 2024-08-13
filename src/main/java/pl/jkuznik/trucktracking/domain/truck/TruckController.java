@@ -40,7 +40,7 @@ public class TruckController {
     public ResponseEntity<Page<TruckDTO>> getAllTrucksUsedInLastMonth(@RequestParam(required = false) Integer pageNumber,
                                                           @RequestParam(required = false) Integer pageSize) {
 
-        return null;
+        return ResponseEntity.ok(truckService.getAllTrucksUsedInLastMonth(pageNumber, pageSize));
     }
 
 
