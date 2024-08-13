@@ -1,6 +1,7 @@
 package pl.jkuznik.trucktracking.domain.truck;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
@@ -8,7 +9,6 @@ import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -29,27 +29,26 @@ public class TruckController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TruckDTO>> getTrucks(@RequestParam(required = false) boolean lastMonth) {
-        List<TruckDTO> trucks = truckService.getAllTrucks(lastMonth);
+    public ResponseEntity<Page<TruckDTO>> getAllTrucks(@RequestParam(required = false) Integer pageNumber,
+                                                    @RequestParam(required = false) Integer pageSize) {
+        Page<TruckDTO> trucks = truckService.getAllTrucks(pageNumber, pageSize);
 
         return ResponseEntity.ok(trucks);
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<Page<TruckDTO>> getAllTrucksUsedInLastMonth(@RequestParam(required = false) Integer pageNumber,
+                                                          @RequestParam(required = false) Integer pageSize) {
+
+        return null;
     }
 
 
     @PostMapping()
     public ResponseEntity<TruckDTO> createTruck(@RequestBody AddTruckCommand addTruckCommand) {
-        // TODO utowrzyć metodę getByPlateNumber i wykorzystać ją do sprawdzenia czy taki pojazd już istnieje
-        List<String> currentTrucks = truckService.getAllTrucks(false).stream()
-                .map(TruckDTO::trailerPlateNumber)
-                .toList();
-
-        if (currentTrucks.contains(addTruckCommand.registerPlateNumber())) {
-            throw new RuntimeException("Plate number already exists");  //TODO działa ale poprawic bo leci status 500
-        }
-
         TruckDTO responseTruck = truckService.addTruck(addTruckCommand);
 
-        //TODO dopisać generowanie adresu pod ktorym bedzie dostepny nowy zasob oraz obsłużyć wyjątki
+        //TODO dopisać generowanie adresu pod ktorym bedzie dostepny nowy zasob
         return ResponseEntity.status(201).body(responseTruck);
     }
 

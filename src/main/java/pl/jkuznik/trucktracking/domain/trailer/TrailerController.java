@@ -1,6 +1,7 @@
 package pl.jkuznik.trucktracking.domain.trailer;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
@@ -27,9 +28,10 @@ public class TrailerController {
     private final TrailerService trailerService;
 
     @GetMapping
-    public ResponseEntity<List<TrailerDTO>> getTrailers() {
+    public ResponseEntity<Page<TrailerDTO>> getTrailers(@RequestParam(required = false) Integer pageNumber,
+                                                        @RequestParam(required = false) Integer pageSize) {
 
-        return ResponseEntity.ok(trailerService.getAllTrailers());
+        return ResponseEntity.ok(trailerService.getAllTrailers(pageNumber, pageSize));
     }
 
     @GetMapping("/{uuid}")
@@ -43,28 +45,12 @@ public class TrailerController {
         return ResponseEntity.ok(trailerByBusinessId);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<TrailerDTO>> getTrailersActualState(
-            @RequestParam(required = false) Optional<Instant> startDate,
-            @RequestParam(required = false) Optional<Instant> endDate,
-            @RequestParam(required = false) Optional<Boolean> crossHitch) {
-        return ResponseEntity.ok(trailerService.getTrailersByFilters(startDate, endDate, crossHitch));
-    }
-
-    @GetMapping("/history")
-    public ResponseEntity<List<TruckTrailerHistoryDTO>> getTrailersHistory(
-            @RequestParam(required = false) Optional<Instant> startDate,
-            @RequestParam(required = false) Optional<Instant> endDate,
-            @RequestParam(required = false) Optional<UUID> truckId,
-            @RequestParam(required = false) Optional<UUID> trailerId) {
-        return ResponseEntity.ok(trailerService.getTrailersHistoryByFilters(startDate, endDate, truckId, trailerId));
-    }
-
     @PostMapping()
     public ResponseEntity<TrailerDTO> createTrailer(@RequestBody AddTrailerCommand addTrailerCommand) {
 
+        TrailerDTO trailerDTO = trailerService.addTrailer(addTrailerCommand);
         //TODO dopisać generowanie adresu pod ktorym bedzie dostepny nowy zasob oraz obsłużyć wyjątki
-        return ResponseEntity.status(201).body(trailerService.addTrailer(addTrailerCommand));
+        return ResponseEntity.status(201).body(trailerDTO);
     }
 
     @PatchMapping("/{uuid}")

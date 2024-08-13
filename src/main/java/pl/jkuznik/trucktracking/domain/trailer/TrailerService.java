@@ -1,6 +1,9 @@
 package pl.jkuznik.trucktracking.domain.trailer;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
@@ -13,76 +16,28 @@ import pl.jkuznik.trucktracking.domain.truck.Truck;
 import pl.jkuznik.trucktracking.domain.truck.TruckRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.api.dto.TruckTrailerHistoryDTO;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 class TrailerService implements TrailerApi {
 
+    private final Integer DEFAULT_PAGE_NUMBER = 0;
+    private final Integer DEFAULT_PAGE_SIZE = 25;
+
     private final TrailerRepository trailerRepository;
     private final TruckRepository truckRepository;
     private final TTHRepository tthRepository;
-
-    public List<TrailerDTO> getTrailersByFilters(Optional<Instant> startDate,
-                                                 Optional<Instant> endDate,
-                                                 Optional<Boolean> crossHitch) {
-        List<Trailer> filteredTrailers = trailerRepository.findAll();
-
-        if (startDate.isPresent()) {
-            List<Trailer> allByStartPeriodDate = trailerRepository.findAllByStartPeriodDate(startDate.get());
-            filteredTrailers.retainAll(allByStartPeriodDate);
-        }
-        if (endDate.isPresent()) {
-            List<Trailer> allByEndPeriodDate = trailerRepository.findAllByEndPeriodDate(endDate.get());
-            filteredTrailers.retainAll(allByEndPeriodDate);
-        }
-        if (crossHitch.isPresent()) {
-            List<Trailer> allByCrossHitch = trailerRepository.findAllByCrossHitch(crossHitch.get());
-            filteredTrailers.retainAll(allByCrossHitch);
-        }
-
-        return filteredTrailers.stream()
-                .map(this::convert)
-                .toList();
-    }
-
-    public List<TruckTrailerHistoryDTO> getTrailersHistoryByFilters(Optional<Instant> startDate,
-                                                                    Optional<Instant> endDate,
-                                                                    Optional<UUID> truckId,
-                                                                    Optional<UUID> trailerID) { //todo argumenty przygotowane do pobierania info o pojazdach i naczepach
-
-        List<TruckTrailerHistoryDTO> filteredTrailers = tthRepository.findAll().stream()
-                .map(TruckTrailerHistory::convert)
-                .collect(Collectors.toList());
-
-        if (startDate.isPresent()) {
-            List<TruckTrailerHistoryDTO> allByStartPeriodDate = tthRepository.findAllByStartPeriodDate(startDate.get()).stream()
-                    .map(TruckTrailerHistory::convert)
-                    .toList();
-            filteredTrailers.retainAll(allByStartPeriodDate);
-        }
-        if (endDate.isPresent()) {
-            List<TruckTrailerHistoryDTO> allByEndPeriodDate = tthRepository.findAllByEndPeriodDate(endDate.get()).stream()
-                    .map(TruckTrailerHistory::convert)
-                    .toList();
-            filteredTrailers.retainAll(allByEndPeriodDate);
-        }
-
-        return filteredTrailers;
-    }
 
     @Override
     public TrailerDTO addTrailer(AddTrailerCommand addTrailerCommand) {
         Optional<Trailer> existTrailer = trailerRepository.findByRegisterPlateNumber(addTrailerCommand.registerPlateNumber());
         if (existTrailer.isPresent()) {
-            throw new RuntimeException("Trailer with " + addTrailerCommand.registerPlateNumber() + " plate number already exists");  //TODO działa ale poprawic bo leci status 500
+            throw new IllegalStateException("Trailer with " + addTrailerCommand.registerPlateNumber() + " plate number already exists");
         }
 
         return convert(trailerRepository.save(new Trailer(
@@ -97,11 +52,35 @@ class TrailerService implements TrailerApi {
     }
 
     @Override
-    public List<TrailerDTO> getAllTrailers() {
+    public Page<TrailerDTO> getAllTrailers(Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = getPageRequest(pageNumber, pageSize);
 
-        return trailerRepository.findAll().stream()
+        return new PageImpl<>(trailerRepository.findAll(pageRequest).stream()
                 .map(this::convert)
-                .toList();
+                .toList());
+    }
+
+    private PageRequest getPageRequest(Integer pageNumber, Integer pageSize) {
+        int number;
+        int size;
+
+        if (pageNumber != null && pageNumber > 0) {
+            number = pageNumber -1;
+        } else {
+            number = DEFAULT_PAGE_NUMBER;
+        }
+
+        if (pageSize != null && pageSize > 25) {
+            if (pageSize > 100) {
+                size = 100;
+            } else {
+                size = pageSize;
+            }
+        } else {
+            size = DEFAULT_PAGE_SIZE;
+        }
+
+        return PageRequest.of(number, size);
     }
 
     @Override
@@ -314,7 +293,6 @@ class TrailerService implements TrailerApi {
             Optional<Truck> truck = truckRepository.findByBusinessId(trailer.getCurrentTruckBusinessId());
 
             if (truck.isPresent()) {
-                // TODO wyświetlić komunikat o tym że naczepa była aktualnie przypisana do pojazdu
                 truck.get().setStartPeriodDate(null);
                 truck.get().setEndPeriodDate(null);
                 truck.get().setCurrentTrailerBusinessId(null);

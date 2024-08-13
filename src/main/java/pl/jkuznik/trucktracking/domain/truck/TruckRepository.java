@@ -13,6 +13,9 @@ import java.util.UUID;
 
 public interface TruckRepository extends JpaRepository<Truck, Long> {
 
+    Page<Truck> findAll(Pageable pageable);
+
+    Optional<Truck> findByRegisterPlateNumber(String plateNumber);
     Optional<Truck> findByBusinessId(UUID uuid);
     void deleteByBusinessId(UUID uuid);
 }

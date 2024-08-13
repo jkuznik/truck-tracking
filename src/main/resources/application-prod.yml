@@ -10,6 +10,10 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  docker:
+    compose:
+      enabled: true
+      file: docker-compose.yml
 
 server:
   port: 8081

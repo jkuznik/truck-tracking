@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.jkuznik.trucktracking.domain.shared.ControllerExceptionHandler;
@@ -20,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -39,7 +44,7 @@ class TrailerControllerTest {
     private TrailerDTO trailerDTO;
     private TrailerDTO trailerDTO2;
     private TrailerDTO trailerDTO3;
-    private List<TrailerDTO> trailerDTOList = new ArrayList<>();
+    private Page<TrailerDTO> trailerDTOPage;
 
     @Autowired
     private MockMvc mvc;
@@ -52,6 +57,8 @@ class TrailerControllerTest {
 
     @BeforeEach
     void setUp() {
+        List<TrailerDTO> trailerDTOList = new ArrayList<>();
+
         trailerDTO = TrailerDTO.builder()
                 .trailerPlateNumber(TRAILER_REGISTER_NUMBER)
                 .businessId(TRAILER_ID)
@@ -82,6 +89,8 @@ class TrailerControllerTest {
         trailerDTOList.add(trailerDTO);
         trailerDTOList.add(trailerDTO2);
         trailerDTOList.add(trailerDTO3);
+
+        trailerDTOPage = new PageImpl<>(trailerDTOList);
     }
 
     @Nested
@@ -90,29 +99,31 @@ class TrailerControllerTest {
         @Test
         void getTrailersWhenTrailerListIsNotEmpty() throws Exception {
             //when
-            when(trailerService.getAllTrailers()).thenReturn(trailerDTOList);
+            when(trailerService.getAllTrailers(any(Integer.class), any(Integer.class))).thenReturn(trailerDTOPage);
 
             //then
-            mvc.perform(get(BASE_URL))
+            mvc.perform(get(BASE_URL)
+                            .param("pageNumber", "1")
+                            .param("pageSize", "25"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                    .andExpect(content().json(objectMapper.writeValueAsString(trailerDTOList)))
-                    .andExpect(jsonPath("$[0].trailerPlateNumber").value(TRAILER_REGISTER_NUMBER))
-                    .andExpect(jsonPath("$[1].trailerPlateNumber").value("TRAILER002"))
-                    .andExpect(jsonPath("$[2].trailerPlateNumber").value("TRAILER003"));
+                    .andExpect(content().json(objectMapper.writeValueAsString(trailerDTOPage)))
+                    .andExpect(jsonPath("$.content[0].trailerPlateNumber").value("TRAILER001"))
+                    .andExpect(jsonPath("$.totalPages").value(1))
+                    .andExpect(jsonPath("$.totalElements").value(3))
+                    .andExpect(jsonPath("$.numberOfElements").value(3));
 
         }
 
         @Test
         void getTrailersWhenTrailerListIsEmpty() throws Exception {
             //when
-            when(trailerService.getAllTrailers()).thenReturn(List.of());
+            when(trailerService.getAllTrailers(any(Integer.class), any(Integer.class))).thenReturn(Page.empty());
 
             //then
             mvc.perform(get(BASE_URL))
                     .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                    .andExpect(content().json("[]"));
+                    .andExpect(content().string(""));
         }
 
         @Test
@@ -121,7 +132,8 @@ class TrailerControllerTest {
             when(trailerService.getTrailerByBusinessId(TRAILER_ID)).thenReturn(trailerDTO);
 
             //then
-            mvc.perform(get(BASE_URL_SLASH + TRAILER_ID))
+            mvc.perform(get(BASE_URL_SLASH + TRAILER_ID)
+                    )
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(content().json(objectMapper.writeValueAsString(trailerDTO)))
@@ -145,7 +157,7 @@ class TrailerControllerTest {
     class PostMethodsTests {
 
         @Test
-        void createTrailer() throws Exception {
+        void createTrailerWhenTrailerNotExist() throws Exception {
             //given
             var addCommand = new AddTrailerCommand(TRAILER_REGISTER_NUMBER);
 
@@ -160,6 +172,21 @@ class TrailerControllerTest {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                     .andExpect(content().json(objectMapper.writeValueAsString(trailerDTO)))
                     .andExpect(jsonPath("$.trailerPlateNumber").value(TRAILER_REGISTER_NUMBER));
+        }
+
+        @Test
+        void createTrailerWhenTrailerExist() throws Exception {
+            //given
+            var addCommand = new AddTrailerCommand(TRAILER_REGISTER_NUMBER);
+
+            //when
+            when(trailerService.addTrailer(addCommand)).thenThrow(IllegalStateException.class);
+
+            //then
+            mvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addCommand)))
+                    .andExpect(status().isBadRequest());
         }
     }
 }

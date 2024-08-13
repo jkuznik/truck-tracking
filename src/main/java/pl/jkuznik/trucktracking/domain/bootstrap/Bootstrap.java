@@ -1,6 +1,5 @@
 package pl.jkuznik.trucktracking.domain.bootstrap;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import pl.jkuznik.trucktracking.domain.trailer.Trailer;
@@ -34,7 +33,7 @@ class Bootstrap {
         Random random = new Random();
 
         if (trailerRepository.findAll().size() < 10) {
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 50; i++) {
                 String trailerPlateNumber = "TRAILER" + i;
                 String truckPlateNumber = "TRUCK" + i;
                 UUID trailerId = UUID.randomUUID();

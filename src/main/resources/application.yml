@@ -2,7 +2,7 @@ spring:
   application:
     name: truck-tracking
   profiles:
-    active: prod
+#    active: prod
     include: test
 #springdoc:
 #  api-docs:

@@ -1,13 +1,9 @@
 package pl.jkuznik.trucktracking.domain.truck;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPQLTemplates;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.jkuznik.trucktracking.domain.trailer.Trailer;
@@ -22,9 +18,6 @@ import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,12 +25,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 class TruckService implements TruckApi {
 
+    private final Integer DEFAULT_PAGE_NUMBER = 0;
+    private final Integer DEFAULT_PAGE_SIZE = 25;
+
     private final TruckRepository truckRepository;
     private final TrailerRepository trailerRepository;
     private final TTHRepository tthRepository;
 
     @Override
     public TruckDTO addTruck(AddTruckCommand newTruck) {
+
+        Optional<Truck> byRegisterPlateNumber = truckRepository.findByRegisterPlateNumber(newTruck.registerPlateNumber());
+
+        if (byRegisterPlateNumber.isPresent()) {
+            throw new RuntimeException("Plate number already exists");
+        }
+
         return convert(truckRepository.save(new Truck(
                 UUID.randomUUID(),
                 newTruck.registerPlateNumber())));
@@ -50,30 +53,41 @@ class TruckService implements TruckApi {
     }
 
         @Override
-    public List<TruckDTO> getAllTrucks(boolean lastMonth) {
-        List<TruckDTO> trucks = new ArrayList<>();
+    public Page<TruckDTO> getAllTrucks(Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = getPageRequest(pageNumber, pageSize);
 
-        if (lastMonth) {
-            Instant now = Instant.now();
-            ZonedDateTime zonedDateTimeNow = now.atZone(ZoneId.of("UTC"));
-            ZonedDateTime zonedDateTimePastMonth = zonedDateTimeNow.minusMonths(1);
-            Instant date = zonedDateTimePastMonth.toInstant();
+        return new PageImpl<>(truckRepository.findAll(pageRequest).stream()
+                .map(this::convert)
+                .toList());
+    }
 
-            trucks = tthRepository.findByUsingInLastMonth(date).stream()
-                    .map(TruckTrailerHistory::getTruck)
-                    .collect(Collectors.toList()).stream()
-                    .map(this::convert)
-                    .toList();
+    @Override
+    public Page<TruckDTO> getAllTrucksUsedInLastMonth(Integer pageNumber, Integer pageSize) {
 
+        return null;
+    }
 
+    private PageRequest getPageRequest(Integer pageNumber, Integer pageSize) {
+        int number;
+        int size;
+
+        if (pageNumber != null && pageNumber > 0) {
+            number = pageNumber;
         } else {
-            trucks = truckRepository.findAll().stream()
-                    .map(this::convert)
-                    .collect(Collectors.toList());
+            number = DEFAULT_PAGE_NUMBER;
         }
 
+        if (pageSize != null && pageSize > 0) {
+            if (pageSize > 100) {
+                size = 100;
+            } else {
+                size = pageSize;
+            }
+        } else {
+            size = DEFAULT_PAGE_SIZE;
+        }
 
-        return trucks;
+        return PageRequest.of(number, size);
     }
 
 
@@ -145,7 +159,6 @@ class TruckService implements TruckApi {
             Optional<Trailer> trailer = trailerRepository.findByBusinessId(truck.getCurrentTrailerBusinessId());
 
             if (trailer.isPresent()) {
-                // TODO wyświetlić komunikat o tym że pojazd był aktualnie przypisany do naczepy
                 trailer.get().setStartPeriodDate(null);
                 trailer.get().setEndPeriodDate(null);
                 trailer.get().setCurrentTruckBusinessId(null);
