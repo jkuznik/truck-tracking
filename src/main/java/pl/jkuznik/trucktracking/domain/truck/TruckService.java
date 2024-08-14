@@ -15,7 +15,7 @@ import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.impl.TTHRepositoryImpl;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepositoryImpl;
 
 import java.util.List;
 import java.util.NoSuchElementException;

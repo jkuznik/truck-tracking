@@ -6,9 +6,8 @@ import pl.jkuznik.trucktracking.domain.trailer.Trailer;
 import pl.jkuznik.trucktracking.domain.trailer.TrailerRepository;
 import pl.jkuznik.trucktracking.domain.truck.Truck;
 import pl.jkuznik.trucktracking.domain.truck.TruckRepository;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.impl.TTHRepositoryImpl;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepositoryImpl;
 
 import java.time.Instant;
 import java.util.Random;

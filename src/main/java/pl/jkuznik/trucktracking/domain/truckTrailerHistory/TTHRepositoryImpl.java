@@ -1,4 +1,4 @@
-package pl.jkuznik.trucktracking.domain.truckTrailerHistory.impl;
+package pl.jkuznik.trucktracking.domain.truckTrailerHistory;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import jakarta.persistence.EntityManager;
@@ -6,8 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import pl.jkuznik.trucktracking.domain.shared.QueryRepositoryImpl;
 import pl.jkuznik.trucktracking.domain.truck.Truck;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
 import java.time.Instant;
 import java.time.ZoneId;

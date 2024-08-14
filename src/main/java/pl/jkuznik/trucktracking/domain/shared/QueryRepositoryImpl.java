@@ -2,6 +2,7 @@ package pl.jkuznik.trucktracking.domain.shared;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import pl.jkuznik.trucktracking.domain.trailer.QTrailer;
 import pl.jkuznik.trucktracking.domain.truck.QTruck;
@@ -9,6 +10,7 @@ import pl.jkuznik.trucktracking.domain.truckTrailerHistory.QTruckTrailerHistory;
 
 public abstract class QueryRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> implements QueryRepository<T, ID> {
 
+    @PersistenceContext
     protected EntityManager entityManager;
     protected JPAQueryFactory queryFactory;
 

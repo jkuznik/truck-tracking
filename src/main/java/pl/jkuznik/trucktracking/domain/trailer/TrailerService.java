@@ -14,9 +14,8 @@ import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateCrossHitchTrail
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
 import pl.jkuznik.trucktracking.domain.truck.Truck;
 import pl.jkuznik.trucktracking.domain.truck.TruckRepository;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.impl.TTHRepositoryImpl;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepositoryImpl;
 
 import java.util.List;
 import java.util.NoSuchElementException;
