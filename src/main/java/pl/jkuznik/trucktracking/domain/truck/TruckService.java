@@ -1,8 +1,7 @@
 package pl.jkuznik.trucktracking.domain.truck;
 
-import com.querydsl.jpa.JPQLTemplates;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -15,16 +14,13 @@ import pl.jkuznik.trucktracking.domain.truck.api.TruckApi;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.QTruckTrailerHistory;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.impl.TTHRepositoryImpl;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,10 +31,10 @@ class TruckService implements TruckApi {
 
     private final TruckRepository truckRepository;
     private final TrailerRepository trailerRepository;
-    private final TTHRepository tthRepository;
+    private final TTHRepositoryImpl tthRepository;
 
     @PersistenceContext
-    private EntityManager em;
+    private EntityManager entityManager;
 
     @Override
     public TruckDTO addTruck(AddTruckCommand newTruck) {
@@ -60,7 +56,7 @@ class TruckService implements TruckApi {
                 .orElseThrow(() -> new NoSuchElementException("Truck with business id " + uuid + " not found")));
     }
 
-        @Override
+    @Override
     public Page<TruckDTO> getAllTrucks(Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = getPageRequest(pageNumber, pageSize);
 
@@ -71,62 +67,14 @@ class TruckService implements TruckApi {
 
     @Override
     public Page<TruckDTO> getAllTrucksUsedInLastMonth(Integer pageNumber, Integer pageSize) {
-
-        Instant now = Instant.now();
-        ZoneId zoneId = ZoneId.systemDefault();
-        ZonedDateTime zdt = ZonedDateTime.ofInstant(now, zoneId);
-        Instant montAgo = zdt.minusMonths(1).toInstant();
-        List<TruckTrailerHistory> fetchedTTH = new ArrayList<>();
-
-        try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("TTHpersistence-unit")) {
-            EntityManager em = emf.createEntityManager();
-            JPAQueryFactory queryFactory = new JPAQueryFactory(JPQLTemplates.DEFAULT, em);
-
-            QTruckTrailerHistory qtth = QTruckTrailerHistory.truckTrailerHistory;
-
-            List<TruckTrailerHistory> fetch = queryFactory.selectFrom(qtth)
-                    .where(qtth.startPeriodDate.after(montAgo))
-                    .where(qtth.endPeriodDate.after(montAgo))
-                    .fetch();
-
-            fetchedTTH.addAll(fetch);
-
-        } catch (PersistenceException e) {
-            e.printStackTrace();
-        }
-
-        List<TruckDTO> list = fetchedTTH.stream()
-                .map(TruckTrailerHistory::getTruck)
+// TODO ogarnąć paginację
+        List<TruckDTO> list = tthRepository.getTruckUsedInLastMonth().stream()
                 .map(this::convert)
                 .toList();
 
         return new PageImpl<>(list);
 
     }
-
-    private PageRequest getPageRequest(Integer pageNumber, Integer pageSize) {
-        int number;
-        int size;
-
-        if (pageNumber != null && pageNumber > 0) {
-            number = pageNumber;
-        } else {
-            number = DEFAULT_PAGE_NUMBER;
-        }
-
-        if (pageSize != null && pageSize > 0) {
-            if (pageSize > 100) {
-                size = 100;
-            } else {
-                size = pageSize;
-            }
-        } else {
-            size = DEFAULT_PAGE_SIZE;
-        }
-
-        return PageRequest.of(number, size);
-    }
-
 
     @Transactional
     @Override
@@ -179,7 +127,8 @@ class TruckService implements TruckApi {
 
         tth.setTrailer(trailer);
         tth.setTruck(truck);
-        if (updateTruckCommand.startPeriod().isPresent()) tth.setStartPeriodDate(updateTruckCommand.startPeriod().get());
+        if (updateTruckCommand.startPeriod().isPresent())
+            tth.setStartPeriodDate(updateTruckCommand.startPeriod().get());
         if (updateTruckCommand.endPeriod().isPresent()) tth.setEndPeriodDate(updateTruckCommand.endPeriod().get());
 
         return convert(truck);
@@ -214,5 +163,28 @@ class TruckService implements TruckApi {
                 truck.getStartPeriodDate(),
                 truck.getEndPeriodDate(),
                 truck.getCurrentTrailerBusinessId());
+    }
+
+    private PageRequest getPageRequest(Integer pageNumber, Integer pageSize) {
+        int number;
+        int size;
+
+        if (pageNumber != null && pageNumber > 0) {
+            number = pageNumber;
+        } else {
+            number = DEFAULT_PAGE_NUMBER;
+        }
+
+        if (pageSize != null && pageSize > 0) {
+            if (pageSize > 100) {
+                size = 100;
+            } else {
+                size = pageSize;
+            }
+        } else {
+            size = DEFAULT_PAGE_SIZE;
+        }
+
+        return PageRequest.of(number, size);
     }
 }

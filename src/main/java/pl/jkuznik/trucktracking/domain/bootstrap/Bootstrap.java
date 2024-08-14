@@ -8,6 +8,7 @@ import pl.jkuznik.trucktracking.domain.truck.Truck;
 import pl.jkuznik.trucktracking.domain.truck.TruckRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.impl.TTHRepositoryImpl;
 
 import java.time.Instant;
 import java.util.Random;
@@ -19,9 +20,9 @@ class Bootstrap {
 
     TrailerRepository trailerRepository;
     TruckRepository truckRepository;
-    TTHRepository tthRepository;
+    TTHRepositoryImpl tthRepository;
 
-    public Bootstrap(TrailerRepository trailerRepository, TruckRepository truckRepository, TTHRepository tthRepository) {
+    public Bootstrap(TrailerRepository trailerRepository, TruckRepository truckRepository, TTHRepositoryImpl tthRepository) {
         this.trailerRepository = trailerRepository;
         this.truckRepository = truckRepository;
         this.tthRepository = tthRepository;
@@ -33,7 +34,7 @@ class Bootstrap {
         Random random = new Random();
 
         if (trailerRepository.findAll().size() < 10) {
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < 1000; i++) {
                 String trailerPlateNumber = "TRAILER" + i;
                 String truckPlateNumber = "TRUCK" + i;
                 UUID trailerId = UUID.randomUUID();

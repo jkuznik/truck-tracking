@@ -4,7 +4,12 @@ spring:
   profiles:
 #    active: prod
     include: test
-#springdoc:
+
+
+
+#  jackson:
+#    property-naming-strategy:
+#        SNAKE_CASE
 #  api-docs:
 #    enabled: true
 #  swagger-ui:

@@ -18,6 +18,7 @@ import pl.jkuznik.trucktracking.domain.truck.Truck;
 import pl.jkuznik.trucktracking.domain.truck.TruckRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.impl.TTHRepositoryImpl;
 
 import java.time.Instant;
 import java.util.List;
@@ -42,7 +43,7 @@ class TrailerServiceTest {
     TruckRepository truckRepository;
 
     @MockBean
-    TTHRepository tthRepository;
+    TTHRepositoryImpl tthRepository;
 
     private final String TRAILER_REGISTER_NUMBER = "TRAILER001";
     private final String TRAILER_CROSS_HITCH_REGISTER_NUMBER = "TRAILER002";

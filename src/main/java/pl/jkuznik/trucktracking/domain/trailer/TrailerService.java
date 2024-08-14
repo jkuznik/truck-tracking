@@ -16,6 +16,7 @@ import pl.jkuznik.trucktracking.domain.truck.Truck;
 import pl.jkuznik.trucktracking.domain.truck.TruckRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.impl.TTHRepositoryImpl;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -31,7 +32,7 @@ class TrailerService implements TrailerApi {
 
     private final TrailerRepository trailerRepository;
     private final TruckRepository truckRepository;
-    private final TTHRepository tthRepository;
+    private final TTHRepositoryImpl tthRepository;
 
     @Override
     public TrailerDTO addTrailer(AddTrailerCommand addTrailerCommand) {
