@@ -33,9 +33,6 @@ class TruckService implements TruckApi {
     private final TrailerRepository trailerRepository;
     private final TTHRepositoryImpl tthRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Override
     public TruckDTO addTruck(AddTruckCommand newTruck) {
 

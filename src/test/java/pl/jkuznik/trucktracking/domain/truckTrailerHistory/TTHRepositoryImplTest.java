@@ -47,7 +47,7 @@ class TTHRepositoryImplTest {
     private Trailer crossHitchTrailer = new Trailer(TRAILER_CROSS_HITCH_BUSINESS_ID, TRAILER_CROSS_HITCH_REGISTER_NUMBER);
     private Truck crossHitchTruck = new Truck(TRUCK_CROSS_HITCH_BUSINESS_ID, TRUCK_CROSS_HITCH_REGISTER_NUMBER);
 
-    private final PageRequest pageRequest = PageRequest.of(1, 25);
+    private final PageRequest pageRequest = PageRequest.of(0, 100);
 
     @Autowired
     TrailerRepository trailerRepository;
@@ -98,7 +98,7 @@ class TTHRepositoryImplTest {
 
         tthRepository.save(truckTrailerHistory);
         tthRepository.save(truckTrailerHistory2);
-//        Bootstrap bootstrap = new Bootstrap(trailerRepository, truckRepository, tthRepository);
+        Bootstrap bootstrap = new Bootstrap(trailerRepository, truckRepository, tthRepository);
     }
 
 //    @Test

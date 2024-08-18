@@ -8,14 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+import pl.jkuznik.trucktracking.domain.bootstrap.Bootstrap;
 import pl.jkuznik.trucktracking.domain.shared.EntityManagerFactoryImpl;
 import pl.jkuznik.trucktracking.domain.trailer.Trailer;
 import pl.jkuznik.trucktracking.domain.trailer.TrailerRepository;
 import pl.jkuznik.trucktracking.domain.truck.api.TruckApi;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepositoryImpl;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,7 +29,7 @@ import static org.mockito.Mockito.when;
 
 @SpringJUnitConfig(classes = {TruckService.class, TTHRepositoryImpl.class, EntityManagerFactoryImpl.class, MethodValidationPostProcessor.class})
 class TruckServiceTest {
-// TODO poszukać czemu spring junit nie startuje
+
     @Autowired
     TruckApi truckApi;
 
@@ -72,6 +75,12 @@ class TruckServiceTest {
         testTruck.setEndPeriodDate(END_PERIOD_TIME);
         testTruck.setCurrentTrailerBusinessId(TRAILER_BUSINESS_ID);
 
+        TruckTrailerHistory truckTrailerHistory = new TruckTrailerHistory();
+        truckTrailerHistory.setTrailer(testTrailer);
+        truckTrailerHistory.setTruck(testTruck);
+        truckTrailerHistory.setStartPeriodDate(testTruck.getStartPeriodDate());
+        truckTrailerHistory.setEndPeriodDate(testTruck.getEndPeriodDate());
+
         crossHitchTrailer.setCrossHitch(true);
         crossHitchTrailer.setStartPeriodDate(START_PERIOD_TIME2);
         crossHitchTrailer.setEndPeriodDate(END_PERIOD_TIME2);
@@ -80,6 +89,22 @@ class TruckServiceTest {
         crossHitchTruck.setStartPeriodDate(START_PERIOD_TIME2);
         crossHitchTruck.setEndPeriodDate(END_PERIOD_TIME2);
         crossHitchTruck.setCurrentTrailerBusinessId(TRAILER_CROSS_HITCH_BUSINESS_ID);
+
+        TruckTrailerHistory truckTrailerHistory2 = new TruckTrailerHistory();
+        truckTrailerHistory2.setTrailer(crossHitchTrailer);
+        truckTrailerHistory2.setTruck(crossHitchTruck);
+        truckTrailerHistory2.setStartPeriodDate(crossHitchTruck.getStartPeriodDate());
+        truckTrailerHistory2.setEndPeriodDate(crossHitchTruck.getEndPeriodDate());
+
+        trailerRepository.save(testTrailer);
+        truckRepository.save(testTruck);
+        trailerRepository.save(crossHitchTrailer);
+        truckRepository.save(crossHitchTruck);
+
+        tthRepository.save(truckTrailerHistory);
+        tthRepository.save(truckTrailerHistory2);
+
+        Bootstrap bootstrap = new Bootstrap(trailerRepository, truckRepository, tthRepository);
     }
 
     @Nested
@@ -102,25 +127,23 @@ class TruckServiceTest {
 //        void getAllTrucks() {
 //        }
 
-//        @Test
-//        void getTruckUsedInLastMonth() {
-//            //given
-//            List<Truck> trucks = List.of(testTruck, crossHitchTruck);
-//            Page<Truck> truckPage = new PageImpl<>(trucks);
-//
-//            var truckDTO = new TruckDTO(testTruck.getRegisterPlateNumber(), testTruck.getBusinessId(),
-//                    testTruck.getStartPeriodDate(), testTruck.getEndPeriodDate(), testTruck.getCurrentTrailerBusinessId());
-//
-//            //when
-//            when(tthRepository.getTruckUsedInLastMonth()).thenReturn(truckPage);
-//
-//            //then
-//            Page<TruckDTO> result = truckApi.getAllTrucksUsedInLastMonth(1, 25);
-//
-//
-//            assertThat(result).contains(truckDTO);
-//
-//        }
+        @Test
+        void getTruckUsedInLastMonth() {
+            //given
+            List<Truck> trucks = List.of(testTruck, crossHitchTruck);
+            Page<Truck> truckPage = new PageImpl<>(trucks);
+
+            var truckDTO = new TruckDTO(testTruck.getRegisterPlateNumber(), testTruck.getBusinessId(),
+                    testTruck.getStartPeriodDate(), testTruck.getEndPeriodDate(), testTruck.getCurrentTrailerBusinessId());
+
+            //when
+            when(tthRepository.getTruckUsedInLastMonth(PageRequest.of(0,25))).thenReturn(truckPage);
+
+            //then
+            Page<TruckDTO> result = truckApi.getAllTrucksUsedInLastMonth(1, 25);
+
+            assertThat(result).contains(truckDTO);
+        }
 
     }
 

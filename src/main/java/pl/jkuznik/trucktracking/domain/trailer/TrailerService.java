@@ -138,7 +138,7 @@ class TrailerService implements TrailerApi {
     @Transactional
     @Override
     public TrailerDTO assignTrailerByBusinessId(UUID uuid, UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
-        // TODO dodać obsługę wyjątków
+
         if (updateAssignmentTrailerCommand.startPeriod().isEmpty() &&
                 updateAssignmentTrailerCommand.endPeriod().isEmpty() && updateAssignmentTrailerCommand.truckId().isPresent()) {
             throw new IllegalStateException("Wrong operation to unassign a truck");
@@ -281,7 +281,6 @@ class TrailerService implements TrailerApi {
         return result.toString();
     }
 
-    //TODO dopisac testy if trailer not exist
     @Transactional
     @Override
     public void deleteTrailerByBusinessId(UUID uuid) {

@@ -9,12 +9,8 @@ import pl.jkuznik.trucktracking.domain.trailer.api.command.UnassignTrailerComman
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateAssignmentTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateCrossHitchTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.api.dto.TruckTrailerHistoryDTO;
 
-import java.time.Instant;
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -49,7 +45,6 @@ public class TrailerController {
     public ResponseEntity<TrailerDTO> createTrailer(@RequestBody AddTrailerCommand addTrailerCommand) {
 
         TrailerDTO trailerDTO = trailerService.addTrailer(addTrailerCommand);
-        //TODO dopisać generowanie adresu pod ktorym bedzie dostepny nowy zasob oraz obsłużyć wyjątki
         return ResponseEntity.status(201).body(trailerDTO);
     }
 

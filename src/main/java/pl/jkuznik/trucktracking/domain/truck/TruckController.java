@@ -48,7 +48,6 @@ public class TruckController {
     public ResponseEntity<TruckDTO> createTruck(@RequestBody AddTruckCommand addTruckCommand) {
         TruckDTO responseTruck = truckService.addTruck(addTruckCommand);
 
-        //TODO dopisać generowanie adresu pod ktorym bedzie dostepny nowy zasob
         return ResponseEntity.status(201).body(responseTruck);
     }
 

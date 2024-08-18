@@ -5,7 +5,6 @@ import com.querydsl.jpa.impl.JPAQuery;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import pl.jkuznik.trucktracking.domain.shared.QueryRepositoryImpl;
 import pl.jkuznik.trucktracking.domain.truck.Truck;
@@ -13,7 +12,6 @@ import pl.jkuznik.trucktracking.domain.truck.Truck;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TTHRepositoryImpl extends QueryRepositoryImpl<TruckTrailerHistory, Long> implements TTHRepository {
@@ -28,6 +26,7 @@ public class TTHRepositoryImpl extends QueryRepositoryImpl<TruckTrailerHistory, 
     @Override
     public Page<Truck> getTruckUsedInLastMonth(Pageable pageable) {
 
+        // TODO tą metodę można zmienić na taką która wyszukuje używanie pojazdy w podanym przedziale czasowym, a nie tylko te używane w ciągu ostatniego miesiąca
         Instant now = Instant.now();
         ZoneId zoneId = ZoneId.systemDefault();
         ZonedDateTime zdt = ZonedDateTime.ofInstant(now, zoneId);
