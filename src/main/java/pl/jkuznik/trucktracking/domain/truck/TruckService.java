@@ -67,8 +67,10 @@ class TruckService implements TruckApi {
 
     @Override
     public Page<TruckDTO> getAllTrucksUsedInLastMonth(Integer pageNumber, Integer pageSize) {
-// TODO ogarnąć paginację
-        List<TruckDTO> list = tthRepository.getTruckUsedInLastMonth().stream()
+
+        PageRequest pageRequest = getPageRequest(pageNumber, pageSize);
+
+        List<TruckDTO> list = tthRepository.getTruckUsedInLastMonth(pageRequest).stream()
                 .map(this::convert)
                 .toList();
 
@@ -170,12 +172,12 @@ class TruckService implements TruckApi {
         int size;
 
         if (pageNumber != null && pageNumber > 0) {
-            number = pageNumber;
+            number = pageNumber -1;
         } else {
             number = DEFAULT_PAGE_NUMBER;
         }
 
-        if (pageSize != null && pageSize > 0) {
+        if (pageSize != null && pageSize > 25) {
             if (pageSize > 100) {
                 size = 100;
             } else {

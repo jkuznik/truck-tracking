@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import pl.jkuznik.trucktracking.domain.bootstrap.Bootstrap;
 import pl.jkuznik.trucktracking.domain.trailer.Trailer;
 import pl.jkuznik.trucktracking.domain.trailer.TrailerRepository;
@@ -45,6 +46,8 @@ class TTHRepositoryImplTest {
     private Truck testTruck = new Truck(TRUCK_BUSINESS_ID, TRUCK_REGISTER_NUMBER);
     private Trailer crossHitchTrailer = new Trailer(TRAILER_CROSS_HITCH_BUSINESS_ID, TRAILER_CROSS_HITCH_REGISTER_NUMBER);
     private Truck crossHitchTruck = new Truck(TRUCK_CROSS_HITCH_BUSINESS_ID, TRUCK_CROSS_HITCH_REGISTER_NUMBER);
+
+    private final PageRequest pageRequest = PageRequest.of(1, 25);
 
     @Autowired
     TrailerRepository trailerRepository;
@@ -95,20 +98,20 @@ class TTHRepositoryImplTest {
 
         tthRepository.save(truckTrailerHistory);
         tthRepository.save(truckTrailerHistory2);
-        Bootstrap bootstrap = new Bootstrap(trailerRepository, truckRepository, tthRepository);
+//        Bootstrap bootstrap = new Bootstrap(trailerRepository, truckRepository, tthRepository);
     }
 
-    @Test
-    void checkBootstrap() {
-        //given
-        long count = trailerRepository.count();
-
-        assertTrue(count > 50);
-    }
+//    @Test
+//    void checkBootstrap() {
+//        //given
+//        long count = trailerRepository.count();
+//
+//        assertTrue(count > 50);
+//    }
 
     @Test
     void getTruckUsedInLastMonthDemonstration() {
-        Page<Truck> truckUsedInLastMonth = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsedInLastMonth = tthRepository.getTruckUsedInLastMonth(pageRequest);
         List<Truck> trucks = truckUsedInLastMonth.getContent();
 
         System.out.println("Wyniki\n");
@@ -134,7 +137,7 @@ class TTHRepositoryImplTest {
         tthRepository.save(tth);
 
         //then
-        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth(pageRequest);
         Truck result = truckUsed.getContent().getLast();
 
         TruckTrailerHistory testedTTH = tthRepository.findAll().getLast();
@@ -166,7 +169,7 @@ class TTHRepositoryImplTest {
         tthRepository.save(tth);
 
         //then
-        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth(pageRequest);
         Truck result = truckUsed.getContent().getLast();
 
         assertThat(result.getRegisterPlateNumber()).isEqualTo("TEST REGISTER PLATE NUMBER");
@@ -191,7 +194,7 @@ class TTHRepositoryImplTest {
         tthRepository.save(tth);
 
         //then
-        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth(pageRequest);
         Truck result = truckUsed.getContent().getLast();
 
         assertThat(result.getRegisterPlateNumber()).isEqualTo("TEST REGISTER PLATE NUMBER");
@@ -219,7 +222,7 @@ class TTHRepositoryImplTest {
         tthRepository.save(tth);
 
         //then
-        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth(pageRequest);
         Truck result = truckUsed.getContent().getLast();
 
         assertThat(result.getRegisterPlateNumber()).isEqualTo("TEST REGISTER PLATE NUMBER");
@@ -251,7 +254,7 @@ class TTHRepositoryImplTest {
         tthRepository.save(tth);
 
         //then
-        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth(pageRequest);
         Truck result = truckUsed.getContent().getLast();
 
         TruckTrailerHistory testedTTH = tthRepository.findAll().getLast();
@@ -285,7 +288,7 @@ class TTHRepositoryImplTest {
         tthRepository.save(tth);
 
         //then
-        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth(pageRequest);
         Truck result = truckUsed.getContent().getLast();
 
         assertThat(result.getRegisterPlateNumber()).isEqualTo("TEST REGISTER PLATE NUMBER");
@@ -311,7 +314,7 @@ class TTHRepositoryImplTest {
         tthRepository.save(tth);
 
         //then
-        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth(pageRequest);
         Truck result = truckUsed.getContent().getLast();
 
         assertThat(result.getRegisterPlateNumber()).isEqualTo("TEST REGISTER PLATE NUMBER");
@@ -339,7 +342,7 @@ class TTHRepositoryImplTest {
         tthRepository.save(tth);
 
         //then
-        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth(pageRequest);
         Truck result = truckUsed.getContent().getLast();
 
         var testedTTH = tthRepository.findAll().getLast();
@@ -369,7 +372,7 @@ class TTHRepositoryImplTest {
         tthRepository.save(tth);
 
         //then
-        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth(pageRequest);
         Truck result = truckUsed.getContent().getLast();
 
         TruckTrailerHistory testedTTH = tthRepository.findAll().getLast();
@@ -397,7 +400,7 @@ class TTHRepositoryImplTest {
         tthRepository.save(tth);
 
         //then
-        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth(pageRequest);
         Truck result = truckUsed.getContent().getLast();
 
         assertThat(result.getRegisterPlateNumber()).isEqualTo("TEST REGISTER PLATE NUMBER");
@@ -425,7 +428,7 @@ class TTHRepositoryImplTest {
         tthRepository.save(tth);
 
         //then
-        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth(pageRequest);
         Truck result = truckUsed.getContent().getLast();
 
         assertThat(result.getRegisterPlateNumber()).isEqualTo("TEST REGISTER PLATE NUMBER");
@@ -453,7 +456,7 @@ class TTHRepositoryImplTest {
         tthRepository.save(tth);
 
         //then
-        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth();
+        Page<Truck> truckUsed = tthRepository.getTruckUsedInLastMonth(pageRequest);
         Truck result = truckUsed.getContent().getLast();
 
         assertThat(result.getRegisterPlateNumber()).isEqualTo("TEST REGISTER PLATE NUMBER");

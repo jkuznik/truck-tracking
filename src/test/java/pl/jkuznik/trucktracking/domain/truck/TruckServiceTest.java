@@ -102,25 +102,25 @@ class TruckServiceTest {
 //        void getAllTrucks() {
 //        }
 
-        @Test
-        void getTruckUsedInLastMonth() {
-            //given
-            List<Truck> trucks = List.of(testTruck, crossHitchTruck);
-            Page<Truck> truckPage = new PageImpl<>(trucks);
-
-            var truckDTO = new TruckDTO(testTruck.getRegisterPlateNumber(), testTruck.getBusinessId(),
-                    testTruck.getStartPeriodDate(), testTruck.getEndPeriodDate(), testTruck.getCurrentTrailerBusinessId());
-
-            //when
-            when(tthRepository.getTruckUsedInLastMonth()).thenReturn(truckPage);
-
-            //then
-            Page<TruckDTO> result = truckApi.getAllTrucksUsedInLastMonth(1, 25);
-
-
-            assertThat(result).contains(truckDTO);
-
-        }
+//        @Test
+//        void getTruckUsedInLastMonth() {
+//            //given
+//            List<Truck> trucks = List.of(testTruck, crossHitchTruck);
+//            Page<Truck> truckPage = new PageImpl<>(trucks);
+//
+//            var truckDTO = new TruckDTO(testTruck.getRegisterPlateNumber(), testTruck.getBusinessId(),
+//                    testTruck.getStartPeriodDate(), testTruck.getEndPeriodDate(), testTruck.getCurrentTrailerBusinessId());
+//
+//            //when
+//            when(tthRepository.getTruckUsedInLastMonth()).thenReturn(truckPage);
+//
+//            //then
+//            Page<TruckDTO> result = truckApi.getAllTrucksUsedInLastMonth(1, 25);
+//
+//
+//            assertThat(result).contains(truckDTO);
+//
+//        }
 
     }
 

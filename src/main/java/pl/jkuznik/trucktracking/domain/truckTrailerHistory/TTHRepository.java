@@ -7,5 +7,5 @@ import pl.jkuznik.trucktracking.domain.truck.Truck;
 
 interface TTHRepository extends QueryRepository<TruckTrailerHistory, Long> {
 
-//    Page<Truck> getTruckUsedInLastMonth(Pageable pageable);
+    Page<Truck> getTruckUsedInLastMonth(Pageable pageable);
 }
