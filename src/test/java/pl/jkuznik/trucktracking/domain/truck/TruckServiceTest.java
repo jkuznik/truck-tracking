@@ -42,7 +42,6 @@ class TruckServiceTest {
     @MockBean
     TTHRepositoryImpl tthRepository;
 
-
     private final String TRAILER_REGISTER_NUMBER = "TRAILER001";
     private final String TRAILER_CROSS_HITCH_REGISTER_NUMBER = "TRAILER002";
     private final String TRUCK_REGISTER_NUMBER = "TRUCK001";
@@ -104,9 +103,8 @@ class TruckServiceTest {
 //        }
 
         @Test
-        void getTruckUsedInLastMonthIfAssignPeriodTimeIsPresentAndEndPeriodTimeIsMatch() {
+        void getTruckUsedInLastMonth() {
             //given
-            //  startPeriodTime = "2024-01-01T00:00:00Z" , endPeriodTime = "2024-01-10T00:00:00Z"
             List<Truck> trucks = List.of(testTruck, crossHitchTruck);
             Page<Truck> truckPage = new PageImpl<>(trucks);
 

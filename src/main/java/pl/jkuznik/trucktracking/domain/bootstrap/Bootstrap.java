@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @Component
 @Profile("test")
-class Bootstrap {
+public class Bootstrap {
 
     TrailerRepository trailerRepository;
     TruckRepository truckRepository;
@@ -29,11 +29,11 @@ class Bootstrap {
         run();
     }
 
-    private void run() {
+    public void run() {
         Random random = new Random();
 
-        if (trailerRepository.findAll().size() < 10) {
-            for (int i = 0; i < 1000; i++) {
+        if (trailerRepository.findAll().size() < 20) {
+            for (int i = 0; i < 150; i++) {
                 String trailerPlateNumber = "TRAILER" + i;
                 String truckPlateNumber = "TRUCK" + i;
                 UUID trailerId = UUID.randomUUID();
