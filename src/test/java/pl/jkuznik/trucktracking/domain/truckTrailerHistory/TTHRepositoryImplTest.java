@@ -98,15 +98,15 @@ class TTHRepositoryImplTest {
 
         tthRepository.save(truckTrailerHistory);
         tthRepository.save(truckTrailerHistory2);
-        Bootstrap bootstrap = new Bootstrap(trailerRepository, truckRepository, tthRepository);
+//        Bootstrap bootstrap = new Bootstrap(trailerRepository, truckRepository, tthRepository);
     }
-
+//
 //    @Test
 //    void checkBootstrap() {
 //        //given
 //        long count = trailerRepository.count();
 //
-//        assertTrue(count > 50);
+//        assertTrue(count > 30);
 //    }
 
     @Test

@@ -33,7 +33,7 @@ public class Bootstrap {
         Random random = new Random();
 
         if (trailerRepository.findAll().size() < 20) {
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < 500; i++) {
                 String trailerPlateNumber = "TRAILER" + i;
                 String truckPlateNumber = "TRUCK" + i;
                 UUID trailerId = UUID.randomUUID();

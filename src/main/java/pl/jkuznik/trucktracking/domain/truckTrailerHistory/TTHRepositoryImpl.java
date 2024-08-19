@@ -16,9 +16,6 @@ import java.util.List;
 
 public class TTHRepositoryImpl extends QueryRepositoryImpl<TruckTrailerHistory, Long> implements TTHRepository {
 
-    private final Integer DEFAULT_PAGE_NUMBER = 0;
-    private final Integer DEFAULT_PAGE_SIZE = 25;
-
     public TTHRepositoryImpl(EntityManager entityManager) {
         super(TruckTrailerHistory.class, entityManager);
     }

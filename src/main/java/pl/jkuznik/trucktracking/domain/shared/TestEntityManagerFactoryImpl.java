@@ -6,7 +6,7 @@ import jakarta.persistence.metamodel.Metamodel;
 
 import java.util.Map;
 
-public class EntityManagerFactoryImpl implements EntityManagerFactory {
+public class TestEntityManagerFactoryImpl implements EntityManagerFactory {
     @Override
     public EntityManager createEntityManager() {
         return null;

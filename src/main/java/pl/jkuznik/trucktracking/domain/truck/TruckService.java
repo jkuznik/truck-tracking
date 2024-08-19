@@ -1,7 +1,5 @@
 package pl.jkuznik.trucktracking.domain.truck;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,8 +12,8 @@ import pl.jkuznik.trucktracking.domain.truck.api.TruckApi;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepositoryImpl;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -33,6 +31,7 @@ class TruckService implements TruckApi {
     private final TrailerRepository trailerRepository;
     private final TTHRepositoryImpl tthRepository;
 
+    @Transactional
     @Override
     public TruckDTO addTruck(AddTruckCommand newTruck) {
 
@@ -128,7 +127,8 @@ class TruckService implements TruckApi {
         tth.setTruck(truck);
         if (updateTruckCommand.startPeriod().isPresent())
             tth.setStartPeriodDate(updateTruckCommand.startPeriod().get());
-        if (updateTruckCommand.endPeriod().isPresent()) tth.setEndPeriodDate(updateTruckCommand.endPeriod().get());
+        if (updateTruckCommand.endPeriod().isPresent())
+            tth.setEndPeriodDate(updateTruckCommand.endPeriod().get());
 
         return convert(truck);
     }

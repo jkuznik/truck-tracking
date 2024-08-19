@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
@@ -108,17 +111,19 @@ class TrailerServiceTest {
             assertThat(exception.getMessage()).isEqualTo("No trailer with business id " + TRAILER_BUSINESS_ID);
         }
 
-//        @Test
-//        void getAllTrailers() {
-//            //when
-//            when(trailerRepository.findAll()).thenReturn(List.of(testTrailer));
-//
-//            //then
-//            List<TrailerDTO> trailers = trailerApi.getAllTrailers(1, 25);
-//
-//            assertThat(trailers.size()).isEqualTo(1);
-//            assertThat(trailers.getFirst().trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
-//        }
+        @Test
+        void getAllTrailers() {
+            PageImpl<Trailer> trailerPage = new PageImpl<>(List.of(testTrailer));
+
+            //when
+            when(trailerRepository.findAll(PageRequest.of(0,25))).thenReturn(trailerPage);
+
+            //then
+            Page<TrailerDTO> trailers = trailerApi.getAllTrailers(1, 25);
+
+            assertThat(trailers.getContent().size()).isEqualTo(1);
+            assertThat(trailers.getContent().getFirst().trailerPlateNumber()).isEqualTo(testTrailer.getRegisterPlateNumber());
+        }
 
         @Test
         void getTrailersByCrossHitch() {

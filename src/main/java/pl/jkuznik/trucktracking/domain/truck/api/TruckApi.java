@@ -9,12 +9,12 @@ import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 
-import java.util.List;
 import java.util.UUID;
 
 @Validated
 public interface TruckApi {
 
+    @Transactional
     TruckDTO addTruck(@Valid AddTruckCommand newTruck);
 
     TruckDTO getTruckByBusinessId(@NotNull UUID uuid);

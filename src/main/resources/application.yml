@@ -10,6 +10,7 @@ spring:
 #      hibernate:
 #        format_sql: true
 #        use_sql_comments: true
+
 #logging:
 #  level:
 #    org:
@@ -20,9 +21,6 @@ spring:
 #            sql:
 #              BasicBinder: TRACE
 
-#  jackson:
-#    property-naming-strategy:
-#        SNAKE_CASE
 #  api-docs:
 #    enabled: true
 #  swagger-ui:
