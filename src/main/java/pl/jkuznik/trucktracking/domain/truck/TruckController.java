@@ -1,6 +1,7 @@
 package pl.jkuznik.trucktracking.domain.truck;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
@@ -28,25 +29,25 @@ public class TruckController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TruckDTO>> getTrucks() {
-        List<TruckDTO> trucks = truckService.getAllTrucks();
+    public ResponseEntity<Page<TruckDTO>> getAllTrucks(@RequestParam(required = false) Integer pageNumber,
+                                                    @RequestParam(required = false) Integer pageSize) {
+        Page<TruckDTO> trucks = truckService.getAllTrucks(pageNumber, pageSize);
 
         return ResponseEntity.ok(trucks);
     }
 
+    @GetMapping("/history")
+    public ResponseEntity<Page<TruckDTO>> getAllTrucksUsedInLastMonth(@RequestParam(required = false) Integer pageNumber,
+                                                          @RequestParam(required = false) Integer pageSize) {
+
+        return ResponseEntity.ok(truckService.getAllTrucksUsedInLastMonth(pageNumber, pageSize));
+    }
+
+
     @PostMapping()
     public ResponseEntity<TruckDTO> createTruck(@RequestBody AddTruckCommand addTruckCommand) {
-        List<String> currentTrucks = truckService.getAllTrucks().stream()
-                .map(TruckDTO::trailerPlateNumber)
-                .toList();
-
-        if (currentTrucks.contains(addTruckCommand.registerPlateNumber())) {
-            throw new RuntimeException("Plate number already exists");  //TODO działa ale poprawic bo leci status 500
-        }
-
         TruckDTO responseTruck = truckService.addTruck(addTruckCommand);
 
-        //TODO dopisać generowanie adresu pod ktorym bedzie dostepny nowy zasob oraz obsłużyć wyjątki
         return ResponseEntity.status(201).body(responseTruck);
     }
 

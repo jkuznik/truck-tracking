@@ -1,14 +1,11 @@
 package pl.jkuznik.trucktracking.domain.truckTrailerHistory;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import pl.jkuznik.trucktracking.domain.shared.QueryRepository;
+import pl.jkuznik.trucktracking.domain.truck.Truck;
 
-import java.time.Instant;
-import java.util.List;
+interface TTHRepository extends QueryRepository<TruckTrailerHistory, Long> {
 
-public interface TTHRepository extends JpaRepository<TruckTrailerHistory, Long> {
-
-    List<TruckTrailerHistory> findAllByTruckId(Long truckId);
-    List<TruckTrailerHistory> findAllByTrailerId(Long trailerId);
-    List<TruckTrailerHistory> findAllByStartPeriodDate(Instant startPeriodDate);
-    List<TruckTrailerHistory> findAllByEndPeriodDate(Instant endPeriodDate);
+    Page<Truck> getTruckUsedInLastMonth(Pageable pageable);
 }

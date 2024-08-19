@@ -8,8 +8,10 @@ spring:
     console:
       enabled: true
       path: /secret-h2
-#springdoc:
-#  api-docs:
-#    enabled: true
-#  swagger-ui:
-#    url: swagger.yaml
+      settings:
+        web-allow-others=: true
+  docker:
+    compose:
+      enabled: false
+server:
+  port: 8080

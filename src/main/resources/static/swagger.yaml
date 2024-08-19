@@ -2,30 +2,34 @@ openapi: 3.0.3
 info:
   version: 1.0.0
   title: Truck tracking
-  description: Truck tracking jest to moja implementacja założeń zadania rekrutacyjnego dla firmy fireTMS.
-              Cała aplikacja jest zabezpieczona metodą BasicAuth z istniejącym użytkownikiem/hasłem **'fire/tms'**
+  description: "
+  <h3>Truck tracking jest to moja implementacja założeń zadania rekrutacyjnego dla firmy fireTMS. </h3>
+  <h3>W środowisku produkcyjnym aplikacja jest zabezpieczona metodą BasicAuth z istniejącym użytkownikiem/hasłem: </h3>
+  <h2>login: fire</h2>
+  <h2>hasło: tms</h2>
+  W środowisku testowym uwierzytelnienie nie jest wymagane."
   contact:
     name: Janusz Kuźnik
     email: janusz.kuznik89@gmail.com
     url: http://www.github.com/jkuznik
-servers:
-  - url: 'http://localhost:8080'
-    description: 'Server URL in Development environment'
-  - url: 'http://localhost:8081'
-    description: 'Server URL in Production environment'
+#servers:
+#  - url: http://localhost:8080
+#    description: Środowisko test
+#  - url: http://localhost:8081
+#    description: Środowisko prod
 externalDocs:
-  description: Treść zadania
-  url: http://localhost:8080/zadanie.html
+  description: Konsola h2 - dostępna w środowisku testowym
+  url: http://localhost:8080/secret-h2
 tags:
   - name: trailer
     description: Metody CRUD przewidziane według założeń zadania
     externalDocs:
-      description: Treść zadania
+      description: Treść zadania dostępna w środowisku testowym
       url: http://localhost:8080/zadanie.html
   - name: truck
     description: Metody CRUD przewidziane według założeń zadania
     externalDocs:
-      description: Treść zadania
+      description: Treść zadania dostępna w środowisku testowym
       url: http://localhost:8080/zadanie.html
 
 paths:
@@ -184,39 +188,6 @@ paths:
         401:
           description: Brak uwierzytelnienia
 
-  /trailer/history:
-    get:
-      tags:
-        - trailer
-      summary: Zwraca historię przypisań naczep według podanych filtrów; okres czasu w którym naczepa była użytkowana
-      security:
-        - basicAuth: [ ]
-      parameters:
-        - name: startDate
-          in: query
-          required: false
-          schema:
-            type: timestamp
-            description: tutaj mozna uzupelnic wypelnianie parametrów
-      responses:
-        200:
-          description: Operacja udana
-        401:
-          description: Brak uwierzytelnienia
-
-  /trailer/search:
-    get:
-      tags:
-        - trailer
-      summary: Zwraca listę aktualnego stanu naczep według podanych filtrów; czy aktualnie jest w użytku, czy naczepa jest oflagowana jako 'corssHitch', okres czasu w którym naczepa była użytkowana
-      security:
-        - basicAuth: [ ]
-      responses:
-        200:
-          description: Operacja udana
-        401:
-          description: Brak uwierzytelnienia
-
   /truck:
     get:
       tags:
@@ -229,6 +200,7 @@ paths:
           description: Operacja udana
         401:
           description: Brak uwierzytelnienia
+
 
     post:
       tags:
@@ -305,6 +277,19 @@ paths:
           description: Brak uwierzytelnienia
         404:
           description: Pojazd o podanym UUId nie istnieje
+
+  /truck/history:
+    get:
+      tags:
+        - truck
+      summary: Zwraca listę przypisań naczep do pojazdów w ciągu ostatniego miesiąca
+      security:
+        - basicAuth: [ ]
+      responses:
+        200:
+          description: Operacja udana
+        401:
+          description: Brak uwierzytelnienia
 
 components:
   securitySchemes:

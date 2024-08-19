@@ -73,7 +73,6 @@ public class Trailer extends AbstractEntity {
             }
         }
 
-        // Jeżeli nowe przypisanie określa tylko koniec przypisania
         // todo jeżeli nowe przypisanie określa tylko koniec okresu a obecnie jest przypisana naczepa to ma być rzucony
         // wyjatek czy automatycznie ma nadac nowe przypisanie z wartością początekNowego = koniecStarego?
         // na ten moment metoda sprawdzająca rzuca wyjątek konfliktu okresów przypisania

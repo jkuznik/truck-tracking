@@ -1,6 +1,9 @@
 package pl.jkuznik.trucktracking.domain.trailer;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
@@ -11,78 +14,30 @@ import pl.jkuznik.trucktracking.domain.trailer.api.command.UpdateCrossHitchTrail
 import pl.jkuznik.trucktracking.domain.trailer.api.dto.TrailerDTO;
 import pl.jkuznik.trucktracking.domain.truck.Truck;
 import pl.jkuznik.trucktracking.domain.truck.TruckRepository;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
-import pl.jkuznik.trucktracking.domain.truckTrailerHistory.api.dto.TruckTrailerHistoryDTO;
+import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepositoryImpl;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 class TrailerService implements TrailerApi {
 
+    private final Integer DEFAULT_PAGE_NUMBER = 0;
+    private final Integer DEFAULT_PAGE_SIZE = 25;
+
     private final TrailerRepository trailerRepository;
     private final TruckRepository truckRepository;
-    private final TTHRepository tthRepository;
-
-    public List<TrailerDTO> getTrailersByFilters(Optional<Instant> startDate,
-                                                 Optional<Instant> endDate,
-                                                 Optional<Boolean> crossHitch) {
-        List<Trailer> filteredTrailers = trailerRepository.findAll();
-
-        if (startDate.isPresent()) {
-            List<Trailer> allByStartPeriodDate = trailerRepository.findAllByStartPeriodDate(startDate.get());
-            filteredTrailers.retainAll(allByStartPeriodDate);
-        }
-        if (endDate.isPresent()) {
-            List<Trailer> allByEndPeriodDate = trailerRepository.findAllByEndPeriodDate(endDate.get());
-            filteredTrailers.retainAll(allByEndPeriodDate);
-        }
-        if (crossHitch.isPresent()) {
-            List<Trailer> allByCrossHitch = trailerRepository.findAllByCrossHitch(crossHitch.get());
-            filteredTrailers.retainAll(allByCrossHitch);
-        }
-
-        return filteredTrailers.stream()
-                .map(this::convert)
-                .toList();
-    }
-
-    public List<TruckTrailerHistoryDTO> getTrailersHistoryByFilters(Optional<Instant> startDate,
-                                                                    Optional<Instant> endDate,
-                                                                    Optional<UUID> truckId,
-                                                                    Optional<UUID> trailerID) { //todo argumenty przygotowane do pobierania info o pojazdach i naczepach
-
-        List<TruckTrailerHistoryDTO> filteredTrailers = tthRepository.findAll().stream()
-                .map(TruckTrailerHistory::convert)
-                .collect(Collectors.toList());
-
-        if (startDate.isPresent()) {
-            List<TruckTrailerHistoryDTO> allByStartPeriodDate = tthRepository.findAllByStartPeriodDate(startDate.get()).stream()
-                    .map(TruckTrailerHistory::convert)
-                    .toList();
-            filteredTrailers.retainAll(allByStartPeriodDate);
-        }
-        if (endDate.isPresent()) {
-            List<TruckTrailerHistoryDTO> allByEndPeriodDate = tthRepository.findAllByEndPeriodDate(endDate.get()).stream()
-                    .map(TruckTrailerHistory::convert)
-                    .toList();
-            filteredTrailers.retainAll(allByEndPeriodDate);
-        }
-
-        return filteredTrailers;
-    }
+    private final TTHRepositoryImpl tthRepository;
 
     @Override
     public TrailerDTO addTrailer(AddTrailerCommand addTrailerCommand) {
         Optional<Trailer> existTrailer = trailerRepository.findByRegisterPlateNumber(addTrailerCommand.registerPlateNumber());
         if (existTrailer.isPresent()) {
-            throw new RuntimeException("Trailer with " + addTrailerCommand.registerPlateNumber() + " plate number already exists");  //TODO działa ale poprawic bo leci status 500
+            throw new IllegalStateException("Trailer with " + addTrailerCommand.registerPlateNumber() + " plate number already exists");
         }
 
         return convert(trailerRepository.save(new Trailer(
@@ -97,24 +52,35 @@ class TrailerService implements TrailerApi {
     }
 
     @Override
-    public List<TrailerDTO> getAllTrailers() {
-        return trailerRepository.findAll().stream()
+    public Page<TrailerDTO> getAllTrailers(Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = getPageRequest(pageNumber, pageSize);
+
+        return new PageImpl<>(trailerRepository.findAll(pageRequest).stream()
                 .map(this::convert)
-                .toList();
+                .toList());
     }
 
-    @Override
-    public List<TrailerDTO> getTrailersByStartPeriodDate(Instant startDate) {
-        return trailerRepository.findAllByStartPeriodDate(startDate).stream()
-                .map(this::convert)
-                .toList();
-    }
+    private PageRequest getPageRequest(Integer pageNumber, Integer pageSize) {
+        int number;
+        int size;
 
-    @Override
-    public List<TrailerDTO> getTrailersByEndPeriodDate(Instant endDate) {
-        return trailerRepository.findAllByEndPeriodDate(endDate).stream()
-                .map(this::convert)
-                .toList();
+        if (pageNumber != null && pageNumber > 0) {
+            number = pageNumber -1;
+        } else {
+            number = DEFAULT_PAGE_NUMBER;
+        }
+
+        if (pageSize != null && pageSize > 25) {
+            if (pageSize > 100) {
+                size = 100;
+            } else {
+                size = pageSize;
+            }
+        } else {
+            size = DEFAULT_PAGE_SIZE;
+        }
+
+        return PageRequest.of(number, size);
     }
 
     @Override
@@ -126,7 +92,7 @@ class TrailerService implements TrailerApi {
 
     @Transactional
     @Override
-    public TrailerDTO updateTrailerByBusinessId(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) {
+    public TrailerDTO updateCrossHitchTrailerByBusinessId(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) {
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
 
@@ -137,7 +103,7 @@ class TrailerService implements TrailerApi {
 
     @Transactional
     @Override
-    public TrailerDTO unassignTrailerManageByBusinessId(UUID uuid, UnassignTrailerCommand unassignTrailerCommand) {
+    public TrailerDTO unassignTrailerByBusinessId(UUID uuid, UnassignTrailerCommand unassignTrailerCommand) {
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
 
@@ -171,8 +137,8 @@ class TrailerService implements TrailerApi {
 
     @Transactional
     @Override
-    public TrailerDTO assignTrailerManageByBusinessId(UUID uuid, UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
-        // TODO dodać obsługę wyjątków
+    public TrailerDTO assignTrailerByBusinessId(UUID uuid, UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
+
         if (updateAssignmentTrailerCommand.startPeriod().isEmpty() &&
                 updateAssignmentTrailerCommand.endPeriod().isEmpty() && updateAssignmentTrailerCommand.truckId().isPresent()) {
             throw new IllegalStateException("Wrong operation to unassign a truck");
@@ -268,7 +234,6 @@ class TrailerService implements TrailerApi {
             crossHitchTruck.setEndPeriodDate(updateAssignmentTrailerCommand.endPeriod().get());
         crossHitchTruck.setCurrentTrailerBusinessId(processingTrailerBusinessId);
 
-
         TruckTrailerHistory crossHitchOperation = new TruckTrailerHistory();
         crossHitchOperation.setTrailer(processingTrailer);
         crossHitchOperation.setTruck(crossHitchTruck);
@@ -284,6 +249,8 @@ class TrailerService implements TrailerApi {
                 crossHitchTrailer.get().setCurrentTruckBusinessId(processingTrailerCurrentTruck.getBusinessId());
 
                 processingTrailerCurrentTruck.setCurrentTrailerBusinessId(crossHitchTrailer.get().getBusinessId());
+                processingTrailerCurrentTruck.setStartPeriodDate(crossHitchTrailer.get().getStartPeriodDate());
+                processingTrailerCurrentTruck.setEndPeriodDate(crossHitchTrailer.get().getEndPeriodDate());
 
                 TruckTrailerHistory crossHitchOperation2 = new TruckTrailerHistory();
                 crossHitchOperation2.setTrailer(crossHitchTrailer.get());
@@ -293,16 +260,20 @@ class TrailerService implements TrailerApi {
 
                 tthRepository.save(crossHitchOperation2);
             } else {
-                result.append(" Second trailer is not cross hitch available and will be unassigned from any truck - truck assignment to processing trailer before cross hitch operation now will be unassigned to any trailer");
+                result.append("Second trailer is not cross hitch available and will be unassigned from any truck - truck assignment to processing trailer before cross hitch operation now will be unassigned to any trailer");
                 crossHitchTrailer.get().setStartPeriodDate(null);
                 crossHitchTrailer.get().setEndPeriodDate(null);
                 crossHitchTrailer.get().setCurrentTruckBusinessId(null);
 
                 processingTrailerCurrentTruck.setCurrentTrailerBusinessId(null);
+                processingTrailerCurrentTruck.setStartPeriodDate(null);
+                processingTrailerCurrentTruck.setEndPeriodDate(null);
             }
         } else {
-            result.append(" Second truck has no assignment trailer, proccessing trailer current truck now will be unassigned to any trailer.");
+            result.append("Second truck has no assignment trailer, proccessing trailer current truck now will be unassigned to any trailer.");
             processingTrailerCurrentTruck.setCurrentTrailerBusinessId(null);
+            processingTrailerCurrentTruck.setStartPeriodDate(null);
+            processingTrailerCurrentTruck.setEndPeriodDate(null);
         }
 
         result.insert(0, "Cross hitch operation on processing trailer success. ");
@@ -313,6 +284,22 @@ class TrailerService implements TrailerApi {
     @Transactional
     @Override
     public void deleteTrailerByBusinessId(UUID uuid) {
+        Trailer trailer = trailerRepository.findByBusinessId(uuid).orElseThrow(
+                () -> new NoSuchElementException("Trailer with business id " + uuid + " not found")
+        );
+
+        if (trailer.getCurrentTruckBusinessId() != null) {
+            Optional<Truck> truck = truckRepository.findByBusinessId(trailer.getCurrentTruckBusinessId());
+
+            if (truck.isPresent()) {
+                truck.get().setStartPeriodDate(null);
+                truck.get().setEndPeriodDate(null);
+                truck.get().setCurrentTrailerBusinessId(null);
+
+                truckRepository.save(truck.get());
+            }
+        }
+
         trailerRepository.deleteByBusinessId(uuid);
     }
 

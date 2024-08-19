@@ -2,4 +2,26 @@ spring:
   application:
     name: truck-tracking
   profiles:
-    active: test
+#    active: prod
+    include: test
+
+#  jpa:
+#    properties:
+#      hibernate:
+#        format_sql: true
+#        use_sql_comments: true
+
+#logging:
+#  level:
+#    org:
+#      hibernate:
+#        SQL: DEBUG
+#        type:
+#          descriptor:
+#            sql:
+#              BasicBinder: TRACE
+
+#  api-docs:
+#    enabled: true
+#  swagger-ui:
+#    url: swagger.yaml

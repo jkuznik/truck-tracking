@@ -10,7 +10,7 @@ import java.util.UUID;
 @Builder
 @Validated
 public record TruckDTO(
-        @NotNull String trailerPlateNumber,
+        @NotNull String truckPlateNumber,
         UUID businessId,
         Instant startPeriod,
         Instant endPeriod,
