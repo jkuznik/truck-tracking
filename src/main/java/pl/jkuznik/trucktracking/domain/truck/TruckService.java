@@ -38,7 +38,7 @@ class TruckService implements TruckApi {
         Optional<Truck> byRegisterPlateNumber = truckRepository.findByRegisterPlateNumber(newTruck.registerPlateNumber());
 
         if (byRegisterPlateNumber.isPresent()) {
-            throw new RuntimeException("Plate number already exists");
+            throw new RuntimeException("Truck with " + newTruck.registerPlateNumber() + " plate number already exists");
         }
 
         return convert(truckRepository.save(new Truck(

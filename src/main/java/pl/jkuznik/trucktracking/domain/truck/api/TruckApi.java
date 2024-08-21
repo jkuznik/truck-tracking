@@ -15,7 +15,7 @@ import java.util.UUID;
 public interface TruckApi {
 
     @Transactional
-    TruckDTO addTruck(@Valid AddTruckCommand newTruck);
+    TruckDTO addTruck(@NotNull @Valid AddTruckCommand newTruck);
 
     TruckDTO getTruckByBusinessId(@NotNull UUID uuid);
     Page<TruckDTO> getAllTrucks(Integer pageNumber, Integer pageSize);

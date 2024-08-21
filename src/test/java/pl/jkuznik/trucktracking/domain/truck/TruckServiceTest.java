@@ -1,6 +1,7 @@
 package pl.jkuznik.trucktracking.domain.truck;
 
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import pl.jkuznik.trucktracking.domain.bootstrap.Bootstrap;
 import pl.jkuznik.trucktracking.domain.shared.TestEntityManagerFactoryImpl;
 import pl.jkuznik.trucktracking.domain.trailer.Trailer;
 import pl.jkuznik.trucktracking.domain.trailer.TrailerRepository;
+import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.TruckApi;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
@@ -28,6 +30,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -128,7 +131,43 @@ class TruckServiceTest {
 
             verify(truckRepository, times(1)).save(any(Truck.class));
             assertThat(TRUCK_REGISTER_NUMBER).isEqualTo(newTruckDTO.truckPlateNumber());
+        }
 
+        @Test
+        void addTruckWhenCommandIsValidAndTruckExist() {
+            //given
+            AddTruckCommand addTruckCommand = new AddTruckCommand(TRUCK_REGISTER_NUMBER);
+
+            //when
+            when(truckRepository.findByRegisterPlateNumber(TRUCK_REGISTER_NUMBER)).thenReturn(Optional.of(testTruck));
+
+            //then
+            var exception = catchException(() -> truckApi.addTruck(addTruckCommand));
+
+            //TODO dodać swoje wyjątki
+            assertThat(exception).isExactlyInstanceOf(RuntimeException.class);
+            assertThat(exception.getMessage()).isEqualTo("Truck with " + addTruckCommand.registerPlateNumber() + " plate number already exists");
+        }
+
+        @Test
+        void addTruckWhenCommandIsBlank() {
+            //given
+            AddTruckCommand addTruckCommand = new AddTruckCommand("");
+
+            //when
+            var exception = catchException(() -> truckApi.addTruck(addTruckCommand));
+
+            //then
+            assertThat(exception).isExactlyInstanceOf(ConstraintViolationException.class);
+        }
+
+        @Test
+        void addTruckWhenCommandIsNull() {
+            //when
+            var exception = catchException(() -> truckApi.addTruck(null));
+
+            //then
+            assertThat(exception).isExactlyInstanceOf(ConstraintViolationException.class);
         }
 
     }
