@@ -136,25 +136,22 @@ class TrailerService implements TrailerApi {
         return convert(trailer);
     }
 
+
+    //TODO Na ten moment aplikacja pozwala na przypisanie naczepy do pojazdu jeżeli użytkownik nie określi początku
+    // lub końca czasu przypisania, jednak konieczne jest ustalenie zachowania aplikacji na taką ewentualność lub
+    // ustalenie jednakowej interpretacji nieokreślonych stanów początku lub końca przypisania
     @Transactional
     @Override
     public TrailerDTO assignTrailerByBusinessId(UUID uuid, UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
-
-        if (updateAssignmentTrailerCommand.startPeriod().isEmpty() &&
-                updateAssignmentTrailerCommand.endPeriod().isEmpty() && updateAssignmentTrailerCommand.truckId().isPresent()) {
-            throw new IllegalStateException("Wrong operation to unassign a truck");
-        }
-
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
-        Truck truck;
 
-        if (updateAssignmentTrailerCommand.truckId().isPresent()) {
-            truck = truckRepository.findByBusinessId(updateAssignmentTrailerCommand.truckId().get())
-                    .orElseThrow(() -> new NoSuchElementException("No truck with id " + updateAssignmentTrailerCommand.truckId().get()));
-        } else {
+        if (updateAssignmentTrailerCommand.truckId().isEmpty()) {
             throw new NoSuchElementException("Truck business id is needed in this operation");
         }
+
+        Truck truck = truckRepository.findByBusinessId(updateAssignmentTrailerCommand.truckId().get())
+                .orElseThrow(() -> new NoSuchElementException("No truck with id " + updateAssignmentTrailerCommand.truckId().get()));
 
         if (trailer.isInUse(updateAssignmentTrailerCommand.startPeriod().orElse(null), updateAssignmentTrailerCommand.endPeriod().orElse(null))) {
             throw new IllegalStateException("The trailer is in use during the specified period.");
@@ -172,11 +169,9 @@ class TrailerService implements TrailerApi {
         trailer.setEndPeriodDate(updateAssignmentTrailerCommand.endPeriod().orElse(null));
         trailer.setCurrentTruckBusinessId(updateAssignmentTrailerCommand.truckId().orElse(null));
 
-
         truck.setStartPeriodDate(updateAssignmentTrailerCommand.startPeriod().orElse(null));
         truck.setEndPeriodDate(updateAssignmentTrailerCommand.endPeriod().orElse(null));
         truck.setCurrentTrailerBusinessId(trailer.getBusinessId());
-
 
         var tth = new TruckTrailerHistory();
 

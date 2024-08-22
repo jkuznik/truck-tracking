@@ -403,7 +403,7 @@ class TrailerServiceTest {
                     trailerApi.assignTrailerByBusinessId(TRAILER_BUSINESS_ID, updateTrailerCommand));
 
             assertThat(exception).isExactlyInstanceOf(IllegalStateException.class);
-            assertThat(exception.getMessage()).isEqualTo("Wrong operation to unassign a truck");
+            assertThat(exception.getMessage()).isEqualTo("Both value of start date and end date can't be empty.");
         }
 
         @Test

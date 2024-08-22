@@ -42,12 +42,12 @@ public class Trailer extends AbstractEntity {
 
     public boolean isInUse(Instant startDate, Instant endDate) throws IllegalStateException {
 
-        // Jeżeli naczepa nie ma określonego czasu przypisania wtedy jest dostępna w każdym terminie,
-        // w innym wypadku 'result' metody isInUse() '= true' oraz ewentalna dostępność naczepy wg poniższej logiki warunków
+        if (startDate == null && endDate == null) {
+            throw new IllegalStateException("Both value of start date and end date can't be empty.");
+        }
+
         boolean result = startPeriodDate != null || endPeriodDate != null;
 
-
-        // Jeżeli nowe przypisanie określa początek i koniec przypisania
         if (startDate != null && endDate != null) {
             if (startPeriodDate != null && endPeriodDate != null) {
                 if (startPeriodDate.isAfter(endDate) || endPeriodDate.isBefore(startDate)) result = false;
@@ -60,8 +60,7 @@ public class Trailer extends AbstractEntity {
             }
         }
 
-        // Jeżeli nowe przypisanie określa tylko początek przypisania
-        if (startDate != null && endDate == null) {
+        if (endDate == null) {
             if (startPeriodDate != null && endPeriodDate != null) {
                 if (endPeriodDate.isBefore(startDate)) result = false;
             }
@@ -73,10 +72,7 @@ public class Trailer extends AbstractEntity {
             }
         }
 
-        // todo jeżeli nowe przypisanie określa tylko koniec okresu a obecnie jest przypisana naczepa to ma być rzucony
-        // wyjatek czy automatycznie ma nadac nowe przypisanie z wartością początekNowego = koniecStarego?
-        // na ten moment metoda sprawdzająca rzuca wyjątek konfliktu okresów przypisania
-        if (startDate == null && endDate != null) {
+        if (startDate == null) {
             if (startPeriodDate != null && endPeriodDate != null) {
                 if (startPeriodDate.isAfter(endDate)) result = false;
             }
@@ -88,7 +84,6 @@ public class Trailer extends AbstractEntity {
             }
         }
 
-        if (startDate == null && endDate == null) result = false;
         return result;
     }
 }
