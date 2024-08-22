@@ -19,7 +19,7 @@ class TrailerTest {
     private final Instant AFTER_END_DATE = Instant.parse("2020-06-21T00:00:00Z");
 
     @Test
-    void isInUseAllValuesArePresentAndShouldReturnTrue() {
+    void isInUseWhenAllValuesArePresentAndShouldReturnTrue() {
         //given
         TRAILER.setStartPeriodDate(CURRENT_START_DATE);
         TRAILER.setEndPeriodDate(CURRENT_END_DATE);
@@ -32,7 +32,7 @@ class TrailerTest {
     }
 
     @Test
-    void isInUseAllValuesArePresentAndShouldReturnTrue2() {
+    void isInUseWhenAllValuesArePresentAndShouldReturnTrue2() {
         //given
         TRAILER.setStartPeriodDate(CURRENT_START_DATE);
         TRAILER.setEndPeriodDate(CURRENT_END_DATE);
@@ -45,7 +45,7 @@ class TrailerTest {
     }
 
     @Test
-    void isInUseAllValuesArePresentAndShouldReturnTrue3() {
+    void isInUseWhenAllValuesArePresentAndShouldReturnTrue3() {
         //given
         TRAILER.setStartPeriodDate(CURRENT_START_DATE);
         TRAILER.setEndPeriodDate(CURRENT_END_DATE);
@@ -58,7 +58,7 @@ class TrailerTest {
     }
 
     @Test
-    void isInUseAllValuesArePresentAndShouldReturnFalse() {
+    void isInUseWhenAllValuesArePresentAndShouldReturnFalse() {
         //given
         TRAILER.setStartPeriodDate(CURRENT_START_DATE);
         TRAILER.setEndPeriodDate(CURRENT_END_DATE);
@@ -71,13 +71,39 @@ class TrailerTest {
     }
 
     @Test
-    void isInUseAllValuesArePresentAndShouldReturnFalse2() {
+    void isInUseWhenAllValuesArePresentAndShouldReturnFalse2() {
         //given
         TRAILER.setStartPeriodDate(CURRENT_START_DATE);
         TRAILER.setEndPeriodDate(CURRENT_END_DATE);
 
         //when
         boolean inUse = TRAILER.isInUse(AFTER_END_DATE, AFTER_END_DATE.plusSeconds(1));
+
+        //then
+        assertFalse(inUse);
+    }
+
+    @Test
+    void isInUseWhenCurrentEndDateIsEmptyAndNewValuesArePresentAndShouldReturnFalse() {
+        //given
+        TRAILER.setStartPeriodDate(CURRENT_START_DATE);
+        TRAILER.setEndPeriodDate(null);
+
+        //when
+        boolean inUse = TRAILER.isInUse(BEFORE_START_DATE.minusSeconds(5), BEFORE_START_DATE);
+
+        //then
+        assertFalse(inUse);
+    }
+
+    @Test
+    void isInUseWhenCurrentStartDateIsEmptyAndNewValuesArePresentAndShouldReturnFalse() {
+        //given
+        TRAILER.setStartPeriodDate(null);
+        TRAILER.setEndPeriodDate(CURRENT_END_DATE);
+
+        //when
+        boolean inUse = TRAILER.isInUse(AFTER_END_DATE, AFTER_END_DATE.plusSeconds(5) );
 
         //then
         assertFalse(inUse);
