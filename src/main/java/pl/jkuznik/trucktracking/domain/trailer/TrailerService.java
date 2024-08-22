@@ -66,7 +66,7 @@ class TrailerService implements TrailerApi {
         int size;
 
         if (pageNumber != null && pageNumber > 0) {
-            number = pageNumber -1;
+            number = pageNumber - 1;
         } else {
             number = DEFAULT_PAGE_NUMBER;
         }
@@ -156,21 +156,13 @@ class TrailerService implements TrailerApi {
             throw new NoSuchElementException("Truck business id is needed in this operation");
         }
 
-        try {
-            if (trailer.isInUse(updateAssignmentTrailerCommand.startPeriod().orElse(null), updateAssignmentTrailerCommand.endPeriod().orElse(null))) {
-                throw new IllegalStateException("The trailer is in use during the specified period.");
-            }
-        } catch (IllegalStateException e) {
-            throw e;
+        if (trailer.isInUse(updateAssignmentTrailerCommand.startPeriod().orElse(null), updateAssignmentTrailerCommand.endPeriod().orElse(null))) {
+            throw new IllegalStateException("The trailer is in use during the specified period.");
         }
 
         if (updateAssignmentTrailerCommand.startPeriod().isPresent() && updateAssignmentTrailerCommand.endPeriod().isPresent()) {
             if (updateAssignmentTrailerCommand.endPeriod().get().isBefore(updateAssignmentTrailerCommand.startPeriod().get())) {
-                try {
-                    throw new IllegalStateException("End period is before start period");
-                } catch (IllegalStateException e) {
-                    throw e;
-                }
+                throw new IllegalStateException("End period is before start period");
             }
         }
 
