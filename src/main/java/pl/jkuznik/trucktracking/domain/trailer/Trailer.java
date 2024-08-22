@@ -46,41 +46,50 @@ public class Trailer extends AbstractEntity {
             throw new IllegalStateException("Both value of start date and end date can't be empty.");
         }
 
-        boolean result = startPeriodDate != null || endPeriodDate != null;
+        if (startPeriodDate == null && endPeriodDate == null) return false;
 
-        if (startDate != null && endDate != null) {
-            if (startPeriodDate != null && endPeriodDate != null) {
-                if (startPeriodDate.isAfter(endDate) || endPeriodDate.isBefore(startDate)) result = false;
-            }
-            if (startPeriodDate != null && endPeriodDate == null) {
-                if (startPeriodDate.isAfter(endDate)) result = false;
-            }
-            if (startPeriodDate == null && endPeriodDate != null) {
-                if (endPeriodDate.isBefore(startDate)) result = false;
-            }
-        }
+        boolean result = true;
 
-        if (endDate == null) {
-            if (startPeriodDate != null && endPeriodDate != null) {
-                if (endPeriodDate.isBefore(startDate)) result = false;
-            }
-            if (startPeriodDate != null && endPeriodDate == null) {
-                throw new IllegalStateException("Processing trailer is currently assigned to a truck without end period. To add new assign edit first current assignment date or fill end date of new assign");
-            }
-            if (startPeriodDate == null && endPeriodDate != null) {
-                if (endPeriodDate.isBefore(startDate)) result = false;
-            }
-        }
+        String useCase = "";
+        if (startDate != null && endDate != null) { useCase = "Both of new start date and new end date are present"; }
+        if (endDate == null) { useCase = "New end date is empty"; }
+        if (startDate == null) { useCase = "New start date is empty"; }
 
-        if (startDate == null) {
-            if (startPeriodDate != null && endPeriodDate != null) {
-                if (startPeriodDate.isAfter(endDate)) result = false;
+        switch (useCase) {
+            case "Both of new start date and new end date are present" -> {
+                if (startPeriodDate != null && endPeriodDate != null) {
+                    if (startPeriodDate.isAfter(endDate) || endPeriodDate.isBefore(startDate)) result = false;
+                }
+                if (endPeriodDate == null) {
+                    if (startPeriodDate.isAfter(endDate)) result = false;
+                }
+                if (startPeriodDate == null) {
+                    if (endPeriodDate.isBefore(startDate)) result = false;
+                }
             }
-            if (startPeriodDate != null && endPeriodDate == null) {
-                if (startPeriodDate.isAfter(endDate)) result = false;
+
+            case "New end date is empty" -> {
+                if (startPeriodDate != null && endPeriodDate != null) {
+                    if (endPeriodDate.isBefore(startDate)) result = false;
+                }
+                if (endPeriodDate == null) {
+                    throw new IllegalStateException("Processing trailer is currently assigned to a truck without end period. To add new assign edit first current assignment date or fill end date of new assign");
+                }
+                if (startPeriodDate == null) {
+                    if (endPeriodDate.isBefore(startDate)) result = false;
+                }
             }
-            if (startPeriodDate == null && endPeriodDate != null) {
-                throw new IllegalStateException("Processing trailer is currently assigned to a truck without start period. To add new assign edit first current assignment date or fill start date of new assign");
+
+            case "New start date is empty" -> {
+                if (startPeriodDate != null && endPeriodDate != null) {
+                    if (startPeriodDate.isAfter(endDate)) result = false;
+                }
+                if (endPeriodDate == null) {
+                    if (startPeriodDate.isAfter(endDate)) result = false;
+                }
+                if (startPeriodDate == null) {
+                    throw new IllegalStateException("Processing trailer is currently assigned to a truck without start period. To add new assign edit first current assignment date or fill start date of new assign");
+                }
             }
         }
 

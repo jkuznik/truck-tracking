@@ -18,6 +18,7 @@ import pl.jkuznik.trucktracking.domain.truck.TruckRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepositoryImpl;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -140,9 +141,24 @@ class TrailerService implements TrailerApi {
     //TODO Na ten moment aplikacja pozwala na przypisanie naczepy do pojazdu jeżeli użytkownik nie określi początku
     // lub końca czasu przypisania, jednak konieczne jest ustalenie zachowania aplikacji na taką ewentualność lub
     // ustalenie jednakowej interpretacji nieokreślonych stanów początku lub końca przypisania
+
+    //TODO Utworzyć osobną metodę do aktualizacji obecnych stanów przypisań (w razie potrzeby zaktualizowania pustych
+    // wartości początku albo końca przypisania) oraz dodać warunek nie pozwalający na
+    // "planowanie przypisań" z przeszłości.
     @Transactional
     @Override
     public TrailerDTO assignTrailerByBusinessId(UUID uuid, UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
+        if (updateAssignmentTrailerCommand.startPeriod().isPresent()){
+            if (updateAssignmentTrailerCommand.startPeriod().get().isBefore(Instant.now())) {
+                throw new IllegalArgumentException("Cannot assign a trailer for a past date");
+            }
+        }
+        if (updateAssignmentTrailerCommand.endPeriod().isPresent()){
+            if (updateAssignmentTrailerCommand.endPeriod().get().isBefore(Instant.now())) {
+                throw new IllegalArgumentException("Cannot assign a trailer for a past date");
+            }
+        }
+
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
 
