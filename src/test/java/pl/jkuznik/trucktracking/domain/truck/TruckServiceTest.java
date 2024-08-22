@@ -1,6 +1,7 @@
 package pl.jkuznik.trucktracking.domain.truck;
 
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,23 +12,24 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
-import pl.jkuznik.trucktracking.domain.bootstrap.Bootstrap;
-import pl.jkuznik.trucktracking.domain.shared.TestEntityManagerFactoryImpl;
+import pl.jkuznik.trucktracking.domain.shared.PlateNumberExistException;
 import pl.jkuznik.trucktracking.domain.trailer.Trailer;
 import pl.jkuznik.trucktracking.domain.trailer.TrailerRepository;
 import pl.jkuznik.trucktracking.domain.truck.api.TruckApi;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
-import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
+import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateAssignmentCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepositoryImpl;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -112,30 +114,7 @@ class TruckServiceTest {
     }
 
     @Nested
-    class AddMethodsTests {
-
-        @Test
-        void addTruckWhenCommandIsValidAndTruckNotExist() {
-            //given
-            AddTruckCommand addTruckCommand = new AddTruckCommand(TRUCK_REGISTER_NUMBER);
-
-            //when
-            when(truckRepository.findByRegisterPlateNumber(TRUCK_REGISTER_NUMBER)).thenReturn(Optional.empty());
-            when(truckRepository.save(any(Truck.class))).thenReturn(testTruck);
-
-            //then
-            TruckDTO newTruckDTO = truckApi.addTruck(addTruckCommand);
-
-            verify(truckRepository, times(1)).save(any(Truck.class));
-            assertThat(TRUCK_REGISTER_NUMBER).isEqualTo(newTruckDTO.truckPlateNumber());
-
-        }
-
-    }
-    @Nested
     class GetMethodsTests {
-
-
         @Test
         void getTruckByBusinessIdWhenTruckExist() {
             //when
@@ -145,6 +124,18 @@ class TruckServiceTest {
             TruckDTO result = truckApi.getTruckByBusinessId(TRAILER_BUSINESS_ID);
 
             assertThat(result.truckPlateNumber()).isEqualTo(testTruck.getRegisterPlateNumber());
+        }
+
+        @Test
+        void getTruckByBusinessIdWhenTruckNotExist() {
+            //when
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.empty());
+
+            //then
+            var exception = catchException(() -> truckApi.getTruckByBusinessId(TRUCK_BUSINESS_ID));
+
+            assertThat(exception).isInstanceOf(NoSuchElementException.class);
+            assertThat(exception.getMessage()).isEqualTo("Truck with business id " + TRUCK_BUSINESS_ID + " not found");
         }
 
         @Test
@@ -162,7 +153,7 @@ class TruckServiceTest {
         }
 
         @Test
-        void getTruckUsedInLastMonth() {
+        void getTrucksUsedInLastMonth() {
             //given
             List<Truck> trucks = List.of(testTruck, secondTestTruck);
             Page<Truck> truckPage = new PageImpl<>(trucks);
@@ -182,14 +173,71 @@ class TruckServiceTest {
     }
 
     @Nested
-    class UpdateMethodsTests {
+    class PostMethodsTests {
 
         @Test
-        void updateTruckAssignByBusinessId() {
+        void addTruckWhenCommandIsValidAndTruckNotExist() {
+            //given
+            AddTruckCommand addTruckCommand = new AddTruckCommand(TRUCK_REGISTER_NUMBER);
+
+            //when
+            when(truckRepository.findByRegisterPlateNumber(TRUCK_REGISTER_NUMBER)).thenReturn(Optional.empty());
+            when(truckRepository.save(any(Truck.class))).thenReturn(testTruck);
+
+            //then
+            TruckDTO newTruckDTO = truckApi.addTruck(addTruckCommand);
+
+            verify(truckRepository, times(1)).save(any(Truck.class));
+            assertThat(TRUCK_REGISTER_NUMBER).isEqualTo(newTruckDTO.truckPlateNumber());
+        }
+
+        @Test
+        void addTruckWhenCommandIsValidAndTruckExist() {
+            //given
+            AddTruckCommand addTruckCommand = new AddTruckCommand(TRUCK_REGISTER_NUMBER);
+
+            //when
+            when(truckRepository.findByRegisterPlateNumber(TRUCK_REGISTER_NUMBER)).thenReturn(Optional.of(testTruck));
+
+            //then
+            var exception = catchException(() -> truckApi.addTruck(addTruckCommand));
+
+            assertThat(exception).isExactlyInstanceOf(PlateNumberExistException.class);
+            assertThat(exception.getMessage()).isEqualTo("Truck with " + addTruckCommand.registerPlateNumber() + " plate number already exists");
+        }
+
+        @Test
+        void addTruckWhenCommandIsBlank() {
+            //given
+            AddTruckCommand addTruckCommand = new AddTruckCommand("");
+
+            //when
+            var exception = catchException(() -> truckApi.addTruck(addTruckCommand));
+
+            //then
+            assertThat(exception).isExactlyInstanceOf(ConstraintViolationException.class);
+        }
+
+        @Test
+        void addTruckWhenCommandIsNull() {
+            //when
+            var exception = catchException(() -> truckApi.addTruck(null));
+
+            //then
+            assertThat(exception).isExactlyInstanceOf(ConstraintViolationException.class);
+        }
+
+    }
+
+    @Nested
+    class PatchMethodsTests {
+
+        @Test
+        void updateTruckAssignByBusinessIdWhenCommandIsValidAndTruckExist() {
             //given
             Instant newStartPeriodTime = Instant.parse("2024-01-03T00:00:00Z");
             Instant newEndPeriodTime = Instant.parse("2024-01-04T00:00:00Z");
-            var updateTruckCommand = new UpdateTruckCommand(Optional.of(newStartPeriodTime), Optional.of(newEndPeriodTime),
+            var updateTruckCommand = new UpdateAssignmentCommand(Optional.of(newStartPeriodTime), Optional.of(newEndPeriodTime),
                     Optional.of(secondTestTrailer.getBusinessId()));
 
             //when
@@ -203,6 +251,15 @@ class TruckServiceTest {
             assertThat(result.startPeriod()).isEqualTo(newStartPeriodTime);
             assertThat(result.endPeriod()).isEqualTo(newEndPeriodTime);
             assertThat(result.currentTrailerBusinessId()).isEqualTo(secondTestTrailer.getBusinessId());
+        }
+
+        @Test
+        void updateTruckAssignByBusinessIdWhenCommandIsNull() {
+            //when
+            var exception = catchException(() -> truckApi.updateTruckAssignByBusinessId(TRUCK_BUSINESS_ID, null));
+
+            //then
+            assertThat(exception).isExactlyInstanceOf(ConstraintViolationException.class);
         }
     }
 

@@ -5,10 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
-import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
+import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateAssignmentCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -52,8 +51,8 @@ public class TruckController {
     }
 
     @PatchMapping("/{uuid}")
-    public ResponseEntity<TruckDTO> updateTruckAssign(@PathVariable String uuid, @RequestBody UpdateTruckCommand updateTruckCommand) throws Exception {
-        TruckDTO updatedTruck = truckService.updateTruckAssignByBusinessId(UUID.fromString(uuid), updateTruckCommand);
+    public ResponseEntity<TruckDTO> updateTruckAssign(@PathVariable String uuid, @RequestBody UpdateAssignmentCommand updateAssignmentCommand) throws Exception {
+        TruckDTO updatedTruck = truckService.updateTruckAssignByBusinessId(UUID.fromString(uuid), updateAssignmentCommand);
 
         return ResponseEntity.status(200).body(updatedTruck);
     }

@@ -24,13 +24,13 @@ public interface TrailerApi {
     List<TrailerDTO> getTrailersByCrossHitch(@NotNull Boolean crossHitch);
 
     @Transactional
-    TrailerDTO updateCrossHitchTrailerByBusinessId(@NotNull UUID uuid, @Valid UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand);
+    TrailerDTO updateCrossHitchTrailerValue(@NotNull UUID uuid, @NotNull @Valid UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand);
 
     @Transactional
-    TrailerDTO unassignTrailerByBusinessId(@NotNull UUID uuid, @Valid UnassignTrailerCommand unassignTrailerCommand);
+    TrailerDTO unassignTrailerByBusinessId(@NotNull UUID uuid, @NotNull @Valid UnassignTrailerCommand unassignTrailerCommand);
 
     @Transactional
-    TrailerDTO assignTrailerByBusinessId(@NotNull UUID uuid, @NotNull @Valid UpdateAssignmentTrailerCommand newTrailer);
+    TrailerDTO assignTrailerByBusinessId(@NotNull UUID uuid, @NotNull UpdateAssignmentTrailerCommand newTrailer);
 
     @Transactional
     String crossHitchOperation(@NotNull UUID uuid, @NotNull @Valid UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand);

@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.jkuznik.trucktracking.domain.shared.PlateNumberExistException;
 import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UnassignTrailerCommand;
@@ -17,6 +18,7 @@ import pl.jkuznik.trucktracking.domain.truck.TruckRepository;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepositoryImpl;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -37,7 +39,7 @@ class TrailerService implements TrailerApi {
     public TrailerDTO addTrailer(AddTrailerCommand addTrailerCommand) {
         Optional<Trailer> existTrailer = trailerRepository.findByRegisterPlateNumber(addTrailerCommand.registerPlateNumber());
         if (existTrailer.isPresent()) {
-            throw new IllegalStateException("Trailer with " + addTrailerCommand.registerPlateNumber() + " plate number already exists");
+            throw new PlateNumberExistException("Trailer with " + addTrailerCommand.registerPlateNumber() + " plate number already exists");
         }
 
         return convert(trailerRepository.save(new Trailer(
@@ -65,7 +67,7 @@ class TrailerService implements TrailerApi {
         int size;
 
         if (pageNumber != null && pageNumber > 0) {
-            number = pageNumber -1;
+            number = pageNumber - 1;
         } else {
             number = DEFAULT_PAGE_NUMBER;
         }
@@ -92,7 +94,7 @@ class TrailerService implements TrailerApi {
 
     @Transactional
     @Override
-    public TrailerDTO updateCrossHitchTrailerByBusinessId(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) {
+    public TrailerDTO updateCrossHitchTrailerValue(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) {
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
 
@@ -135,41 +137,45 @@ class TrailerService implements TrailerApi {
         return convert(trailer);
     }
 
+
+    //TODO Na ten moment aplikacja pozwala na przypisanie naczepy do pojazdu jeżeli użytkownik nie określi początku
+    // lub końca czasu przypisania, jednak konieczne jest ustalenie zachowania aplikacji na taką ewentualność lub
+    // ustalenie jednakowej interpretacji nieokreślonych stanów początku lub końca przypisania
+
+    //TODO Utworzyć osobną metodę do aktualizacji obecnych stanów przypisań (w razie potrzeby zaktualizowania pustych
+    // wartości początku albo końca przypisania) oraz dodać warunek nie pozwalający na
+    // "planowanie przypisań" z przeszłości.
     @Transactional
     @Override
     public TrailerDTO assignTrailerByBusinessId(UUID uuid, UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
-
-        if (updateAssignmentTrailerCommand.startPeriod().isEmpty() &&
-                updateAssignmentTrailerCommand.endPeriod().isEmpty() && updateAssignmentTrailerCommand.truckId().isPresent()) {
-            throw new IllegalStateException("Wrong operation to unassign a truck");
+        if (updateAssignmentTrailerCommand.startPeriod().isPresent()){
+            if (updateAssignmentTrailerCommand.startPeriod().get().isBefore(Instant.now())) {
+                throw new IllegalArgumentException("Cannot assign a trailer for a past date");
+            }
+        }
+        if (updateAssignmentTrailerCommand.endPeriod().isPresent()){
+            if (updateAssignmentTrailerCommand.endPeriod().get().isBefore(Instant.now())) {
+                throw new IllegalArgumentException("Cannot assign a trailer for a past date");
+            }
         }
 
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
-        Truck truck;
 
-        if (updateAssignmentTrailerCommand.truckId().isPresent()) {
-            truck = truckRepository.findByBusinessId(updateAssignmentTrailerCommand.truckId().get())
-                    .orElseThrow(() -> new NoSuchElementException("No truck with id " + updateAssignmentTrailerCommand.truckId().get()));
-        } else {
+        if (updateAssignmentTrailerCommand.truckId().isEmpty()) {
             throw new NoSuchElementException("Truck business id is needed in this operation");
         }
 
-        try {
-            if (trailer.isInUse(updateAssignmentTrailerCommand.startPeriod().orElse(null), updateAssignmentTrailerCommand.endPeriod().orElse(null))) {
-                throw new IllegalStateException("The trailer is in use during the specified period.");
-            }
-        } catch (IllegalStateException e) {
-            throw e;
+        Truck truck = truckRepository.findByBusinessId(updateAssignmentTrailerCommand.truckId().get())
+                .orElseThrow(() -> new NoSuchElementException("No truck with id " + updateAssignmentTrailerCommand.truckId().get()));
+
+        if (trailer.isInUse(updateAssignmentTrailerCommand.startPeriod().orElse(null), updateAssignmentTrailerCommand.endPeriod().orElse(null))) {
+            throw new IllegalStateException("The trailer is in use during the specified period.");
         }
 
         if (updateAssignmentTrailerCommand.startPeriod().isPresent() && updateAssignmentTrailerCommand.endPeriod().isPresent()) {
             if (updateAssignmentTrailerCommand.endPeriod().get().isBefore(updateAssignmentTrailerCommand.startPeriod().get())) {
-                try {
-                    throw new IllegalStateException("End period is before start period");
-                } catch (IllegalStateException e) {
-                    throw e;
-                }
+                throw new IllegalStateException("End period is before start period");
             }
         }
 
@@ -179,11 +185,9 @@ class TrailerService implements TrailerApi {
         trailer.setEndPeriodDate(updateAssignmentTrailerCommand.endPeriod().orElse(null));
         trailer.setCurrentTruckBusinessId(updateAssignmentTrailerCommand.truckId().orElse(null));
 
-
         truck.setStartPeriodDate(updateAssignmentTrailerCommand.startPeriod().orElse(null));
         truck.setEndPeriodDate(updateAssignmentTrailerCommand.endPeriod().orElse(null));
         truck.setCurrentTrailerBusinessId(trailer.getBusinessId());
-
 
         var tth = new TruckTrailerHistory();
 
