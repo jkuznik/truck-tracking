@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-public record UpdateTruckCommand(
+public record UpdateAssignmentCommand(
         Optional<Instant> startPeriod,
         Optional<Instant> endPeriod,
         Optional<UUID> trailerId) {

@@ -29,7 +29,6 @@ public class TrailerController {
 
         return ResponseEntity.ok(trailerService.getAllTrailers(pageNumber, pageSize));
     }
-
     @GetMapping("/{uuid}")
     public ResponseEntity<TrailerDTO> getTrailer(@PathVariable String uuid) {
         TrailerDTO trailerByBusinessId = trailerService.getTrailerByBusinessId(UUID.fromString(uuid));
@@ -49,24 +48,24 @@ public class TrailerController {
     }
 
     @PatchMapping("/{uuid}")
-    public ResponseEntity<TrailerDTO> updateTrailerByBusinessId(@PathVariable String uuid, @RequestBody UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) {
+    public ResponseEntity<TrailerDTO> updateCrossHitchTrailerValue(@PathVariable String uuid, @RequestBody UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) {
 
-        return ResponseEntity.ok(trailerService.updateCrossHitchTrailerByBusinessId(UUID.fromString(uuid), updateCrossHitchTrailerCommand));
+        return ResponseEntity.ok(trailerService.updateCrossHitchTrailerValue(UUID.fromString(uuid), updateCrossHitchTrailerCommand));
     }
 
     @PatchMapping("/{uuid}/assign-manage")
-    public ResponseEntity<TrailerDTO> assignTrailerManage(@PathVariable String uuid, @RequestBody UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
+    public ResponseEntity<TrailerDTO> assignTrailer(@PathVariable String uuid, @RequestBody UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
 
         return ResponseEntity.status(200).body(trailerService.assignTrailerByBusinessId(UUID.fromString(uuid), updateAssignmentTrailerCommand));
     }
 
     @PatchMapping("/{uuid}/unassign-manage")
-    public ResponseEntity<TrailerDTO> unassignTrailerManage(@PathVariable String uuid, @RequestBody UnassignTrailerCommand updateAssignmentTrailerCommand) {
+    public ResponseEntity<TrailerDTO> unassignTrailer(@PathVariable String uuid, @RequestBody UnassignTrailerCommand updateAssignmentTrailerCommand) {
         return ResponseEntity.status(200).body(trailerService.unassignTrailerByBusinessId(UUID.fromString(uuid), updateAssignmentTrailerCommand));
     }
 
     @PatchMapping("/{uuid}/cross-hitch")
-    public ResponseEntity<String> crossHitchTrailerByBusinessId(@PathVariable String uuid, @RequestBody UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
+    public ResponseEntity<String> crossHitchOperation(@PathVariable String uuid, @RequestBody UpdateAssignmentTrailerCommand updateAssignmentTrailerCommand) {
         TrailerDTO processingTrailer = trailerService.getTrailerByBusinessId(UUID.fromString(uuid));
 
         if (!processingTrailer.isCrossHitch()) {

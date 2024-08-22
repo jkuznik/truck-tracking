@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
-import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
+import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateAssignmentCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 
 import java.util.UUID;
@@ -22,7 +22,7 @@ public interface TruckApi {
     Page<TruckDTO> getAllTrucksUsedInLastMonth(Integer pageNumber, Integer pageSize);
 
     @Transactional
-    TruckDTO updateTruckAssignByBusinessId(@NotNull UUID uuid, @NotNull @Valid UpdateTruckCommand updateTruckCommand);
+    TruckDTO updateTruckAssignByBusinessId(@NotNull UUID uuid, @NotNull @Valid UpdateAssignmentCommand updateAssignmentCommand);
 
     @Transactional
     void deleteTruckByBusinessId(@NotNull UUID uuid);

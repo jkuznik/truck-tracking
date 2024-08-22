@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.jkuznik.trucktracking.domain.shared.PlateNumberExistException;
 import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UnassignTrailerCommand;
@@ -37,7 +38,7 @@ class TrailerService implements TrailerApi {
     public TrailerDTO addTrailer(AddTrailerCommand addTrailerCommand) {
         Optional<Trailer> existTrailer = trailerRepository.findByRegisterPlateNumber(addTrailerCommand.registerPlateNumber());
         if (existTrailer.isPresent()) {
-            throw new IllegalStateException("Trailer with " + addTrailerCommand.registerPlateNumber() + " plate number already exists");
+            throw new PlateNumberExistException("Trailer with " + addTrailerCommand.registerPlateNumber() + " plate number already exists");
         }
 
         return convert(trailerRepository.save(new Trailer(
@@ -92,7 +93,7 @@ class TrailerService implements TrailerApi {
 
     @Transactional
     @Override
-    public TrailerDTO updateCrossHitchTrailerByBusinessId(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) {
+    public TrailerDTO updateCrossHitchTrailerValue(UUID uuid, UpdateCrossHitchTrailerCommand updateCrossHitchTrailerCommand) {
         Trailer trailer = trailerRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("No trailer with business id " + uuid));
 

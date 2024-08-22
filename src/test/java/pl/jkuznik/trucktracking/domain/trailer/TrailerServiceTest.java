@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+import pl.jkuznik.trucktracking.domain.shared.PlateNumberExistException;
 import pl.jkuznik.trucktracking.domain.trailer.api.TrailerApi;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.trailer.api.command.UnassignTrailerCommand;
@@ -168,7 +169,7 @@ class TrailerServiceTest {
             //then
             var exception = catchException(() -> trailerApi.addTrailer(addTrailerCommand));
 
-            assertThat(exception).isInstanceOf(RuntimeException.class);
+            assertThat(exception).isInstanceOf(PlateNumberExistException.class);
             assertThat(exception.getMessage()).isEqualTo("Trailer with " + addTrailerCommand.registerPlateNumber() + " plate number already exists");
         }
 
@@ -206,7 +207,7 @@ class TrailerServiceTest {
             when(trailerRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTrailer));
 
             //then
-            TrailerDTO trailerDTO = trailerApi.updateCrossHitchTrailerByBusinessId(TRAILER_BUSINESS_ID, updateCommand);
+            TrailerDTO trailerDTO = trailerApi.updateCrossHitchTrailerValue(TRAILER_BUSINESS_ID, updateCommand);
 
             assertThat(trailerDTO.isCrossHitch()).isFalse();
         }
@@ -221,7 +222,7 @@ class TrailerServiceTest {
 
             //then
             var exception = catchException(() ->
-                    trailerApi.updateCrossHitchTrailerByBusinessId(TRAILER_BUSINESS_ID, updateCommand));
+                    trailerApi.updateCrossHitchTrailerValue(TRAILER_BUSINESS_ID, updateCommand));
 
             assertThat(exception).isInstanceOf(NoSuchElementException.class);
             assertThat(exception.getMessage()).isEqualTo("No trailer with business id " + TRAILER_BUSINESS_ID);

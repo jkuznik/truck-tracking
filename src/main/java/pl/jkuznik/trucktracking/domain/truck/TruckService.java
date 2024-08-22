@@ -6,11 +6,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.jkuznik.trucktracking.domain.shared.PlateNumberExistException;
 import pl.jkuznik.trucktracking.domain.trailer.Trailer;
 import pl.jkuznik.trucktracking.domain.trailer.TrailerRepository;
 import pl.jkuznik.trucktracking.domain.truck.api.TruckApi;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
-import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
+import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateAssignmentCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepositoryImpl;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
@@ -38,7 +39,7 @@ class TruckService implements TruckApi {
         Optional<Truck> byRegisterPlateNumber = truckRepository.findByRegisterPlateNumber(newTruck.registerPlateNumber());
 
         if (byRegisterPlateNumber.isPresent()) {
-            throw new RuntimeException("Truck with " + newTruck.registerPlateNumber() + " plate number already exists");
+            throw new PlateNumberExistException("Truck with " + newTruck.registerPlateNumber() + " plate number already exists");
         }
 
         return convert(truckRepository.save(new Truck(
@@ -76,27 +77,27 @@ class TruckService implements TruckApi {
 
     @Transactional
     @Override
-    public TruckDTO updateTruckAssignByBusinessId(UUID uuid, UpdateTruckCommand updateTruckCommand) {
+    public TruckDTO updateTruckAssignByBusinessId(UUID uuid, UpdateAssignmentCommand updateAssignmentCommand) {
         Truck truck = truckRepository.findByBusinessId(uuid)
                 .orElseThrow(() -> new NoSuchElementException("Truck with business id " + uuid.toString() + " not found"));
 
         Trailer trailer;
 
-        if (updateTruckCommand.trailerId().isPresent()) {
-            trailer = trailerRepository.findByBusinessId(updateTruckCommand.trailerId().get())
-                    .orElseThrow(() -> new NoSuchElementException("No trailer with id " + updateTruckCommand.trailerId().get()));
+        if (updateAssignmentCommand.trailerId().isPresent()) {
+            trailer = trailerRepository.findByBusinessId(updateAssignmentCommand.trailerId().get())
+                    .orElseThrow(() -> new NoSuchElementException("No trailer with id " + updateAssignmentCommand.trailerId().get()));
         } else {
             throw new NoSuchElementException("Trailer business id is needed in this operation");
         }
 
         try {
-            trailer.isInUse(updateTruckCommand.startPeriod().orElse(null), updateTruckCommand.endPeriod().orElse(null));
+            trailer.isInUse(updateAssignmentCommand.startPeriod().orElse(null), updateAssignmentCommand.endPeriod().orElse(null));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
 
-        if (updateTruckCommand.startPeriod().isPresent() && updateTruckCommand.endPeriod().isPresent()) {
-            if (updateTruckCommand.endPeriod().get().isBefore(updateTruckCommand.startPeriod().get())) {
+        if (updateAssignmentCommand.startPeriod().isPresent() && updateAssignmentCommand.endPeriod().isPresent()) {
+            if (updateAssignmentCommand.endPeriod().get().isBefore(updateAssignmentCommand.startPeriod().get())) {
                 try {
                     throw new Exception("End period is before start period");
                 } catch (Exception e) {
@@ -105,17 +106,17 @@ class TruckService implements TruckApi {
             }
         }
 
-        truck.setStartPeriodDate(updateTruckCommand.startPeriod().orElse(null));
-        truck.setEndPeriodDate(updateTruckCommand.endPeriod().orElse(null));
-        if (updateTruckCommand.startPeriod().isEmpty() && updateTruckCommand.endPeriod().isEmpty()) {
+        truck.setStartPeriodDate(updateAssignmentCommand.startPeriod().orElse(null));
+        truck.setEndPeriodDate(updateAssignmentCommand.endPeriod().orElse(null));
+        if (updateAssignmentCommand.startPeriod().isEmpty() && updateAssignmentCommand.endPeriod().isEmpty()) {
             truck.setCurrentTrailerBusinessId(null);
         } else {
             truck.setCurrentTrailerBusinessId(trailer.getBusinessId());
         }
 
-        trailer.setStartPeriodDate(updateTruckCommand.startPeriod().orElse(null));
-        trailer.setEndPeriodDate(updateTruckCommand.endPeriod().orElse(null));
-        if (updateTruckCommand.startPeriod().isEmpty() && updateTruckCommand.endPeriod().isEmpty()) {
+        trailer.setStartPeriodDate(updateAssignmentCommand.startPeriod().orElse(null));
+        trailer.setEndPeriodDate(updateAssignmentCommand.endPeriod().orElse(null));
+        if (updateAssignmentCommand.startPeriod().isEmpty() && updateAssignmentCommand.endPeriod().isEmpty()) {
             trailer.setCurrentTruckBusinessId(null);
         } else {
             trailer.setCurrentTruckBusinessId(truck.getBusinessId());
@@ -125,10 +126,10 @@ class TruckService implements TruckApi {
 
         tth.setTrailer(trailer);
         tth.setTruck(truck);
-        if (updateTruckCommand.startPeriod().isPresent())
-            tth.setStartPeriodDate(updateTruckCommand.startPeriod().get());
-        if (updateTruckCommand.endPeriod().isPresent())
-            tth.setEndPeriodDate(updateTruckCommand.endPeriod().get());
+        if (updateAssignmentCommand.startPeriod().isPresent())
+            tth.setStartPeriodDate(updateAssignmentCommand.startPeriod().get());
+        if (updateAssignmentCommand.endPeriod().isPresent())
+            tth.setEndPeriodDate(updateAssignmentCommand.endPeriod().get());
 
         return convert(truck);
     }

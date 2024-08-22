@@ -26,4 +26,9 @@ public class ControllerExceptionHandler {
     public final ResponseEntity<String> handleAllExceptions(Exception ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(PlateNumberExistException.class)
+    public final ResponseEntity<String> handleTruckAlreadyExistException(PlateNumberExistException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
 }

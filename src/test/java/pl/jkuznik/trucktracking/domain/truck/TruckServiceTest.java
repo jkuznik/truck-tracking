@@ -12,20 +12,19 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
-import pl.jkuznik.trucktracking.domain.bootstrap.Bootstrap;
-import pl.jkuznik.trucktracking.domain.shared.TestEntityManagerFactoryImpl;
+import pl.jkuznik.trucktracking.domain.shared.PlateNumberExistException;
 import pl.jkuznik.trucktracking.domain.trailer.Trailer;
 import pl.jkuznik.trucktracking.domain.trailer.TrailerRepository;
-import pl.jkuznik.trucktracking.domain.trailer.api.command.AddTrailerCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.TruckApi;
 import pl.jkuznik.trucktracking.domain.truck.api.command.AddTruckCommand;
-import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateTruckCommand;
+import pl.jkuznik.trucktracking.domain.truck.api.command.UpdateAssignmentCommand;
 import pl.jkuznik.trucktracking.domain.truck.api.dto.TruckDTO;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TTHRepositoryImpl;
 import pl.jkuznik.trucktracking.domain.truckTrailerHistory.TruckTrailerHistory;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -115,7 +114,66 @@ class TruckServiceTest {
     }
 
     @Nested
-    class AddMethodsTests {
+    class GetMethodsTests {
+        @Test
+        void getTruckByBusinessIdWhenTruckExist() {
+            //when
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
+
+            //then
+            TruckDTO result = truckApi.getTruckByBusinessId(TRAILER_BUSINESS_ID);
+
+            assertThat(result.truckPlateNumber()).isEqualTo(testTruck.getRegisterPlateNumber());
+        }
+
+        @Test
+        void getTruckByBusinessIdWhenTruckNotExist() {
+            //when
+            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.empty());
+
+            //then
+            var exception = catchException(() -> truckApi.getTruckByBusinessId(TRUCK_BUSINESS_ID));
+
+            assertThat(exception).isInstanceOf(NoSuchElementException.class);
+            assertThat(exception.getMessage()).isEqualTo("Truck with business id " + TRUCK_BUSINESS_ID + " not found");
+        }
+
+        @Test
+        void getAllTrucks() {
+            PageImpl<Truck> truckPage = new PageImpl<>(List.of(testTruck));
+
+            //when
+            when(truckRepository.findAll(PageRequest.of(0,25))).thenReturn(truckPage);
+
+            //then
+            Page<TruckDTO> trucks = truckApi.getAllTrucks(1, 25);
+
+            assertThat(trucks.getContent().size()).isEqualTo(1);
+            assertThat(trucks.getContent().getFirst().truckPlateNumber()).isEqualTo(testTruck.getRegisterPlateNumber());
+        }
+
+        @Test
+        void getTrucksUsedInLastMonth() {
+            //given
+            List<Truck> trucks = List.of(testTruck, secondTestTruck);
+            Page<Truck> truckPage = new PageImpl<>(trucks);
+
+            var truckDTO = new TruckDTO(testTruck.getRegisterPlateNumber(), testTruck.getBusinessId(),
+                    testTruck.getStartPeriodDate(), testTruck.getEndPeriodDate(), testTruck.getCurrentTrailerBusinessId());
+
+            //when
+            when(tthRepository.getTruckUsedInLastMonth(PageRequest.of(0,25))).thenReturn(truckPage);
+
+            //then
+            Page<TruckDTO> result = truckApi.getAllTrucksUsedInLastMonth(1, 25);
+
+            assertThat(result).contains(truckDTO);
+        }
+
+    }
+
+    @Nested
+    class PostMethodsTests {
 
         @Test
         void addTruckWhenCommandIsValidAndTruckNotExist() {
@@ -144,8 +202,7 @@ class TruckServiceTest {
             //then
             var exception = catchException(() -> truckApi.addTruck(addTruckCommand));
 
-            //TODO dodać swoje wyjątki
-            assertThat(exception).isExactlyInstanceOf(RuntimeException.class);
+            assertThat(exception).isExactlyInstanceOf(PlateNumberExistException.class);
             assertThat(exception.getMessage()).isEqualTo("Truck with " + addTruckCommand.registerPlateNumber() + " plate number already exists");
         }
 
@@ -171,64 +228,16 @@ class TruckServiceTest {
         }
 
     }
-    @Nested
-    class GetMethodsTests {
-
-
-        @Test
-        void getTruckByBusinessIdWhenTruckExist() {
-            //when
-            when(truckRepository.findByBusinessId(any(UUID.class))).thenReturn(Optional.of(testTruck));
-
-            //then
-            TruckDTO result = truckApi.getTruckByBusinessId(TRAILER_BUSINESS_ID);
-
-            assertThat(result.truckPlateNumber()).isEqualTo(testTruck.getRegisterPlateNumber());
-        }
-
-        @Test
-        void getAllTrucks() {
-            PageImpl<Truck> truckPage = new PageImpl<>(List.of(testTruck));
-
-            //when
-            when(truckRepository.findAll(PageRequest.of(0,25))).thenReturn(truckPage);
-
-            //then
-            Page<TruckDTO> trucks = truckApi.getAllTrucks(1, 25);
-
-            assertThat(trucks.getContent().size()).isEqualTo(1);
-            assertThat(trucks.getContent().getFirst().truckPlateNumber()).isEqualTo(testTruck.getRegisterPlateNumber());
-        }
-
-        @Test
-        void getTruckUsedInLastMonth() {
-            //given
-            List<Truck> trucks = List.of(testTruck, secondTestTruck);
-            Page<Truck> truckPage = new PageImpl<>(trucks);
-
-            var truckDTO = new TruckDTO(testTruck.getRegisterPlateNumber(), testTruck.getBusinessId(),
-                    testTruck.getStartPeriodDate(), testTruck.getEndPeriodDate(), testTruck.getCurrentTrailerBusinessId());
-
-            //when
-            when(tthRepository.getTruckUsedInLastMonth(PageRequest.of(0,25))).thenReturn(truckPage);
-
-            //then
-            Page<TruckDTO> result = truckApi.getAllTrucksUsedInLastMonth(1, 25);
-
-            assertThat(result).contains(truckDTO);
-        }
-
-    }
 
     @Nested
-    class UpdateMethodsTests {
+    class PatchMethodsTests {
 
         @Test
-        void updateTruckAssignByBusinessId() {
+        void updateTruckAssignByBusinessIdWhenCommandIsValidAndTruckExist() {
             //given
             Instant newStartPeriodTime = Instant.parse("2024-01-03T00:00:00Z");
             Instant newEndPeriodTime = Instant.parse("2024-01-04T00:00:00Z");
-            var updateTruckCommand = new UpdateTruckCommand(Optional.of(newStartPeriodTime), Optional.of(newEndPeriodTime),
+            var updateTruckCommand = new UpdateAssignmentCommand(Optional.of(newStartPeriodTime), Optional.of(newEndPeriodTime),
                     Optional.of(secondTestTrailer.getBusinessId()));
 
             //when
@@ -242,6 +251,15 @@ class TruckServiceTest {
             assertThat(result.startPeriod()).isEqualTo(newStartPeriodTime);
             assertThat(result.endPeriod()).isEqualTo(newEndPeriodTime);
             assertThat(result.currentTrailerBusinessId()).isEqualTo(secondTestTrailer.getBusinessId());
+        }
+
+        @Test
+        void updateTruckAssignByBusinessIdWhenCommandIsNull() {
+            //when
+            var exception = catchException(() -> truckApi.updateTruckAssignByBusinessId(TRUCK_BUSINESS_ID, null));
+
+            //then
+            assertThat(exception).isExactlyInstanceOf(ConstraintViolationException.class);
         }
     }
 
