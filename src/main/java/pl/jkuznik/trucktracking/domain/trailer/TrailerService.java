@@ -137,7 +137,6 @@ class TrailerService implements TrailerApi {
         return convert(trailer);
     }
 
-
     //TODO Na ten moment aplikacja pozwala na przypisanie naczepy do pojazdu jeżeli użytkownik nie określi początku
     // lub końca czasu przypisania, jednak konieczne jest ustalenie zachowania aplikacji na taką ewentualność lub
     // ustalenie jednakowej interpretacji nieokreślonych stanów początku lub końca przypisania
