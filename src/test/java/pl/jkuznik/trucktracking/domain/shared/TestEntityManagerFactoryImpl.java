@@ -1,4 +1,4 @@
-package pl.jkuznik.trucktracking.domain.truck;
+package pl.jkuznik.trucktracking.domain.shared;
 
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;

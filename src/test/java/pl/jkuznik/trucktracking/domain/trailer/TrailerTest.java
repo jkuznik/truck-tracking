@@ -10,13 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TrailerTest {
 
     private final Trailer TRAILER = new Trailer();
-    private final Instant CURRENT_START_DATE = Instant.parse("2020-06-10T00:00:00Z");
-    private final Instant CURRENT_END_DATE = Instant.parse("2020-06-20T00:00:00Z");
-    private final Instant BEFORE_START_DATE = Instant.parse("2020-06-09T00:00:00Z");
-    private final Instant AFTER_START_DATE = Instant.parse("2020-06-11T00:00:00Z");
-    private final Instant BETWEEN_START_AND_END_DATE = Instant.parse("2020-06-15T00:00:00Z");
-    private final Instant BEFORE_END_DATE = Instant.parse("2020-06-19T00:00:00Z");
-    private final Instant AFTER_END_DATE = Instant.parse("2020-06-21T00:00:00Z");
+    private final Instant CURRENT_START_DATE = Instant.now().plusSeconds(10);
+    private final Instant CURRENT_END_DATE = Instant.now().plusSeconds(20);
+    private final Instant BEFORE_START_DATE = Instant.now().plusSeconds(5);
+    private final Instant BETWEEN_START_AND_END_DATE = Instant.now().plusSeconds(15);
+    private final Instant AFTER_END_DATE = Instant.now().plusSeconds(25);
 
     @Test
     void isInUseWhenAllValuesArePresentAndShouldReturnTrue() {

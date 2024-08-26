@@ -38,8 +38,8 @@ class TrailerControllerTest {
     private final String TRAILER_REGISTER_NUMBER = "TRAILER001";
     private final UUID TRAILER_ID = UUID.randomUUID();
     private final UUID TRUCK_ID = UUID.randomUUID();
-    private final Instant START_PERIOD_TIME = Instant.parse("2024-01-01T00:00:00Z");
-    private final Instant END_PERIOD_TIME = Instant.parse("2024-01-01T00:00:00Z");
+    private final Instant START_PERIOD_TIME = Instant.now().minusSeconds(10);
+    private final Instant END_PERIOD_TIME = Instant.now().plusSeconds(20);
     private TrailerDTO trailerDTO;
     private TrailerDTO trailerDTO2;
     private TrailerDTO trailerDTO3;
