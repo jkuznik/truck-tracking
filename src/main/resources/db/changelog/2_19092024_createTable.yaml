@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: trailer
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: version
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: register_plate_number
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: business_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: false
+              - column:
+                  name: cross_hitch
+                  type: boolean
+              - column:
+                  name: start_period_date
+                  type: timestamp
+              - column:
+                  name: end_period_date
+                  type: timestamp
+              - column:
+                  name: current_truck_business_id
+                  type: varchar(255)
