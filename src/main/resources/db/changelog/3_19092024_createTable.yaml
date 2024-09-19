@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: truck_trailer_history
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: version
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: truck_id
+                  type: bigint
+              - column:
+                  name: trailer_id
+                  type: bigint
+              - column:
+                  name: start_period_date
+                  type: timestamp
+              - column:
+                  name: end_period_date
+                  type: timestamp
+        - addForeignKeyConstraint:
+            constraintName: fk_truck
+            baseTableName: truck_trailer_history
+            baseColumnNames: truck_id
+            referencedTableName: truck
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            constraintName: fk_trailer
+            baseTableName: truck_trailer_history
+            baseColumnNames: trailer_id
+            referencedTableName: trailer
+            referencedColumnNames: id

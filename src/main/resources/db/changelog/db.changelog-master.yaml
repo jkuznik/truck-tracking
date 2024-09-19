@@ -1,11 +1,11 @@
 databaseChangeLog:
   - include:
-      file: /db/changelog/001changelog.xml
+      file: db/changelog/1_19092024_createTable.yaml
   - include:
-      file: /db/changelog/002changelog.xml
+      file: db/changelog/2_19092024_createTable.yaml
   - include:
-      file: /db/changelog/003changelog.xml
+      file: db/changelog/3_19092024_createTable.yaml
   - include:
-      file: /db/changelog/004changelog.xml
+      file: db/changelog/4_19092024_insertValue.yaml
   - include:
-      file: /db/changelog/005changelog.xml
+      file: db/changelog/5_19092024_insertValue.yaml
