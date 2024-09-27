@@ -1,5 +1,7 @@
 ![fireTmsLogo](/src/main/resources/static/mainLogo.382e4c42.svg)
 # TRUCK TRACKING
+
+![Logo](/src/main/resources/static/ScreenShot.png)
  
 ## Description
 #### Truck tracking is my implementation of a recruitment task for Fire TMS. <br>The application is configured to run on two different profiles: test and prod.
@@ -28,4 +30,4 @@
 #### Nazywam się Janusz Kuźnik, mam 35 lat i od ponad roku uczę się tworzyć oprogramowanie z nastawieniem pracy jako programista w przyszłości.
 #### Projekt "Truck Tracking" przesyłam Państwu poza rekrutacją jako przykładowe rozwiązanie założeń jednego z zadań rekrutacyjnych firmy Fire TMS. Jednocześnie traktuję to jako formę prezentacji mojej osoby wraz z oczywistą chęcią z mojej strony na podjęcia współpracy w przyszłości.
 #### Zachęcam do kontaktu ze mną, z przyjemnością opowiem o realizacji nieniejszego projektu.
-#### ***janusz.kuznik89@gmail.com***
+#### ***janusz.kuznik0@gmail.com***
